@@ -1,0 +1,24 @@
+{
+  "SchemaVersion": "1.0",
+  "CreatedAtUtc": "2026-05-07T05:38:43.0286531+00:00",
+  "UpdatedAtUtc": "2026-05-07T05:38:43.0286531+00:00",
+  "Paths": {
+    "RathenaPath": "E:\\Ragnarok\\Testes\\rAthena_teste",
+    "PatchPath": "E:\\Ragnarok\\Testes\\Patch_teste",
+    "GrfRepositoryPath": "E:\\Ragnarok\\Conteudo Ragnarok\\GRF\u0027S",
+    "GrfEditorPath": "C:\\Program Files (x86)\\GRF Editor"
+  },
+  "EpisodeProfile": {
+    "Name": "progressive-current",
+    "Mode": "PreRenewal",
+    "ClientDate": null,
+    "Notes": "Progressive server profile; mode may change in future episodes."
+  },
+  "IsProgressive": true,
+  "ClientDateStatus": "unknown",
+  "Notes": [
+    "Local manifest for repository paths only.",
+    "rAthena, Patch/client and GRF repositories remain the source of truth.",
+    "Current episode is treated as Pre-Renewal until build/log evidence says otherwise."
+  ]
+}

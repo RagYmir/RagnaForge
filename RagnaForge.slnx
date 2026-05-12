@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/backend/" />
+  <Folder Name="/backend/src/">
+    <Project Path="backend/src/RagnaForge.Application/RagnaForge.Application.csproj" />
+    <Project Path="backend/src/RagnaForge.Api/RagnaForge.Api.csproj" />
+    <Project Path="backend/src/RagnaForge.Cli/RagnaForge.Cli.csproj" />
+    <Project Path="backend/src/RagnaForge.Domain/RagnaForge.Domain.csproj" />
+    <Project Path="backend/src/RagnaForge.Infrastructure/RagnaForge.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/backend/tests/">
+    <Project Path="backend/tests/RagnaForge.Tests/RagnaForge.Tests.csproj" />
+  </Folder>
+</Solution>

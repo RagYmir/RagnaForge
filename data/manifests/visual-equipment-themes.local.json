@@ -1,0 +1,261 @@
+{
+  "SchemaVersion": "1.0",
+  "Scope": "equipment-visuals",
+  "CreatedAtUtc": "2026-05-07T07:09:10.2889384+00:00",
+  "UpdatedAtUtc": "2026-05-07T07:09:10.2889384+00:00",
+  "Themes": [
+    {
+      "Key": "angelical",
+      "DisplayName": "Angelical",
+      "Categories": [
+        "headgear",
+        "accessory",
+        "robe",
+        "shield",
+        "weapon"
+      ],
+      "EquipLocations": [
+        "Costume_Head_Top",
+        "Costume_Head_Mid",
+        "Costume_Head_Low",
+        "Costume_Garment",
+        "Left_Hand",
+        "Right_Hand"
+      ],
+      "Tags": [
+        "asas",
+        "luz",
+        "sagrado",
+        "divino"
+      ],
+      "ResourceNamePatterns": [
+        "angel",
+        "wing",
+        "holy",
+        "light",
+        "archangel"
+      ],
+      "Notes": [
+        "Tema para equipamentos visuais claros, sagrados e de asas."
+      ]
+    },
+    {
+      "Key": "sombrio",
+      "DisplayName": "Sombrio",
+      "Categories": [
+        "headgear",
+        "accessory",
+        "robe",
+        "shield",
+        "weapon"
+      ],
+      "EquipLocations": [
+        "Costume_Head_Top",
+        "Costume_Head_Mid",
+        "Costume_Head_Low",
+        "Costume_Garment",
+        "Left_Hand",
+        "Right_Hand"
+      ],
+      "Tags": [
+        "dark",
+        "morto-vivo",
+        "demonio",
+        "gothic"
+      ],
+      "ResourceNamePatterns": [
+        "dark",
+        "shadow",
+        "demon",
+        "death",
+        "lord_of_death",
+        "skull"
+      ],
+      "Notes": [
+        "Tema para equipamentos visuais escuros, demoniacos e goticos."
+      ]
+    },
+    {
+      "Key": "elemental",
+      "DisplayName": "Elemental",
+      "Categories": [
+        "headgear",
+        "accessory",
+        "robe",
+        "shield",
+        "weapon"
+      ],
+      "EquipLocations": [
+        "Costume_Head_Top",
+        "Costume_Head_Mid",
+        "Costume_Head_Low",
+        "Costume_Garment",
+        "Left_Hand",
+        "Right_Hand"
+      ],
+      "Tags": [
+        "fogo",
+        "agua",
+        "vento",
+        "terra",
+        "gelo"
+      ],
+      "ResourceNamePatterns": [
+        "fire",
+        "flame",
+        "water",
+        "wind",
+        "earth",
+        "ice",
+        "storm"
+      ],
+      "Notes": [
+        "Tema para equipamentos visuais ligados a elementos e efeitos naturais."
+      ]
+    },
+    {
+      "Key": "fofo",
+      "DisplayName": "Fofo",
+      "Categories": [
+        "headgear",
+        "accessory",
+        "robe"
+      ],
+      "EquipLocations": [
+        "Costume_Head_Top",
+        "Costume_Head_Mid",
+        "Costume_Head_Low",
+        "Costume_Garment"
+      ],
+      "Tags": [
+        "cute",
+        "pet",
+        "animal",
+        "chibi"
+      ],
+      "ResourceNamePatterns": [
+        "rabbit",
+        "cat",
+        "dog",
+        "poring",
+        "cute",
+        "loli"
+      ],
+      "Notes": [
+        "Tema para equipamentos visuais leves, mascotes e costumes carismaticos."
+      ]
+    },
+    {
+      "Key": "mecanico",
+      "DisplayName": "Mecanico",
+      "Categories": [
+        "headgear",
+        "accessory",
+        "robe",
+        "shield",
+        "weapon"
+      ],
+      "EquipLocations": [
+        "Costume_Head_Top",
+        "Costume_Head_Mid",
+        "Costume_Head_Low",
+        "Costume_Garment",
+        "Left_Hand",
+        "Right_Hand"
+      ],
+      "Tags": [
+        "metal",
+        "robo",
+        "laboratorio",
+        "engrenagem"
+      ],
+      "ResourceNamePatterns": [
+        "mech",
+        "robot",
+        "metal",
+        "gear",
+        "engine",
+        "clock"
+      ],
+      "Notes": [
+        "Tema para equipamentos visuais tecnologicos, mecanicos ou industriais."
+      ]
+    },
+    {
+      "Key": "sazonal",
+      "DisplayName": "Sazonal",
+      "Categories": [
+        "headgear",
+        "accessory",
+        "robe",
+        "shield",
+        "weapon"
+      ],
+      "EquipLocations": [
+        "Costume_Head_Top",
+        "Costume_Head_Mid",
+        "Costume_Head_Low",
+        "Costume_Garment",
+        "Left_Hand",
+        "Right_Hand"
+      ],
+      "Tags": [
+        "natal",
+        "halloween",
+        "evento",
+        "festival"
+      ],
+      "ResourceNamePatterns": [
+        "xmas",
+        "christmas",
+        "halloween",
+        "event",
+        "festival",
+        "summer"
+      ],
+      "Notes": [
+        "Tema para equipamentos visuais de eventos temporarios e pacotes comemorativos."
+      ]
+    },
+    {
+      "Key": "guerra",
+      "DisplayName": "Guerra",
+      "Categories": [
+        "headgear",
+        "accessory",
+        "robe",
+        "shield",
+        "weapon"
+      ],
+      "EquipLocations": [
+        "Costume_Head_Top",
+        "Costume_Head_Mid",
+        "Costume_Head_Low",
+        "Costume_Garment",
+        "Left_Hand",
+        "Right_Hand"
+      ],
+      "Tags": [
+        "woe",
+        "castelo",
+        "militar",
+        "batalha"
+      ],
+      "ResourceNamePatterns": [
+        "war",
+        "battle",
+        "guard",
+        "castle",
+        "knight",
+        "shield"
+      ],
+      "Notes": [
+        "Tema para equipamentos visuais de combate, castelos e Guerra do Emperium."
+      ]
+    }
+  ],
+  "Notes": [
+    "Visual equipment themes are local metadata used to classify in-game visual equipment.",
+    "They do not replace rAthena, Patch/client or GRF repositories as source of truth."
+  ]
+}

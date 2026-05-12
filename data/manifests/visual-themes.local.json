@@ -1,0 +1,208 @@
+{
+  "SchemaVersion": "1.0",
+  "CreatedAtUtc": "2026-05-07T07:03:11.4617754+00:00",
+  "UpdatedAtUtc": "2026-05-07T07:03:11.4617754+00:00",
+  "Themes": [
+    {
+      "Key": "angelical",
+      "DisplayName": "Angelical",
+      "Categories": [
+        "headgear",
+        "robe",
+        "shield",
+        "weapon"
+      ],
+      "Tags": [
+        "asas",
+        "luz",
+        "sagrado",
+        "divino"
+      ],
+      "ResourceNamePatterns": [
+        "angel",
+        "wing",
+        "holy",
+        "light",
+        "archangel"
+      ],
+      "Notes": [
+        "Tema para visuais claros, sagrados e de asas."
+      ]
+    },
+    {
+      "Key": "sombrio",
+      "DisplayName": "Sombrio",
+      "Categories": [
+        "headgear",
+        "robe",
+        "shield",
+        "weapon",
+        "monster"
+      ],
+      "Tags": [
+        "dark",
+        "morto-vivo",
+        "demonio",
+        "gothic"
+      ],
+      "ResourceNamePatterns": [
+        "dark",
+        "shadow",
+        "demon",
+        "death",
+        "lord_of_death",
+        "skull"
+      ],
+      "Notes": [
+        "Tema para visuais escuros, demonios, caveiras e mortos-vivos."
+      ]
+    },
+    {
+      "Key": "elemental",
+      "DisplayName": "Elemental",
+      "Categories": [
+        "headgear",
+        "robe",
+        "shield",
+        "weapon",
+        "monster",
+        "map"
+      ],
+      "Tags": [
+        "fogo",
+        "agua",
+        "vento",
+        "terra",
+        "gelo"
+      ],
+      "ResourceNamePatterns": [
+        "fire",
+        "flame",
+        "water",
+        "wind",
+        "earth",
+        "ice",
+        "storm"
+      ],
+      "Notes": [
+        "Tema para assets ligados a elementos e efeitos naturais."
+      ]
+    },
+    {
+      "Key": "fofo",
+      "DisplayName": "Fofo",
+      "Categories": [
+        "headgear",
+        "robe",
+        "npc",
+        "monster"
+      ],
+      "Tags": [
+        "cute",
+        "pet",
+        "animal",
+        "chibi"
+      ],
+      "ResourceNamePatterns": [
+        "rabbit",
+        "cat",
+        "dog",
+        "poring",
+        "cute",
+        "loli"
+      ],
+      "Notes": [
+        "Tema para visuais leves, mascotes e costumes carismaticos."
+      ]
+    },
+    {
+      "Key": "mecanico",
+      "DisplayName": "Mecanico",
+      "Categories": [
+        "headgear",
+        "robe",
+        "shield",
+        "weapon",
+        "monster",
+        "map"
+      ],
+      "Tags": [
+        "metal",
+        "robo",
+        "laboratorio",
+        "engrenagem"
+      ],
+      "ResourceNamePatterns": [
+        "mech",
+        "robot",
+        "metal",
+        "gear",
+        "engine",
+        "clock"
+      ],
+      "Notes": [
+        "Tema para conteudo tecnologico, mecanico ou industrial."
+      ]
+    },
+    {
+      "Key": "sazonal",
+      "DisplayName": "Sazonal",
+      "Categories": [
+        "headgear",
+        "robe",
+        "npc",
+        "monster",
+        "map"
+      ],
+      "Tags": [
+        "natal",
+        "halloween",
+        "evento",
+        "festival"
+      ],
+      "ResourceNamePatterns": [
+        "xmas",
+        "christmas",
+        "halloween",
+        "event",
+        "festival",
+        "summer"
+      ],
+      "Notes": [
+        "Tema para eventos temporarios e pacotes comemorativos."
+      ]
+    },
+    {
+      "Key": "guerra",
+      "DisplayName": "Guerra",
+      "Categories": [
+        "headgear",
+        "robe",
+        "shield",
+        "weapon",
+        "map"
+      ],
+      "Tags": [
+        "woe",
+        "castelo",
+        "militar",
+        "batalha"
+      ],
+      "ResourceNamePatterns": [
+        "war",
+        "battle",
+        "guard",
+        "castle",
+        "knight",
+        "shield"
+      ],
+      "Notes": [
+        "Tema para visuais de combate, castelos e Guerra do Emperium."
+      ]
+    }
+  ],
+  "Notes": [
+    "Visual themes are local metadata used to classify assets and guide previews.",
+    "They do not replace rAthena, Patch/client or GRF repositories as source of truth."
+  ]
+}
