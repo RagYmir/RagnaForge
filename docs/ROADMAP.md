@@ -132,3 +132,13 @@ Status: em andamento, limitada a read-only, dry-run e diff-preview
   - parser binario read-only dedicado para `.rsw/.gnd`; ou
   - persistencia segura de `ClientDate`; ou
   - empacotamento local da aplicacao para uso diario.
+
+### Atualizacao 2026-05-12 - Preview Visual Real
+
+- Preview visual real read-only de icones/sprites (BMP/PNG): concluído.
+- Endpoint `POST /api/assets/preview` endurecido com bloqueio de path traversal e limpeza de temporários.
+- Frontend integrado com `PassiveAssetPreviewPanel` visual.
+- Proximo bloco recomendado:
+  - parser binario read-only dedicado para `.rsw/.gnd` (scan profundo sem string search); ou
+  - persistencia segura de `ClientDate` no manifest; ou
+  - suporte visual para formatos complexos (SPR/ACT) via conversão segura.

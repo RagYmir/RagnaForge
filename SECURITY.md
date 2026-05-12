@@ -5,6 +5,8 @@ O RagnaForge leva a segurança de arquivos de servidores e manipulação visual 
 ## Read-Only Mode
 No atual estado do projeto, o RagnaForge opera exclusivamente em modo **Read-Only** (Dry-Run / Diff-Preview). Não forneça chaves de banco de dados e não subverta as configurações de segurança inseridas pelo `ApiSafetyPolicy`.
 
+O preview visual de assets utiliza extração controlada em memória. Arquivos temporários são criados apenas para conversão imediata para DataURL e são removidos do disco logo após o processamento, sem persistência fora da sessão de leitura.
+
 ## Alertas sobre API Key e Configurações
 - A chave do administrador `X-RagnaForge-Api-Key` deve ficar sempre protegida localmente em arquivos `.env` ou settings do seu sistema operacional.
 - O seu arquivo com configurações locais (e possíveis Absolute Paths) **nunca** deve ser incluído no repositório. Mantenha `repositories.local.json` isolado.
