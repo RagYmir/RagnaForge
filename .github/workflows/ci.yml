@@ -40,4 +40,4 @@ jobs:
 
     - name: Test Frontend
       working-directory: ./frontend
-      run: npm run test --watchAll=false
+      run: npm run test

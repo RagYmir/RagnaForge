@@ -3,10 +3,10 @@
   "CreatedAtUtc": "2026-05-12T00:00:00Z",
   "UpdatedAtUtc": "2026-05-12T00:00:00Z",
   "Paths": {
-    "RathenaPath": "E:\\Ragnarok\\Testes\\rAthena_teste",
-    "PatchPath": "E:\\Ragnarok\\Testes\\Patch_teste",
-    "GrfRepositoryPath": "E:\\Ragnarok\\Conteudo Ragnarok\\GRFS",
-    "GrfEditorPath": "C:\\Program Files (x86)\\GRF Editor"
+    "RathenaPath": "<RATHENA_PATH>",
+    "PatchPath": "<PATCH_PATH>",
+    "GrfRepositoryPath": "<GRF_REPOSITORY_PATH>",
+    "GrfEditorPath": "<GRF_EDITOR_PATH>"
   },
   "EpisodeProfile": {
     "Name": "progressive-current",

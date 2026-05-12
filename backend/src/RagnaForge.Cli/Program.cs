@@ -1445,10 +1445,10 @@ RagnaForge CLI
 
 Usage:
   dotnet run --project backend/src/RagnaForge.Cli -- config init ^
-    --rathena "E:\Ragnarok\Testes\rAthena_teste" ^
-    --patch "E:\Ragnarok\Testes\Patch_teste" ^
-    --grfs "E:\Ragnarok\Conteudo Ragnarok\GRF'S" ^
-    --grf-editor "C:\Program Files (x86)\GRF Editor" ^
+    --rathena "<RATHENA_PATH>" ^
+    --patch "<PATCH_PATH>" ^
+    --grfs "<GRF_REPOSITORY_PATH>" ^
+    --grf-editor "<GRF_EDITOR_PATH>" ^
     --episode-name "progressive-current" ^
     --episode-mode pre-renewal
 
@@ -1466,10 +1466,10 @@ Usage:
     --max-grf-containers 20
 
   dotnet run --project backend/src/RagnaForge.Cli -- discover ^
-    --rathena "E:\Ragnarok\Testes\rAthena_teste" ^
-    --patch "E:\Ragnarok\Testes\Patch_teste" ^
-    --grfs "E:\Ragnarok\Conteudo Ragnarok\GRF'S" ^
-    --grf-editor "C:\Program Files (x86)\GRF Editor"
+    --rathena "<RATHENA_PATH>" ^
+    --patch "<PATCH_PATH>" ^
+    --grfs "<GRF_REPOSITORY_PATH>" ^
+    --grf-editor "<GRF_EDITOR_PATH>"
 
   dotnet run --project backend/src/RagnaForge.Cli -- grf index ^
     --config data\manifests\repositories.local.json ^
