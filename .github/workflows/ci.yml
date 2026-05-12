@@ -1,0 +1,43 @@
+name: RagnaForge CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET 10.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+        dotnet-quality: 'preview'
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Build Backend (RagnaForge.slnx)
+      run: dotnet build RagnaForge.slnx
+
+    - name: Test Backend
+      run: dotnet run --project backend\tests\RagnaForge.Tests\RagnaForge.Tests.csproj
+
+    - name: Install Frontend Dependencies
+      working-directory: ./frontend
+      run: npm ci
+
+    - name: Build Frontend
+      working-directory: ./frontend
+      run: npm run build
+
+    - name: Test Frontend
+      working-directory: ./frontend
+      run: npm run test --watchAll=false
