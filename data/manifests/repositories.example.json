@@ -1,11 +1,11 @@
 {
   "SchemaVersion": "1.0",
-  "CreatedAtUtc": "2026-05-07T05:38:43.0286531+00:00",
-  "UpdatedAtUtc": "2026-05-07T05:38:43.0286531+00:00",
+  "CreatedAtUtc": "2026-05-12T00:00:00Z",
+  "UpdatedAtUtc": "2026-05-12T00:00:00Z",
   "Paths": {
     "RathenaPath": "E:\\Ragnarok\\Testes\\rAthena_teste",
     "PatchPath": "E:\\Ragnarok\\Testes\\Patch_teste",
-    "GrfRepositoryPath": "E:\\Ragnarok\\Conteudo Ragnarok\\GRF\u0027S",
+    "GrfRepositoryPath": "E:\\Ragnarok\\Conteudo Ragnarok\\GRFS",
     "GrfEditorPath": "C:\\Program Files (x86)\\GRF Editor"
   },
   "EpisodeProfile": {
@@ -17,8 +17,7 @@
   "IsProgressive": true,
   "ClientDateStatus": "unknown",
   "Notes": [
-    "Local manifest for repository paths only.",
-    "rAthena, Patch/client and GRF repositories remain the source of truth.",
-    "Current episode is treated as Pre-Renewal until build/log evidence says otherwise."
+    "Template para manifestos locais.",
+    "NUNCA commite o arquivo real repositories.local.json se contiver caminhos absolutos sensiveis."
   ]
 }
