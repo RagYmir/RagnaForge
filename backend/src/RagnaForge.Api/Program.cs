@@ -169,6 +169,11 @@ api.MapPost("/maps/diff-preview", (HttpContext context, MapDryRunRequest request
     .WithTags("Maps")
     .WithMetadata(new ApiOperationMetadata(OperationKind.DiffPreview, RagnaForgeApiPolicyNames.DiffPreviewPolicy));
 
+api.MapPost("/assets/preview", (HttpContext context, RagnaForge.Application.Assets.AssetPreviewRequest request, RagnaForgeApiService service, ApiEndpointExecutor executor) =>
+    executor.Execute(context, OperationKind.ReadOnly, () => service.CreateAssetPreview(request, Guid.NewGuid().ToString("N")), () => Require(request.Source, nameof(request.Source), request.EntryPath, nameof(request.EntryPath), request.ExpectedExtension, nameof(request.ExpectedExtension))))
+    .WithTags("Assets")
+    .WithMetadata(new ApiOperationMetadata(OperationKind.ReadOnly, RagnaForgeApiPolicyNames.ReadOnlyPolicy));
+
 app.Run();
 
 static string ResolveWorkspaceRoot(IConfiguration configuration)

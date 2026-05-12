@@ -1,4 +1,5 @@
 using RagnaForge.Application.Abstractions;
+using RagnaForge.Application.Assets;
 using RagnaForge.Application.Configuration;
 using RagnaForge.Application.Discovery;
 using RagnaForge.Application.Grf;
@@ -187,6 +188,13 @@ public sealed class RagnaForgeApiService
 
     public ItemDiffPreview CreateMapDiffPreview(MapDryRunRequest request) =>
         CreateMapDryRun(request).DiffPreview;
+
+    public AssetPreviewResponse CreateAssetPreview(AssetPreviewRequest request, string correlationId)
+    {
+        var manifest = LoadValidatedManifest(request.ConfigPath);
+        var service = new RagnaForge.Application.Assets.AssetPreviewService(new GrfAssemblyFileExtractor());
+        return service.CreatePreview(manifest.Paths, _workspaceRoot, request, correlationId);
+    }
 
     private DiscoveryOptions CreateDiscoveryOptions(DiscoveryRequest request)
     {

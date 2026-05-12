@@ -2,9 +2,16 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { PassiveAssetPreviewPanel } from "./PassiveAssetPreviewPanel";
 
+import { renderWithProviders, installConnection } from "../test/renderWithProviders";
+import { beforeEach } from "vitest";
+
 describe("PassiveAssetPreviewPanel", () => {
+  beforeEach(() => {
+    installConnection();
+  });
+
   it("mostra status read-only sem sugerir extracao ou copia", () => {
-    render(
+    renderWithProviders(
       <PassiveAssetPreviewPanel
         title="Assets"
         items={[

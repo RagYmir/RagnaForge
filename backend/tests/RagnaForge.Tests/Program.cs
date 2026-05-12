@@ -1,3 +1,4 @@
+using RagnaForge.Application.Assets;
 using RagnaForge.Application.Discovery;
 using RagnaForge.Application.Configuration;
 using RagnaForge.Application.Abstractions;
@@ -131,7 +132,13 @@ var tests = new List<(string Name, Action Test)>
     ("Legacy equipment dry-run blocks unsafe visual identifiers", LegacyEquipmentDryRunBlocksUnsafeVisualIdentifier),
     ("Legacy equipment dry-run blocks duplicate visual IDs", LegacyEquipmentDryRunBlocksDuplicateVisualId),
     ("Legacy equipment dry-run blocks custom shield visual registration", LegacyEquipmentDryRunBlocksCustomShieldVisualRegistration),
-    ("GRF assembly inspector reads a controlled container", GrfAssemblyInspectorReadsControlledContainer)
+    ("GRF assembly inspector reads a controlled container", GrfAssemblyInspectorReadsControlledContainer),
+    ("Asset preview service blocks path traversal", AssetPreviewServiceBlocksPathTraversal),
+    ("Asset preview service blocks unallowed extension", AssetPreviewServiceBlocksUnallowedExtension),
+    ("Asset preview service returns unsupported for complex format", AssetPreviewServiceReturnsUnsupportedForComplexFormat),
+    ("Asset preview service returns unsupported for TGA", AssetPreviewServiceReturnsUnsupportedForTga),
+    ("Asset preview service blocks asset exceeding size limit", AssetPreviewServiceBlocksOversizedAsset),
+    ("Asset preview service returns preview for valid local patch asset", AssetPreviewServiceReturnsPreviewForLocalPatchAsset)
 };
 
 var failures = new List<string>();
@@ -3745,62 +3752,83 @@ static void AssertThrows<TException>(Action action, string message)
     throw new InvalidOperationException(message);
 }
 
-internal static class MapCacheTestUtility
+static void AssetPreviewServiceBlocksPathTraversal()
 {
-    public static byte[] BuildSyntheticMapCache(params string[] mapNames)
-    {
-        using var stream = new MemoryStream();
-        using var writer = new BinaryWriter(stream, Encoding.ASCII, leaveOpen: true);
-
-        writer.Write(0u);
-        writer.Write((ushort)mapNames.Length);
-        foreach (var mapName in mapNames)
-        {
-            var nameBytes = new byte[12];
-            Encoding.ASCII.GetBytes(mapName, 0, Math.Min(mapName.Length, 12), nameBytes, 0);
-            writer.Write(nameBytes);
-            writer.Write((short)1);
-            writer.Write((short)1);
-            writer.Write(1);
-            writer.Write((byte)0);
-        }
-
-        writer.Flush();
-        var bytes = stream.ToArray();
-        BitConverter.GetBytes((uint)bytes.Length).CopyTo(bytes, 0);
-        return bytes;
-    }
-
-    public static bool ContainsMap(string cachePath, string mapName)
-    {
-        using var stream = File.OpenRead(cachePath);
-        using var reader = new BinaryReader(stream, Encoding.ASCII, leaveOpen: false);
-        if (stream.Length < 6)
-        {
-            return false;
-        }
-
-        _ = reader.ReadUInt32();
-        var mapCount = reader.ReadUInt16();
-        for (var index = 0; index < mapCount; index++)
-        {
-            var rawName = reader.ReadBytes(12);
-            var cachedName = Encoding.ASCII.GetString(rawName).TrimEnd('\0', ' ');
-            _ = reader.ReadInt16();
-            _ = reader.ReadInt16();
-            var compressedLength = reader.ReadInt32();
-            if (cachedName.Equals(mapName, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-
-            stream.Seek(compressedLength, SeekOrigin.Current);
-        }
-
-        return false;
-    }
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    var request = new AssetPreviewRequest("Patch", "Loose", "../windows/system32/cmd.exe", ".exe");
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    Assert(response.PreviewKind == "Blocked", "Preview service should block path traversal.");
+    Assert(response.Errors.Any(e => e.Contains("Path traversal is not allowed")), "Path traversal error should be reported.");
 }
 
+static void AssetPreviewServiceBlocksUnallowedExtension()
+{
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    var request = new AssetPreviewRequest("Patch", "Loose", "data/test.exe", ".exe");
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    Assert(response.PreviewKind == "Unsupported", "Preview service should block non-visual extension.");
+    Assert(response.Warnings.Any(w => w.Contains("too complex")), "Unsupported extension warning should be reported.");
+}
+
+static void AssetPreviewServiceReturnsUnsupportedForComplexFormat()
+{
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    var request = new AssetPreviewRequest("Patch", "Loose", "data/test.spr", ".spr");
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    Assert(response.PreviewKind == "Unsupported", "Preview service should return Unsupported for complex format (.spr).");
+}
+
+static void AssetPreviewServiceReturnsUnsupportedForTga()
+{
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    var request = new AssetPreviewRequest("Patch", "Loose", "data/test.tga", ".tga");
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    Assert(response.PreviewKind == "Unsupported", "Preview service should return Unsupported for TGA without specialized tool.");
+}
+
+static void AssetPreviewServiceBlocksOversizedAsset()
+{
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    
+    var looseFile = Path.Combine(workspace.Root, "large.bmp");
+    File.WriteAllBytes(looseFile, new byte[2000]); // 2000 bytes
+
+    var request = new AssetPreviewRequest("Patch", "Loose", "large.bmp", ".bmp", MaxBytes: 1000); // 1000 bytes max
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    Assert(response.PreviewKind == "TooLarge", "Preview service should block asset exceeding size limit.");
+}
+
+static void AssetPreviewServiceReturnsPreviewForLocalPatchAsset()
+{
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    
+    var looseFile = Path.Combine(workspace.Root, "test.bmp");
+    var content = new byte[] { 0x42, 0x4D, 0x00, 0x00 }; // Fake BMP header
+    File.WriteAllBytes(looseFile, content);
+
+    var request = new AssetPreviewRequest("Patch", "Loose", "test.bmp", ".bmp");
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    Assert(response.PreviewKind == "Image", "Preview service should return Image for valid BMP.");
+    Assert(response.DataUrl is not null && response.DataUrl.StartsWith("data:image/bmp;base64,"), "Data URL should be correctly formed for BMP.");
+}
 internal sealed class TempWorkspace : IDisposable
 {
     public string Root { get; } = Path.Combine(Path.GetTempPath(), "ragnaforge_tests_" + Guid.NewGuid().ToString("N"));
@@ -4311,3 +4339,61 @@ internal sealed class CountingGrfAssetLookupService(GrfAssetLookupResult? result
         return result ?? new GrfAssetLookupResult(resourceName, true, 1, options.ContainerPaths.Count, [], [], GrfAssetLookupSource.LiveScan, 0, 1);
     }
 }
+
+
+internal static class MapCacheTestUtility
+{
+    public static byte[] BuildSyntheticMapCache(params string[] mapNames)
+    {
+        using var stream = new MemoryStream();
+        using var writer = new BinaryWriter(stream, Encoding.ASCII, leaveOpen: true);
+
+        writer.Write(0u);
+        writer.Write((ushort)mapNames.Length);
+        foreach (var mapName in mapNames)
+        {
+            var nameBytes = new byte[12];
+            Encoding.ASCII.GetBytes(mapName, 0, Math.Min(mapName.Length, 12), nameBytes, 0);
+            writer.Write(nameBytes);
+            writer.Write((short)1);
+            writer.Write((short)1);
+            writer.Write(1);
+            writer.Write((byte)0);
+        }
+
+        writer.Flush();
+        var bytes = stream.ToArray();
+        BitConverter.GetBytes((uint)bytes.Length).CopyTo(bytes, 0);
+        return bytes;
+    }
+
+    public static bool ContainsMap(string cachePath, string mapName)
+    {
+        using var stream = File.OpenRead(cachePath);
+        using var reader = new BinaryReader(stream, Encoding.ASCII, leaveOpen: false);
+        if (stream.Length < 6)
+        {
+            return false;
+        }
+
+        _ = reader.ReadUInt32();
+        var mapCount = reader.ReadUInt16();
+        for (var index = 0; index < mapCount; index++)
+        {
+            var rawName = reader.ReadBytes(12);
+            var cachedName = Encoding.ASCII.GetString(rawName).TrimEnd('\0', ' ');
+            _ = reader.ReadInt16();
+            _ = reader.ReadInt16();
+            var compressedLength = reader.ReadInt32();
+            if (cachedName.Equals(mapName, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            stream.Seek(compressedLength, SeekOrigin.Current);
+        }
+
+        return false;
+    }
+}
+

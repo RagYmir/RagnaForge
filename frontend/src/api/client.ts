@@ -148,6 +148,13 @@ export class ApiClient {
     });
   }
 
+  assetPreview(payload: Record<string, unknown>) {
+    return this.request<any>("/api/assets/preview", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
+  }
+
   async request<T>(path: string, init: RequestInit) {
     const response = await fetch(this.resolveUrl(path), {
       ...init,

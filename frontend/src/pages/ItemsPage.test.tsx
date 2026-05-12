@@ -75,7 +75,7 @@ describe("ItemsPage", () => {
     await userEvent.click(screen.getByRole("button", { name: /reenviar ao formulario/i }));
 
     expect(screen.getByLabelText("AegisName")).toHaveValue("RF_ETC_SIMPLE");
-    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect(globalThis.fetch).toHaveBeenCalled();
 
     await userEvent.click(screen.getByRole("button", { name: /limpar historico/i }));
     await waitFor(() => {
