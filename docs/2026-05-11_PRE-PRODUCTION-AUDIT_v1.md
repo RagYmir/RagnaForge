@@ -1,4 +1,4 @@
-# 2026-05-11 - Pre-production audit v1
+﻿# 2026-05-11 - Pre-production audit v1
 
 ## Resumo executivo
 
@@ -101,10 +101,10 @@ Os comandos `apply` e `rollback` foram executados sem confirmacao de proposito, 
 
 - `config validate`: valido, com warning `client_date.unknown`.
 - `discover`: caminhos reais resolvidos.
-- rAthena: `E:\Ragnarok\Testes\rAthena_teste`.
-- Patch: `E:\Ragnarok\Testes\Patch_teste`.
-- GRFs: `E:\Ragnarok\Conteudo Ragnarok\GRF'S`.
-- GRF Editor: `C:\Program Files (x86)\GRF Editor`.
+- rAthena: `<RATHENA_PATH>`.
+- Patch: `<PATCH_PATH>`.
+- GRFs: `<GRF_REPOSITORY_PATH>`.
+- GRF Editor: `<GRF_EDITOR_PATH>`.
 - `discover` detectou `ClientDate = 2025-07-16` a partir de `2025-07-16_Ragexe_175220998_clientinfo_patched.exe`.
 
 Conclusao: configuracao esta operacional, mas o manifest ainda nao persiste o client date detectado.
@@ -299,7 +299,7 @@ Conclusao: guards estao funcionando e nao criaram log/backup indevido.
 - Nenhuma GRF original foi alterada.
 - Arquivos gerados ficaram no workspace: caches de auditoria em `data/cache`, `data/indexes`, baseline em `tmp` e este relatorio em `docs`.
 
-## Recomendações antes da API
+## RecomendaÃ§Ãµes antes da API
 
 1. API deve iniciar apenas com endpoints read-only, dry-run e diff-preview.
 2. Endpoints de apply/rollback devem ser criados bloqueados ou atras de confirmacao forte, auditoria, autenticacao e permissao explicita.

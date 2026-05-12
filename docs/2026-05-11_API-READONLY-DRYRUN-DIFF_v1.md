@@ -1,4 +1,4 @@
-# API read-only, dry-run e diff-preview v1
+﻿# API read-only, dry-run e diff-preview v1
 
 Data: 2026-05-11
 
@@ -65,7 +65,7 @@ A API resolve o workspace automaticamente procurando `RagnaForge.slnx` ou `data/
 Tambem aceita override por configuracao:
 
 ```powershell
-dotnet run --project backend\src\RagnaForge.Api\RagnaForge.Api.csproj --urls http://127.0.0.1:5099 --RagnaForge:WorkspaceRoot="C:\Users\Allis\Desktop\New project"
+dotnet run --project backend\src\RagnaForge.Api\RagnaForge.Api.csproj --urls http://127.0.0.1:5099 --RagnaForge:WorkspaceRoot="<WORKSPACE_ROOT>"
 ```
 
 ## Smokes executados

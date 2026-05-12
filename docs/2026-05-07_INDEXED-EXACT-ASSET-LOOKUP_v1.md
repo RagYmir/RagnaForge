@@ -1,4 +1,4 @@
-# 2026-05-07 - Indexed exact asset lookup v1
+﻿# 2026-05-07 - Indexed exact asset lookup v1
 
 ## Resumo
 
@@ -31,13 +31,13 @@ Ordem atual do lookup exato:
 - `dotnet build RagnaForge.slnx`
 - `dotnet run --project backend\tests\RagnaForge.Tests\RagnaForge.Tests.csproj`
 - smoke real:
-  - `dotnet run --project backend\src\RagnaForge.Cli -- grf inspect --config data\manifests\repositories.local.json --container "C:\Users\Allis\Desktop\New project\tmp\grf-smoke\sample.grf" --limit 10 --force`
-  - `dotnet run --project backend\src\RagnaForge.Cli -- item dry-run --config data\manifests\repositories.local.json --aegis RF_Index_Smoke --name "RagnaForge Index Smoke" --resource sample --type Etc --buy 10 --sell 5 --weight 10 --identified-desc "Linha 1|Linha 2" --asset-grf-container "C:\Users\Allis\Desktop\New project\tmp\grf-smoke\sample.grf"`
-  - `dotnet run --project backend\src\RagnaForge.Cli -- equipment dry-run --config data\manifests\repositories.local.json --aegis RF_Index_Weapon --name "RagnaForge Index Weapon" --resource sample --type Weapon --identified-desc "Linha 1|Linha 2" --locations Right_Hand --visual-category weapon --view 77777 --client-symbol WEAPONTYPE_SAMPLE_INDEX --client-sprite sample --weapon-base-type SWORD --weapon-level 1 --buy 10 --sell 5 --weight 10 --asset-grf-container "C:\Users\Allis\Desktop\New project\tmp\grf-smoke\sample.grf"`
+  - `dotnet run --project backend\src\RagnaForge.Cli -- grf inspect --config data\manifests\repositories.local.json --container "<WORKSPACE_ROOT>\tmp\grf-smoke\sample.grf" --limit 10 --force`
+  - `dotnet run --project backend\src\RagnaForge.Cli -- item dry-run --config data\manifests\repositories.local.json --aegis RF_Index_Smoke --name "RagnaForge Index Smoke" --resource sample --type Etc --buy 10 --sell 5 --weight 10 --identified-desc "Linha 1|Linha 2" --asset-grf-container "<WORKSPACE_ROOT>\tmp\grf-smoke\sample.grf"`
+  - `dotnet run --project backend\src\RagnaForge.Cli -- equipment dry-run --config data\manifests\repositories.local.json --aegis RF_Index_Weapon --name "RagnaForge Index Weapon" --resource sample --type Weapon --identified-desc "Linha 1|Linha 2" --locations Right_Hand --visual-category weapon --view 77777 --client-symbol WEAPONTYPE_SAMPLE_INDEX --client-sprite sample --weapon-base-type SWORD --weapon-level 1 --buy 10 --sell 5 --weight 10 --asset-grf-container "<WORKSPACE_ROOT>\tmp\grf-smoke\sample.grf"`
 
 ## Resultado atual
 
 - `IndexedGrfAssetLookupService` virou a porta padrao para lookup GRF na CLI.
 - `item dry-run` e `equipment dry-run` passaram a reaproveitar indices locais ja existentes.
 - o resultado de lookup agora preserva proveniencia explicita com `Source`, `LocalIndexesLoaded` e `LiveContainersScanned`.
-- o smoke controlado com `sample.grf` confirmou o fluxo completo com proposta/diff e sem escrita em repositórios externos.
+- o smoke controlado com `sample.grf` confirmou o fluxo completo com proposta/diff e sem escrita em repositÃ³rios externos.

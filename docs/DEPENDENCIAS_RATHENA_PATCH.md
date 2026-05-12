@@ -1,4 +1,4 @@
-# Dependencias rAthena / Patch / GRF por tipo de conteudo
+﻿# Dependencias rAthena / Patch / GRF por tipo de conteudo
 
 Data: 2026-05-11
 Status: Dependencias centrais mapeadas; client-side avancado de item/equipamento agora cobre itemInfo, TXT legado, clients hibridos, TextLub e bloqueio de bytecode.
@@ -17,7 +17,7 @@ Este documento e o contrato tecnico inicial do projeto. Nenhuma implementacao fu
 
 Fontes consultadas:
 
-- Local: `C:\Program Files (x86)\GRF Editor`
+- Local: `<GRF_EDITOR_PATH>`
 - rAthena upstream: `https://github.com/rathena/rathena`
 - rAthena raw templates: `https://raw.githubusercontent.com/rathena/rathena/master/db/import-tmpl/item_db.yml`
 - rAthena raw templates: `https://raw.githubusercontent.com/rathena/rathena/master/db/import-tmpl/mob_db.yml`
@@ -27,9 +27,9 @@ Fontes consultadas:
 
 ## Variaveis que precisam ser detectadas antes de escrever qualquer coisa
 
-- Caminho do repositorio rAthena: informado como `E:\Ragnarok\Testes\rAthena_teste`.
-- Caminho do Patch/client: informado como `E:\Ragnarok\Testes\Patch_teste`.
-- Caminhos dos repositorios GRF/Thor/GPF de origem: informado como `E:\Ragnarok\Conteudo Ragnarok\GRF'S`.
+- Caminho do repositorio rAthena: informado como `<RATHENA_PATH>`.
+- Caminho do Patch/client: informado como `<PATCH_PATH>`.
+- Caminhos dos repositorios GRF/Thor/GPF de origem: informado como `<GRF_REPOSITORY_PATH>`.
 - Modo Renewal ou Pre-Renewal do episodio atual.
 - Perfil progressivo do servidor: episodio atual, proximo episodio e regras de transicao ate Renewal.
 - Client date/build.

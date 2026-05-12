@@ -1,4 +1,4 @@
-# 2026-05-11 - Client-side itemInfo e clients hibridos v1
+﻿# 2026-05-11 - Client-side itemInfo e clients hibridos v1
 
 ## Resumo
 
@@ -85,8 +85,8 @@ Datainfo visual de equipamento:
 
 O Patch atual foi detectado como `Hybrid` para itens:
 
-- `E:\Ragnarok\Testes\Patch_teste\system\iteminfo_true.lub`: `TextLub`.
-- Tabelas TXT em `E:\Ragnarok\Testes\Patch_teste\data`: `LegacyTxt`.
+- `<PATCH_PATH>\system\iteminfo_true.lub`: `TextLub`.
+- Tabelas TXT em `<PATCH_PATH>\data`: `LegacyTxt`.
 
 E para equipamento visual no smoke de headgear:
 

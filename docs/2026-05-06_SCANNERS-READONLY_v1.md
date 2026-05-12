@@ -1,4 +1,4 @@
-# Scanners read-only v1
+﻿# Scanners read-only v1
 
 Data: 2026-05-06
 Status: implementado e validado localmente
@@ -57,10 +57,10 @@ data/
 
 ```powershell
 dotnet run --project backend\src\RagnaForge.Cli\RagnaForge.Cli.csproj -- discover `
-  --rathena "E:\Ragnarok\Testes\rAthena_teste" `
-  --patch "E:\Ragnarok\Testes\Patch_teste" `
-  --grfs "E:\Ragnarok\Conteudo Ragnarok\GRF'S" `
-  --grf-editor "C:\Program Files (x86)\GRF Editor" `
+  --rathena "<RATHENA_PATH>" `
+  --patch "<PATCH_PATH>" `
+  --grfs "<GRF_REPOSITORY_PATH>" `
+  --grf-editor "<GRF_EDITOR_PATH>" `
   --episode-name "progressive-current" `
   --episode-mode pre-renewal `
   --client-date "2025-07-16" `

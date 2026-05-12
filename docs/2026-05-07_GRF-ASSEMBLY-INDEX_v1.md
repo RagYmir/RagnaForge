@@ -1,4 +1,4 @@
-# 2026-05-07_GRF-ASSEMBLY-INDEX_v1
+﻿# 2026-05-07_GRF-ASSEMBLY-INDEX_v1
 
 ## Resumo
 
@@ -34,7 +34,7 @@ dotnet run --project backend\src\RagnaForge.Cli\RagnaForge.Cli.csproj -- grf ins
 
 Container testado:
 
-- `E:\Ragnarok\Conteudo Ragnarok\GRF'S\data_0.grf`
+- `<GRF_REPOSITORY_PATH>\data_0.grf`
 
 Resumo observado:
 

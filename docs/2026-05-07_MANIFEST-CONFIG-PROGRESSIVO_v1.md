@@ -1,12 +1,12 @@
-# Manifest de configuracao progressiva v1
+﻿# Manifest de configuracao progressiva v1
 
 Data: 2026-05-07
 Status: implementado e validado localmente
 
 ## Decisoes
 
-- A copia ativa do projeto e `C:\Users\Allis\Desktop\New project`.
-- A copia antiga em `C:\Users\Allis\Documents\New project` ficou intocada.
+- A copia ativa do projeto e `<WORKSPACE_ROOT>`.
+- A copia antiga em `<OLD_WORKSPACE_ROOT>` ficou intocada.
 - O manifest local fica em `data/manifests/repositories.local.json`.
 - O servidor e tratado como progressivo por episodio.
 - O episodio atual fica em `PreRenewal`, sem transformar isso em regra permanente.
@@ -36,10 +36,10 @@ data/manifests/
 
 ```powershell
 dotnet run --project backend\src\RagnaForge.Cli\RagnaForge.Cli.csproj -- config init `
-  --rathena "E:\Ragnarok\Testes\rAthena_teste" `
-  --patch "E:\Ragnarok\Testes\Patch_teste" `
-  --grfs "E:\Ragnarok\Conteudo Ragnarok\GRF'S" `
-  --grf-editor "C:\Program Files (x86)\GRF Editor" `
+  --rathena "<RATHENA_PATH>" `
+  --patch "<PATCH_PATH>" `
+  --grfs "<GRF_REPOSITORY_PATH>" `
+  --grf-editor "<GRF_EDITOR_PATH>" `
   --episode-name "progressive-current" `
   --episode-mode pre-renewal `
   --out data\manifests\repositories.local.json

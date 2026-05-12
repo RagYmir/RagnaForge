@@ -1,4 +1,4 @@
-# Analise dos repositorios locais
+﻿# Analise dos repositorios locais
 
 Data: 2026-05-06
 Status: Discovery read-only
@@ -7,10 +7,10 @@ Status: Discovery read-only
 
 | Papel | Caminho | Estado |
 | --- | --- | --- |
-| rAthena | `E:\Ragnarok\Testes\rAthena_teste` | encontrado |
-| Patch/client | `E:\Ragnarok\Testes\Patch_teste` | encontrado |
-| GRFs/Thor/GPF de origem | `E:\Ragnarok\Conteudo Ragnarok\GRF'S` | encontrado |
-| GRF Editor | `C:\Program Files (x86)\GRF Editor` | encontrado |
+| rAthena | `<RATHENA_PATH>` | encontrado |
+| Patch/client | `<PATCH_PATH>` | encontrado |
+| GRFs/Thor/GPF de origem | `<GRF_REPOSITORY_PATH>` | encontrado |
+| GRF Editor | `<GRF_EDITOR_PATH>` | encontrado |
 
 Nenhum desses repositorios foi alterado nesta fase.
 
@@ -296,7 +296,7 @@ Conclusao:
 
 ## Repositorio de GRFs/Thor/GPF
 
-Caminho: `E:\Ragnarok\Conteudo Ragnarok\GRF'S`
+Caminho: `<GRF_REPOSITORY_PATH>`
 
 ### Top-level encontrado
 
@@ -331,7 +331,7 @@ Containers/top-level:
 
 Observacao:
 
-- O diretório e grande; tentativas de contagem recursiva completa de containers/extension groups atingiram timeout de 30s.
+- O diretÃ³rio e grande; tentativas de contagem recursiva completa de containers/extension groups atingiram timeout de 30s.
 - O scanner real deve ser incremental, cancelavel e cacheado, com progresso e limite por lote.
 
 ## Implicacoes para a arquitetura

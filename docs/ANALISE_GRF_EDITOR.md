@@ -1,8 +1,8 @@
-# Analise tecnica do GRF Editor
+﻿# Analise tecnica do GRF Editor
 
 Data: 2026-05-06
 Status: Discovery inicial
-Caminho analisado: `C:\Program Files (x86)\GRF Editor`
+Caminho analisado: `<GRF_EDITOR_PATH>`
 
 ## Metodo
 
@@ -48,7 +48,7 @@ Atualizacao posterior:
 ## Estrutura encontrada
 
 ```text
-C:\Program Files (x86)\GRF Editor\
+<GRF_EDITOR_PATH>\
   app.ico
   GRF Editor.exe
   GRF Editor.exe.config

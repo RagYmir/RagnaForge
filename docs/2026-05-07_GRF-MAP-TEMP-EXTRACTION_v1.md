@@ -1,4 +1,4 @@
-# 2026-05-07 - GRF map temp extraction
+﻿# 2026-05-07 - GRF map temp extraction
 
 ## Objetivo
 
@@ -16,8 +16,8 @@ Permitir que `map dry-run` faca scan profundo de dependencias mesmo quando `.rsw
 
 ## Garantias
 
-- Nenhuma escrita em `E:\Ragnarok\Testes\rAthena_teste`.
-- Nenhuma escrita em `E:\Ragnarok\Testes\Patch_teste`.
+- Nenhuma escrita em `<RATHENA_PATH>`.
+- Nenhuma escrita em `<PATCH_PATH>`.
 - Nenhuma alteracao nas GRFs originais.
 - O relatorio separa a origem do match GRF (`LocalIndex`, `LiveScanFallback`, `LiveScan`) da origem do scan profundo (`LoosePatch`, `ControlledGrfExtraction`).
 

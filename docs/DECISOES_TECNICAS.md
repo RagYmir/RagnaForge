@@ -1,4 +1,4 @@
-# Decisoes tecnicas
+﻿# Decisoes tecnicas
 
 Data: 2026-05-06
 
@@ -16,7 +16,7 @@ Nao acoplar dominio ao GRF Editor. Criar `GrfEditorIntegration` e contratos `IGr
 
 ## D-004: Equipamento e especializacao de item
 
-No dominio/backend, equipamento herda/compõe item base. Aba visual separada e permitida, modelo duplicado independente nao.
+No dominio/backend, equipamento herda/compÃµe item base. Aba visual separada e permitida, modelo duplicado independente nao.
 
 ## D-005: Fonte da verdade externa
 
@@ -34,10 +34,10 @@ Todos os applies devem exigir diff, backup, log, rollback e confirmacao.
 
 Repositorios informados pelo usuario em 2026-05-06:
 
-- rAthena: `E:\Ragnarok\Testes\rAthena_teste`
-- Patch/client: `E:\Ragnarok\Testes\Patch_teste`
-- GRFs/Thor/GPF: `E:\Ragnarok\Conteudo Ragnarok\GRF'S`
-- GRF Editor: `C:\Program Files (x86)\GRF Editor`
+- rAthena: `<RATHENA_PATH>`
+- Patch/client: `<PATCH_PATH>`
+- GRFs/Thor/GPF: `<GRF_REPOSITORY_PATH>`
+- GRF Editor: `<GRF_EDITOR_PATH>`
 
 Esses caminhos devem entrar primeiro em configuracao read-only; nenhuma escrita automatica em rAthena/Patch/GRF fica autorizada por esta decisao.
 
@@ -121,7 +121,7 @@ Decisao:
 
 ## D-017: Diff preview de item sera derivado do proprio dry-run
 
-Nesta fase nao vamos criar um pipeline separado para diff. O proprio `ItemDryRunReport` passa a carregar um `DiffPreview` estruturado, e a CLI expõe isso tambem por `item diff-preview`.
+Nesta fase nao vamos criar um pipeline separado para diff. O proprio `ItemDryRunReport` passa a carregar um `DiffPreview` estruturado, e a CLI expÃµe isso tambem por `item diff-preview`.
 
 Isso reduz duplicacao e garante que:
 

@@ -1,7 +1,7 @@
-# STATUS_PROJETO
+﻿# STATUS_PROJETO
 
 Atualizado: 2026-05-12
-Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao explicita. API backend endurecida. Interface administrativa atualizada com Validation Center dinamico (badges dinâmicos e grupos de Itens, Equipamentos, NPCs, Monstros, Mapas) e preview passivo real melhorado com categorizacao rigorosa. Backend com 98/98 testes OK; frontend com 22/22 testes OK.
+Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao explicita. API backend endurecida. Interface administrativa atualizada com Validation Center dinamico (badges dinÃ¢micos e grupos de Itens, Equipamentos, NPCs, Monstros, Mapas) e preview passivo real melhorado com categorizacao rigorosa. Backend com 98/98 testes OK; frontend com 22/22 testes OK.
 
 ## Macro-etapa 2026-05-12 - UI, produtividade local e validacao read-only
 
@@ -21,17 +21,17 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao expli
 - `ValidationMatrix` ganhou filtros por severidade, tag, categoria, origem e entidade.
 - `PassiveAssetPreviewPanel` ganhou categoria, path esperado, origem, proveniencia e placeholder explicito para preview visual futuro.
 - Bateria read-only de casos reais executada para todos os tipos principais via CLI backend e frontend validado.
-- Os badges no Validation Center deixaram de ser fixos e agora renderizam de forma dinâmica lendo diretamente a saúde de `Itens`, `Equipamentos`, `NPCs`, `Monstros` e `Mapas`.
+- Os badges no Validation Center deixaram de ser fixos e agora renderizam de forma dinÃ¢mica lendo diretamente a saÃºde de `Itens`, `Equipamentos`, `NPCs`, `Monstros` e `Mapas`.
 - Nenhum endpoint novo de validacao foi necessario; a rodada reaproveitou endpoints existentes.
 - Politica futura de `apply/rollback` documentada, sem implementacao em API ou UI.
 
 ## O que foi analisado
 
-- Projeto atual em `C:\Users\Allis\Desktop\New project`.
-- Instalacao local do GRF Editor em `C:\Program Files (x86)\GRF Editor`.
-- Repositorio rAthena informado: `E:\Ragnarok\Testes\rAthena_teste`.
-- Patch/client informado: `E:\Ragnarok\Testes\Patch_teste`.
-- Repositorio de GRFs informado: `E:\Ragnarok\Conteudo Ragnarok\GRF'S`.
+- Projeto atual em `<WORKSPACE_ROOT>`.
+- Instalacao local do GRF Editor em `<GRF_EDITOR_PATH>`.
+- Repositorio rAthena informado: `<RATHENA_PATH>`.
+- Patch/client informado: `<PATCH_PATH>`.
+- Repositorio de GRFs informado: `<GRF_REPOSITORY_PATH>`.
 - Contexto de progressao informado: servidor progressivo por episodios, com updates mensais ate chegar futuramente ao Renewal.
 - Metadados de `GRF Editor.exe` e `GrfCL.exe`.
 - Configs `.exe.config`.
@@ -99,7 +99,7 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao expli
 - Existe `.git`.
 - Existe `docs/`.
 - Os artefatos prematuros do MVP FastAPI/frontend ja foram removidos.
-- O repositorio foi copiado para `C:\Users\Allis\Desktop\New project`.
+- O repositorio foi copiado para `<WORKSPACE_ROOT>`.
 
 ## O que foi criado nesta fase
 
@@ -194,7 +194,7 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao expli
 
 - Nenhum arquivo rAthena/Patch/GRF foi alterado.
 - Codigo funcional read-only foi criado apenas no workspace.
-- Escrita desta fase ficou restrita a `C:\Users\Allis\Desktop\New project`.
+- Escrita desta fase ficou restrita a `<WORKSPACE_ROOT>`.
 - `data/manifests/repositories.local.json` guarda apenas caminhos locais e perfil progressivo; nao substitui rAthena/Patch/GRFs como fonte da verdade.
 - `data/cache/grf-repository.index.json` guarda apenas metadados de containers e pode ser recriado.
 - O dry-run de item gera apenas proposta em memoria/JSON; nao altera rAthena nem Patch/client.
@@ -265,7 +265,7 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao expli
 - `map` ainda usa leitura baseada em strings internas de `.rsw/.gnd`; parser binario dedicado continua como proxima camada de hardening.
 - `map` agora bloqueia lookup GRF ambiguo de dependencias referenciadas, mas isso pode reduzir bastante `CanApply` em mapas grandes ate existir parser/lookup mais preciso por caminho.
 - `map` ainda nao gera automaticamente warps, mapflags, NPCs iniciais ou spawns acoplados ao mesmo apply.
-- `item apply` e `item rollback` estao implementados, mas ainda nao foram executados contra os repositÃ³rios reais porque a confirmaÃ§Ã£o explÃ­cita nÃ£o foi fornecida.
+- `item apply` e `item rollback` estao implementados, mas ainda nao foram executados contra os repositÃƒÂ³rios reais porque a confirmaÃƒÂ§ÃƒÂ£o explÃƒÂ­cita nÃƒÂ£o foi fornecida.
 - Artefatos do MVP anterior foram removidos; a stack final ainda precisa ser criada do zero apos aprovacao da arquitetura.
 - O SDK local criou projetos `net10.0`; se for necessario mirar LTS, sera preciso ajustar templates/SDK antes.
 
@@ -287,7 +287,7 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao expli
 - `GrfCL.exe -version`
 - Laboratorio temporario controlado com `GrfCL.exe -makeGrf`, `-open -grfInfo` e `-extractGrf`
 - `dotnet run --project backend\tests\RagnaForge.Tests\RagnaForge.Tests.csproj` com 14/14 testes OK
-- `dotnet run --project backend\src\RagnaForge.Cli\RagnaForge.Cli.csproj -- grf inspect --config data\manifests\repositories.local.json --container "E:\Ragnarok\Conteudo Ragnarok\GRF'S\data_0.grf" --cache data\indexes\data_0.index.json --limit 25`
+- `dotnet run --project backend\src\RagnaForge.Cli\RagnaForge.Cli.csproj -- grf inspect --config data\manifests\repositories.local.json --container "<GRF_REPOSITORY_PATH>\data_0.grf" --cache data\indexes\data_0.index.json --limit 25`
 - Smoke de seguranca: `grf inspect --cache outside-index.json` foi recusado e nao criou arquivo fora de `data/indexes`.
 - Smoke de caminho relativo: `grf inspect --config data\manifests\repositories.local.json --container data_0.grf --limit 3 --no-save`
 - Smoke real de item com asset dentro de GRF: `item dry-run --resource c_rabbit_winged_robe --asset-grf-container data_0.grf` encontrou 4 candidatos dentro de `data_0.grf`.
@@ -315,13 +315,13 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao expli
 - Smoke real de tema assistindo lookup visual: `equipment dry-run ... --visual-theme fofo --asset-grf-container data_0.grf` retornou `CanApply = true`, `LookupTokens = ["rabbit"]` e candidatos assistidos em Patch/GRF.
 - `dotnet build RagnaForge.slnx` com 0 erros e 0 avisos apos priorizar indice local no lookup assistido.
 - `dotnet run --project backend\tests\RagnaForge.Tests\RagnaForge.Tests.csproj` com 27/27 testes OK.
-- `dotnet run --project backend\src\RagnaForge.Cli\RagnaForge.Cli.csproj -- grf inspect --config data\manifests\repositories.local.json --container "C:\Users\Allis\Desktop\New project\tmp\grf-smoke\sample.grf" --limit 10 --force` gerou `data\indexes\sample-ee82064d1a8f.index.json` com `sample.act`, `sample.spr` e `grid.tga`.
-- Smoke real de item com indice local dedicado: `item dry-run --resource sample --asset-grf-container "C:\Users\Allis\Desktop\New project\tmp\grf-smoke\sample.grf"` retornou `CanApply = true` com 2 candidatos GRF.
-- Smoke real de equipamento weapon com indice local dedicado: `equipment dry-run --type Weapon --resource sample --visual-category weapon --client-symbol WEAPONTYPE_SAMPLE_INDEX --client-sprite sample --asset-grf-container "C:\Users\Allis\Desktop\New project\tmp\grf-smoke\sample.grf"` retornou `CanApply = true` com append proposto em `weapontable.lub`.
+- `dotnet run --project backend\src\RagnaForge.Cli\RagnaForge.Cli.csproj -- grf inspect --config data\manifests\repositories.local.json --container "<WORKSPACE_ROOT>\tmp\grf-smoke\sample.grf" --limit 10 --force` gerou `data\indexes\sample-ee82064d1a8f.index.json` com `sample.act`, `sample.spr` e `grid.tga`.
+- Smoke real de item com indice local dedicado: `item dry-run --resource sample --asset-grf-container "<WORKSPACE_ROOT>\tmp\grf-smoke\sample.grf"` retornou `CanApply = true` com 2 candidatos GRF.
+- Smoke real de equipamento weapon com indice local dedicado: `equipment dry-run --type Weapon --resource sample --visual-category weapon --client-symbol WEAPONTYPE_SAMPLE_INDEX --client-sprite sample --asset-grf-container "<WORKSPACE_ROOT>\tmp\grf-smoke\sample.grf"` retornou `CanApply = true` com append proposto em `weapontable.lub`.
 - `dotnet build RagnaForge.slnx` com 0 erros e 0 avisos apos consolidar o lookup exato index-first.
 - `dotnet run --project backend\tests\RagnaForge.Tests\RagnaForge.Tests.csproj` com 29/29 testes OK.
-- Smoke real de item com proveniencia: `item dry-run --resource sample --asset-grf-container "C:\Users\Allis\Desktop\New project\tmp\grf-smoke\sample.grf"` retornou `AssetLookup.Source = LocalIndex`.
-- Smoke real de equipamento weapon com proveniencia: `equipment dry-run --type Weapon --resource sample ... --asset-grf-container "C:\Users\Allis\Desktop\New project\tmp\grf-smoke\sample.grf"` retornou `ItemAssetLookup.Source = LocalIndex` e `VisualAssetLookup.Source = LocalIndex`.
+- Smoke real de item com proveniencia: `item dry-run --resource sample --asset-grf-container "<WORKSPACE_ROOT>\tmp\grf-smoke\sample.grf"` retornou `AssetLookup.Source = LocalIndex`.
+- Smoke real de equipamento weapon com proveniencia: `equipment dry-run --type Weapon --resource sample ... --asset-grf-container "<WORKSPACE_ROOT>\tmp\grf-smoke\sample.grf"` retornou `ItemAssetLookup.Source = LocalIndex` e `VisualAssetLookup.Source = LocalIndex`.
 - `dotnet build RagnaForge.slnx` com 0 erros e 0 avisos apos expor proveniencia de lookup no relatorio.
 - `dotnet run --project backend\tests\RagnaForge.Tests\RagnaForge.Tests.csproj` com 30/30 testes OK.
 - `dotnet build RagnaForge.slnx` com 0 erros e 0 avisos apos adicionar apply/rollback de item, diff previews de NPC/monstro/mapa e detector de `.lub`.
@@ -329,7 +329,7 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao expli
 - Smoke real de `npc diff-preview` em `prontera` retornou 2 hunks: loader em `npc/scripts_custom.conf` e script novo em `npc/custom`.
 - Smoke real de `monster diff-preview` em `prontera` retornou 4 hunks: loader, `mob_db.yml`, `mob_avail.yml` e script de spawn.
 - Smoke real de `map dry-run --map-name prontera --asset-grf-container data_0.grf` encontrou `prontera.rsw`, `prontera.gnd` e `prontera.gat` por `LiveScanFallback` e executou scan profundo via `ControlledGrfExtraction`.
-- Smoke de seguranÃ§a: `item apply` sem `--confirm APPLY` foi recusado antes de qualquer escrita.
+- Smoke de seguranÃƒÂ§a: `item apply` sem `--confirm APPLY` foi recusado antes de qualquer escrita.
 - Smoke real de shield hint: `equipment dry-run` com `C_Lord_Of_Death_Shield` apontou `spriterobename.lub` como robe-table hint.
 - `dotnet build RagnaForge.slnx` com 0 erros e 0 avisos apos endurecer e aplicar o pipeline de mapa.
 - `dotnet run --project backend\tests\RagnaForge.Tests\RagnaForge.Tests.csproj` com 52/52 testes OK.

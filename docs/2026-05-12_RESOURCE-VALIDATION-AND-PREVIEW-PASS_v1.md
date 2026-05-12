@@ -1,4 +1,4 @@
-# Resource Validation And Preview Pass
+﻿# Resource Validation And Preview Pass
 
 Data: 2026-05-12
 
@@ -190,10 +190,10 @@ Nao foi necessario criar endpoint novo de validacao. Os dados existentes dos end
 
 ### Ambiente real confirmado pela bateria
 
-- rAthena: `E:\Ragnarok\Testes\rAthena_teste`
-- Patch: `E:\Ragnarok\Testes\Patch_teste`
-- GRFs: `E:\Ragnarok\Conteudo Ragnarok\GRF'S`
-- GRF Editor: `C:\Program Files (x86)\GRF Editor`
+- rAthena: `<RATHENA_PATH>`
+- Patch: `<PATCH_PATH>`
+- GRFs: `<GRF_REPOSITORY_PATH>`
+- GRF Editor: `<GRF_EDITOR_PATH>`
 - `discover` detectou `ClientDate = 2025-07-16`
 - `discover` confirmou coexistencia de `TXT legado` e `itemInfo` textual no Patch atual
 
