@@ -442,7 +442,7 @@ Com o objetivo de enriquecer a auditoria visual sem abrir riscos de segurança, 
 - Limpar rigorosamente arquivos temporários em blocos `finally` após a conversão.
 - Endurecer o endpoint `POST /api/assets/preview`:
   - Exigir `ApiOperationGuard` no modo `ReadOnly`.
-  - Validar `extension` contra whitelist (inicialmente `.bmp`, `.png`).
+  - Validar `extension` contra whitelist (inicialmente `.bmp`, `.png`, `.jpg`, `.jpeg`, `.webp`).
   - Bloquear caminhos que contenham `..` (path traversal).
   - Bloquear caminhos absolutos arbitrários; apenas caminhos relativos ao container ou raízes permitidas são aceitos.
   - Limitar o tamanho do asset para 1MB por requisição.

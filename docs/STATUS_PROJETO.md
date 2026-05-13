@@ -1,13 +1,13 @@
 # STATUS_PROJETO
 
 Atualizado: 2026-05-12
-Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao explicita. API backend endurecida. Interface administrativa atualizada com Validation Center dinamico (badges dinâmicos e grupos de Itens, Equipamentos, NPCs, Monstros, Mapas) e preview visual real read-only seguro para BMP/PNG. Backend com 104/104 testes OK; frontend com 22/22 testes OK.
+Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao explicita. API backend endurecida. Interface administrativa atualizada com Validation Center dinamico (badges dinâmicos e grupos de Itens, Equipamentos, NPCs, Monstros, Mapas) e preview visual real read-only seguro para BMP, PNG, JPG, JPEG, WEBP. Backend com 104/104 testes OK; frontend com 22/22 testes OK.
 
 ## Macro-etapa 2026-05-12 - Preview Visual Real Read-Only
 
 - Implementado endpoint `POST /api/assets/preview` no backend com `ApiOperationGuard` (ReadOnly).
 - Criado `AssetPreviewService` com suporte a extração em memória via `GrfAssemblyFileExtractor`.
-- Suporte inicial a preview visual (DataURL/base64) para formatos BMP e PNG.
+- Suporte inicial a preview visual (DataURL/base64) para formatos BMP, PNG, JPG, JPEG e WEBP.
 - Formatos complexos (SPR, ACT, RSM, GAT, etc.) mantidos como placeholders informativos no frontend.
 - Segurança endurecida: bloqueio de path traversal, validação de extensão permitida, limite de 1MB por asset e limpeza imediata de arquivos temporários em bloco `finally`.
 - `PassiveAssetPreviewPanel` atualizado para consumir a API e renderizar previews visuais reais com contenção via CSS.

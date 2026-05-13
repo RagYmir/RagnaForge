@@ -2,7 +2,7 @@
 
 **Data:** 12 de Maio de 2026
 **Branch:** feature/asset-preview-readonly
-**Objetivo:** Implementar preview visual seguro (read-only) de assets BMP/PNG sem riscos de vazamento ou mutação.
+**Objetivo:** Implementar preview visual seguro (read-only) de assets BMP, PNG, JPG, JPEG e WEBP sem riscos de vazamento ou mutação.
 
 ## Decisões Técnicas
 
