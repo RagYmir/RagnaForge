@@ -1,4 +1,4 @@
-﻿# 2026-05-07 - Indexed exact asset lookup v1
+# 2026-05-07 - Indexed exact asset lookup v1
 
 ## Resumo
 
@@ -40,4 +40,4 @@ Ordem atual do lookup exato:
 - `IndexedGrfAssetLookupService` virou a porta padrao para lookup GRF na CLI.
 - `item dry-run` e `equipment dry-run` passaram a reaproveitar indices locais ja existentes.
 - o resultado de lookup agora preserva proveniencia explicita com `Source`, `LocalIndexesLoaded` e `LiveContainersScanned`.
-- o smoke controlado com `sample.grf` confirmou o fluxo completo com proposta/diff e sem escrita em repositÃ³rios externos.
+- o smoke controlado com `sample.grf` confirmou o fluxo completo com proposta/diff e sem escrita em repositórios externos.

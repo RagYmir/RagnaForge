@@ -1,4 +1,4 @@
-﻿# RagnarokSDE reference analysis v1
+# RagnarokSDE reference analysis v1
 
 Data da analise: 2026-05-12
 Escopo: leitura tecnica e visual/UX em modo somente leitura.
@@ -80,7 +80,7 @@ Nao copiar reparos automaticos ou geracao direta de arquivos client-side pela UI
 
 Nao copiar a estrategia de decompilar `.lub` automaticamente. O RagnaForge ja decidiu bloquear bytecode e manipular apenas formatos textuais seguros.
 
-Nao copiar campos tecnicos sem traducao. O SDE expÃµe muitos campos como editor de DB; o RagnaForge precisa apresentar esses dados como plano, risco, dependencia e diff.
+Nao copiar campos tecnicos sem traducao. O SDE expõe muitos campos como editor de DB; o RagnaForge precisa apresentar esses dados como plano, risco, dependencia e diff.
 
 Nao copiar assets/PNG/estilos do SDE sem licenca clara.
 

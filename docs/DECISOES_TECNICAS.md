@@ -16,7 +16,7 @@ Nao acoplar dominio ao GRF Editor. Criar `GrfEditorIntegration` e contratos `IGr
 
 ## D-004: Equipamento e especializacao de item
 
-No dominio/backend, equipamento herda/compÃµe item base. Aba visual separada e permitida, modelo duplicado independente nao.
+No dominio/backend, equipamento herda/compõe item base. Aba visual separada e permitida, modelo duplicado independente nao.
 
 ## D-005: Fonte da verdade externa
 
@@ -121,7 +121,7 @@ Decisao:
 
 ## D-017: Diff preview de item sera derivado do proprio dry-run
 
-Nesta fase nao vamos criar um pipeline separado para diff. O proprio `ItemDryRunReport` passa a carregar um `DiffPreview` estruturado, e a CLI expÃµe isso tambem por `item diff-preview`.
+Nesta fase nao vamos criar um pipeline separado para diff. O proprio `ItemDryRunReport` passa a carregar um `DiffPreview` estruturado, e a CLI expõe isso tambem por `item diff-preview`.
 
 Isso reduz duplicacao e garante que:
 

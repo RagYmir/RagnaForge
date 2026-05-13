@@ -3,7 +3,7 @@
 O RagnaForge leva a segurança de arquivos de servidores e manipulação visual a sério. Devido ao design do software, nós manipulamos os bancos de dados originais de rAthena e os diretórios visuais.
 
 ## Read-Only Mode
-No atual estado do projeto, o RagnaForge opera exclusivamente em modo **Read-Only** (Dry-Run / Diff-Preview). Não forneça chaves de banco de dados e não subverta as configurações de segurança inseridas pelo `ApiSafetyPolicy`.
+A API e a interface administrativa operam em modo **Read-Only** (Dry-Run / Diff-Preview). A CLI possui comandos **apply/rollback** protegidos por confirmação explícita, logs, backups e rollback, mas esses comandos não estão disponíveis via API/UI nesta fase.
 
 O preview visual de assets utiliza extração controlada em memória. Arquivos temporários são criados apenas para conversão imediata para DataURL e são removidos do disco logo após o processamento, sem persistência fora da sessão de leitura.
 
@@ -19,6 +19,7 @@ Por medidas de segurança intelectual e de arquivos volumosos, proíbe-se expres
 - Scripts locais com senhas preenchidas
 
 ## Reportando Vulnerabilidades
-Se você descobrir alguma rota que possa ser abusada no modo Read-Only, contorne os bloqueios da API, ou introduza riscos de sobrescrita destrutiva dos bancos rAthena:
-- Por favor, abra um relatório de Issue focado na flag [Security].
-- Não divulgue exploits funcionalmente ativos de `Apply`/`Rollback` nos fóruns abertos. Levante a falha de bloqueio para o time corrigir imediatamente.
+Se você descobrir alguma falha de segurança ou possibilidade de bypass dos bloqueios da API:
+- Utilize o **GitHub Security Advisory**, se disponível;
+- Ou entre em contato privado com o mantenedor;
+- Caso abra uma Issue pública, **não inclua** exploits funcionais, caminhos sensíveis, chaves, payloads destrutivos ou instruções detalhadas de bypass. Levante apenas a falha de bloqueio para o time corrigir imediatamente.

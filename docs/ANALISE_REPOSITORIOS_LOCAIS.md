@@ -1,4 +1,4 @@
-﻿# Analise dos repositorios locais
+# Analise dos repositorios locais
 
 Data: 2026-05-06
 Status: Discovery read-only
@@ -331,7 +331,7 @@ Containers/top-level:
 
 Observacao:
 
-- O diretÃ³rio e grande; tentativas de contagem recursiva completa de containers/extension groups atingiram timeout de 30s.
+- O diretório e grande; tentativas de contagem recursiva completa de containers/extension groups atingiram timeout de 30s.
 - O scanner real deve ser incremental, cancelavel e cacheado, com progresso e limite por lote.
 
 ## Implicacoes para a arquitetura

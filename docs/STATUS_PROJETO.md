@@ -1,7 +1,7 @@
 # STATUS_PROJETO
 
 Atualizado: 2026-05-12
-Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao explicita. API backend endurecida. Interface administrativa atualizada com Validation Center dinamico (badges dinÃ¢micos e grupos de Itens, Equipamentos, NPCs, Monstros, Mapas) e preview visual real read-only seguro para BMP/PNG. Backend com 104/104 testes OK; frontend com 22/22 testes OK.
+Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao explicita. API backend endurecida. Interface administrativa atualizada com Validation Center dinamico (badges dinâmicos e grupos de Itens, Equipamentos, NPCs, Monstros, Mapas) e preview visual real read-only seguro para BMP/PNG. Backend com 104/104 testes OK; frontend com 22/22 testes OK.
 
 ## Macro-etapa 2026-05-12 - Preview Visual Real Read-Only
 
@@ -32,7 +32,7 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao expli
 - `ValidationMatrix` ganhou filtros por severidade, tag, categoria, origem e entidade.
 - `PassiveAssetPreviewPanel` ganhou categoria, path esperado, origem, proveniencia e placeholder explicito para preview visual futuro.
 - Bateria read-only de casos reais executada para todos os tipos principais via CLI backend e frontend validado.
-- Os badges no Validation Center deixaram de ser fixos e agora renderizam de forma dinÃ¢mica lendo diretamente a saÃºde de `Itens`, `Equipamentos`, `NPCs`, `Monstros` e `Mapas`.
+- Os badges no Validation Center deixaram de ser fixos e agora renderizam de forma dinâmica lendo diretamente a saúde de `Itens`, `Equipamentos`, `NPCs`, `Monstros` e `Mapas`.
 - Nenhum endpoint novo de validacao foi necessario; a rodada reaproveitou endpoints existentes.
 - Politica futura de `apply/rollback` documentada, sem implementacao em API ou UI.
 
@@ -276,7 +276,7 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao expli
 - `map` ainda usa leitura baseada em strings internas de `.rsw/.gnd`; parser binario dedicado continua como proxima camada de hardening.
 - `map` agora bloqueia lookup GRF ambiguo de dependencias referenciadas, mas isso pode reduzir bastante `CanApply` em mapas grandes ate existir parser/lookup mais preciso por caminho.
 - `map` ainda nao gera automaticamente warps, mapflags, NPCs iniciais ou spawns acoplados ao mesmo apply.
-- `item apply` e `item rollback` estao implementados, mas ainda nao foram executados contra os repositÃƒÂ³rios reais porque a confirmaÃƒÂ§ÃƒÂ£o explÃƒÂ­cita nÃƒÂ£o foi fornecida.
+- `item apply` e `item rollback` estao implementados, mas ainda nao foram executados contra os repositórios reais porque a confirmação explícita não foi fornecida.
 - Artefatos do MVP anterior foram removidos; a stack final ainda precisa ser criada do zero apos aprovacao da arquitetura.
 - O SDK local criou projetos `net10.0`; se for necessario mirar LTS, sera preciso ajustar templates/SDK antes.
 
@@ -340,7 +340,7 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao expli
 - Smoke real de `npc diff-preview` em `prontera` retornou 2 hunks: loader em `npc/scripts_custom.conf` e script novo em `npc/custom`.
 - Smoke real de `monster diff-preview` em `prontera` retornou 4 hunks: loader, `mob_db.yml`, `mob_avail.yml` e script de spawn.
 - Smoke real de `map dry-run --map-name prontera --asset-grf-container data_0.grf` encontrou `prontera.rsw`, `prontera.gnd` e `prontera.gat` por `LiveScanFallback` e executou scan profundo via `ControlledGrfExtraction`.
-- Smoke de seguranÃƒÂ§a: `item apply` sem `--confirm APPLY` foi recusado antes de qualquer escrita.
+- Smoke de segurança: `item apply` sem `--confirm APPLY` foi recusado antes de qualquer escrita.
 - Smoke real de shield hint: `equipment dry-run` com `C_Lord_Of_Death_Shield` apontou `spriterobename.lub` como robe-table hint.
 - `dotnet build RagnaForge.slnx` com 0 erros e 0 avisos apos endurecer e aplicar o pipeline de mapa.
 - `dotnet run --project backend\tests\RagnaForge.Tests\RagnaForge.Tests.csproj` com 52/52 testes OK.

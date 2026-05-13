@@ -135,7 +135,7 @@ Status: em andamento, limitada a read-only, dry-run e diff-preview
 
 ### Atualizacao 2026-05-12 - Preview Visual Real
 
-- Preview visual real read-only de icones/sprites (BMP/PNG): concluído.
+- Preview visual real read-only de ícones/assets bitmap (BMP/PNG): concluído.
 - Endpoint `POST /api/assets/preview` endurecido com bloqueio de path traversal e limpeza de temporários.
 - Frontend integrado com `PassiveAssetPreviewPanel` visual.
 - Proximo bloco recomendado:

@@ -1,4 +1,4 @@
-﻿# 2026-05-11 - Pre-production audit v1
+# 2026-05-11 - Pre-production audit v1
 
 ## Resumo executivo
 
@@ -299,7 +299,7 @@ Conclusao: guards estao funcionando e nao criaram log/backup indevido.
 - Nenhuma GRF original foi alterada.
 - Arquivos gerados ficaram no workspace: caches de auditoria em `data/cache`, `data/indexes`, baseline em `tmp` e este relatorio em `docs`.
 
-## RecomendaÃ§Ãµes antes da API
+## Recomendações antes da API
 
 1. API deve iniciar apenas com endpoints read-only, dry-run e diff-preview.
 2. Endpoints de apply/rollback devem ser criados bloqueados ou atras de confirmacao forte, auditoria, autenticacao e permissao explicita.
