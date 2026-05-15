@@ -1,7 +1,8 @@
 # STATUS_PROJETO
+# STATUS_PROJETO
 
 Atualizado: 2026-05-12
-Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao explicita. API backend endurecida. Interface administrativa atualizada com Validation Center dinamico (badges dinâmicos e grupos de Itens, Equipamentos, NPCs, Monstros, Mapas) e preview visual real read-only seguro para BMP, PNG, JPG, JPEG, WEBP. Backend com 104/104 testes OK; frontend com 22/22 testes OK.
+Estado: dry-run, diff-preview, apply e rollback protegidos por confirmação explícita. API backend endurecida. Interface administrativa atualizada com Validation Center dinâmico (badges dinâmicos e grupos de Itens, Equipamentos, NPCs, Monstros, Mapas) e preview visual real read-only seguro para BMP, PNG, JPG, JPEG, WEBP. Backend com 104/104 testes OK; frontend com 22/22 testes OK.
 
 ## Macro-etapa 2026-05-12 - Preview Visual Real Read-Only
 
@@ -14,7 +15,7 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao expli
 - Backend atualizado para 104 testes de integração (incluindo suíte de segurança de assets); frontend com 22 testes OK.
 - Branch `feature/asset-preview-readonly` pronta para merge (após PR).
 
-## Macro-etapa 2026-05-12 - UI, produtividade local e validacao read-only
+## Macro-etapa 2026-05-12 - UI, produtividade local e validação read-only
 
 - Auditoria visual consolidada nas telas principais da interface administrativa.
 - Presets locais seguros adicionados para item, equipamento, NPC, monstro e mapa.
