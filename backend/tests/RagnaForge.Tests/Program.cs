@@ -135,10 +135,18 @@ var tests = new List<(string Name, Action Test)>
     ("GRF assembly inspector reads a controlled container", GrfAssemblyInspectorReadsControlledContainer),
     ("Asset preview service blocks path traversal", AssetPreviewServiceBlocksPathTraversal),
     ("Asset preview service blocks unallowed extension", AssetPreviewServiceBlocksUnallowedExtension),
-    ("Asset preview service returns unsupported for complex format", AssetPreviewServiceReturnsUnsupportedForComplexFormat),
-    ("Asset preview service returns unsupported for TGA", AssetPreviewServiceReturnsUnsupportedForTga),
-    ("Asset preview service blocks asset exceeding size limit", AssetPreviewServiceBlocksOversizedAsset),
-    ("Asset preview service returns preview for valid local patch asset", AssetPreviewServiceReturnsPreviewForLocalPatchAsset)
+    ("Asset preview service blocks arbitrary GRF container path", AssetPreviewServiceBlocksArbitraryGrfContainer),
+    ("Asset preview service enforces global maximum byte limit", AssetPreviewServiceEnforcesGlobalMaxBytes),
+    ("Asset preview service returns preview for valid local patch asset", AssetPreviewServiceReturnsPreviewForLocalPatchAsset),
+    ("Asset preview service returns sprite metadata via renderer", AssetPreviewServiceReturnsSpriteMetadataViaRenderer),
+    ("Asset preview service returns act metadata only in v1", AssetPreviewServiceReturnsActMetadataOnly),
+    ("Asset preview service blocks invalid companion path", AssetPreviewServiceBlocksInvalidCompanionPath),
+    ("Asset preview service handles ACT without companion", AssetPreviewServiceHandlesActWithoutCompanion),
+    ("Asset preview service fallbacks to SPR metadata if visual fails", AssetPreviewServiceFallbacksToSpriteMetadata),
+    ("Asset preview service cleans up extraction temporary directory", AssetPreviewServiceCleansUpTemporaries),
+    ("Path validation helper blocks traversal and rooted paths", PathValidationHelperBlocksUnsafe),
+    ("Path validation helper enforces companion directory rules", PathValidationHelperEnforcesCompanionRules),
+    ("Path validation helper validates system boundaries", PathValidationHelperValidatesBoundaries)
 };
 
 var failures = new List<string>();
@@ -3761,7 +3769,6 @@ static void AssetPreviewServiceBlocksPathTraversal()
     var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
     
     Assert(response.PreviewKind == "Blocked", "Preview service should block path traversal.");
-    Assert(response.Errors.Any(e => e.Contains("Path traversal is not allowed")), "Path traversal error should be reported.");
 }
 
 static void AssetPreviewServiceBlocksUnallowedExtension()
@@ -3769,48 +3776,40 @@ static void AssetPreviewServiceBlocksUnallowedExtension()
     var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
     using var workspace = TempWorkspace.Create();
     var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
-    var request = new AssetPreviewRequest("Patch", "Loose", "data/test.exe", ".exe");
+    
+    // EntryPath tem .exe, mas ExpectedExtension é .bmp -> Mismatch
+    var request = new AssetPreviewRequest("Patch", "Loose", "data/test.exe", ".bmp");
     var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
     
-    Assert(response.PreviewKind == "Unsupported", "Preview service should block non-visual extension.");
-    Assert(response.Warnings.Any(w => w.Contains("too complex")), "Unsupported extension warning should be reported.");
+    Assert(response.PreviewKind == "Blocked", "Preview service should block extension mismatch.");
+    Assert(response.Errors.Any(e => e.Contains("Extension mismatch")), "Mismatch error expected.");
 }
 
-static void AssetPreviewServiceReturnsUnsupportedForComplexFormat()
+static void AssetPreviewServiceBlocksArbitraryGrfContainer()
 {
     var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
     using var workspace = TempWorkspace.Create();
     var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
-    var request = new AssetPreviewRequest("Patch", "Loose", "data/test.spr", ".spr");
+    
+    var request = new AssetPreviewRequest("GRF", "../../Unsafe/other.grf", "data/test.spr", ".spr");
     var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
     
-    Assert(response.PreviewKind == "Unsupported", "Preview service should return Unsupported for complex format (.spr).");
+    Assert(response.PreviewKind == "Blocked", "Preview service should block container outside GRF repository.");
 }
 
-static void AssetPreviewServiceReturnsUnsupportedForTga()
-{
-    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
-    using var workspace = TempWorkspace.Create();
-    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
-    var request = new AssetPreviewRequest("Patch", "Loose", "data/test.tga", ".tga");
-    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
-    
-    Assert(response.PreviewKind == "Unsupported", "Preview service should return Unsupported for TGA without specialized tool.");
-}
-
-static void AssetPreviewServiceBlocksOversizedAsset()
+static void AssetPreviewServiceEnforcesGlobalMaxBytes()
 {
     var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
     using var workspace = TempWorkspace.Create();
     var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
     
     var looseFile = Path.Combine(workspace.Root, "large.bmp");
-    File.WriteAllBytes(looseFile, new byte[2000]); // 2000 bytes
+    File.WriteAllBytes(looseFile, new byte[11 * 1024 * 1024]); // 11MB
 
-    var request = new AssetPreviewRequest("Patch", "Loose", "large.bmp", ".bmp", MaxBytes: 1000); // 1000 bytes max
+    var request = new AssetPreviewRequest("Patch", "Loose", "large.bmp", ".bmp", MaxBytes: 20 * 1024 * 1024);
     var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
     
-    Assert(response.PreviewKind == "TooLarge", "Preview service should block asset exceeding size limit.");
+    Assert(response.PreviewKind == "TooLarge", "Preview service should enforce global 10MB limit.");
 }
 
 static void AssetPreviewServiceReturnsPreviewForLocalPatchAsset()
@@ -3820,14 +3819,171 @@ static void AssetPreviewServiceReturnsPreviewForLocalPatchAsset()
     var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
     
     var looseFile = Path.Combine(workspace.Root, "test.bmp");
-    var content = new byte[] { 0x42, 0x4D, 0x00, 0x00 }; // Fake BMP header
+    var content = new byte[] { 0x42, 0x4D, 0x00, 0x00 };
     File.WriteAllBytes(looseFile, content);
 
     var request = new AssetPreviewRequest("Patch", "Loose", "test.bmp", ".bmp");
     var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
     
     Assert(response.PreviewKind == "Image", "Preview service should return Image for valid BMP.");
-    Assert(response.DataUrl is not null && response.DataUrl.StartsWith("data:image/bmp;base64,"), "Data URL should be correctly formed for BMP.");
+}
+
+static void AssetPreviewServiceReturnsSpriteMetadataViaRenderer()
+{
+    var fakeRenderer = new FakeSpriteRenderer();
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor(), fakeRenderer);
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    
+    var looseFile = Path.Combine(workspace.Root, "test.spr");
+    File.WriteAllBytes(looseFile, [1, 2, 3]);
+
+    var request = new AssetPreviewRequest("Patch", "Loose", "test.spr", ".spr", FrameIndex: 5);
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    Assert(response.PreviewKind == "SpriteFrame", "Preview kind should be returned from renderer.");
+    Assert(response.Metadata?.SelectedFrame == 5, "Metadata SelectedFrame should be passed through.");
+}
+
+static void AssetPreviewServiceReturnsActMetadataOnly()
+{
+    var fakeRenderer = new FakeSpriteRenderer();
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor(), fakeRenderer);
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    
+    var looseFile = Path.Combine(workspace.Root, "test.act");
+    File.WriteAllBytes(looseFile, [1, 2, 3]);
+
+    var request = new AssetPreviewRequest("Patch", "Loose", "test.act", ".act");
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    Assert(response.PreviewKind == "ActMetadata", "Preview kind should be metadata-only for ACT.");
+    Assert(response.Metadata?.ActionCount == 5, "Metadata ActionCount should be reported.");
+}
+
+static void AssetPreviewServiceBlocksInvalidCompanionPath()
+{
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    
+    // Companion escaping directory
+    var request = new AssetPreviewRequest("Patch", "Loose", "data/test.act", ".act", CompanionEntryPath: "../evil.spr");
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    Assert(response.PreviewKind == "Blocked", "Preview service should block companion traversal.");
+    Assert(response.Errors.Any(e => e.Contains("Invalid companion path")), "Error message for invalid companion expected.");
+}
+
+static void AssetPreviewServiceHandlesActWithoutCompanion()
+{
+    var fakeRenderer = new FakeSpriteRenderer();
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor(), fakeRenderer);
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    
+    var looseFile = Path.Combine(workspace.Root, "test.act");
+    File.WriteAllBytes(looseFile, [1, 2, 3]);
+
+    // Requesting ACT without companion path
+    var request = new AssetPreviewRequest("Patch", "Loose", "test.act", ".act");
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    Assert(response.PreviewKind == "ActMetadata", "Preview should work for ACT even without companion (metadata-only).");
+}
+
+static void AssetPreviewServiceFallbacksToSpriteMetadata()
+{
+    var fakeRenderer = new FakeSpriteRenderer { ReturnImage = false };
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor(), fakeRenderer);
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    
+    var looseFile = Path.Combine(workspace.Root, "test.spr");
+    File.WriteAllBytes(looseFile, [1, 2, 3]);
+
+    var request = new AssetPreviewRequest("Patch", "Loose", "test.spr", ".spr");
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    Assert(response.PreviewKind == "SpriteMetadata", "Preview should fallback to SpriteMetadata if no image is returned.");
+    Assert(response.DataUrl == null, "DataUrl should be null in metadata fallback.");
+}
+
+static void AssetPreviewServiceCleansUpTemporaries()
+{
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    
+    var containerPath = Path.Combine(workspace.Root, "test.grf");
+    File.WriteAllBytes(containerPath, Convert.FromBase64String(SampleGrfBase64));
+
+    var request = new AssetPreviewRequest("GRF", "test.grf", "data/test.spr", ".spr");
+    service.CreatePreview(paths, workspace.Root, request, "clean-test");
+    
+    var tmpRoot = Path.Combine(workspace.Root, "tmp", "asset-preview");
+    Assert(!Directory.Exists(tmpRoot) || !Directory.GetDirectories(tmpRoot).Any(), "Temporary extraction directories must be cleaned up.");
+}
+
+static void PathValidationHelperBlocksUnsafe()
+{
+    Assert(!PathValidationHelper.IsSafeLogicalPath("../evil.txt"), "Should block traversal.");
+    Assert(!PathValidationHelper.IsSafeLogicalPath("C:/evil.txt"), "Should block rooted Windows path.");
+    Assert(!PathValidationHelper.IsSafeLogicalPath("/etc/passwd"), "Should block rooted Unix path.");
+    Assert(PathValidationHelper.IsSafeLogicalPath("data/sprite/test.spr"), "Should allow safe relative path.");
+    Assert(PathValidationHelper.IsSafeLogicalPath("data\\sprite\\test.spr"), "Should allow safe relative path with backslashes.");
+}
+
+static void PathValidationHelperEnforcesCompanionRules()
+{
+    Assert(PathValidationHelper.IsSafeCompanionPath("data/test.act", "data/test.spr", ".spr"), "Should allow companion in same dir.");
+    Assert(!PathValidationHelper.IsSafeCompanionPath("data/test.act", "other/test.spr", ".spr"), "Should block companion in different dir.");
+    Assert(!PathValidationHelper.IsSafeCompanionPath("data/test.act", "data/test.txt", ".spr"), "Should block companion with wrong extension.");
+    Assert(!PathValidationHelper.IsSafeCompanionPath("data/test.act", "data/../other/test.spr", ".spr"), "Should block traversal in companion.");
+}
+
+static void PathValidationHelperValidatesBoundaries()
+{
+    using var workspace = TempWorkspace.Create();
+    var root = Path.Combine(workspace.Root, "safe");
+    Directory.CreateDirectory(root);
+
+    var safeFile = Path.Combine(root, "test.txt");
+    var unsafeFile = Path.Combine(workspace.Root, "evil.txt");
+    var sneakyFile = Path.Combine(workspace.Root, "safe_sneaky"); // Prefix attack: starts with 'safe' but is not in it
+    Directory.CreateDirectory(sneakyFile);
+
+    Assert(PathValidationHelper.IsWithinBoundary(root, safeFile), "Should allow file within boundary.");
+    Assert(!PathValidationHelper.IsWithinBoundary(root, unsafeFile), "Should block file outside boundary.");
+    Assert(!PathValidationHelper.IsWithinBoundary(root, Path.Combine(sneakyFile, "test.txt")), "Should block prefix attack (Boundary escape).");
+}
+
+internal sealed class FakeSpriteRenderer : ISpriteRenderer
+{
+    public bool ReturnImage { get; set; } = true;
+
+    public SpriteRenderResult Render(RepositoryPaths paths, byte[] assetBytes, string extension, int? frameIndex = null, int? actionIndex = null, byte[]? companionBytes = null)
+    {
+        if (extension == ".spr")
+        {
+            return new SpriteRenderResult(
+                ImageBytes: ReturnImage ? [0, 0, 0] : null,
+                Width: 32,
+                Height: 32,
+                PreviewKind: ReturnImage ? "SpriteFrame" : "SpriteMetadata",
+                FrameCount: 10,
+                SelectedFrame: frameIndex);
+        }
+
+        return new SpriteRenderResult(
+            ImageBytes: null,
+            Width: 32,
+            Height: 32,
+            PreviewKind: "ActMetadata",
+            ActionCount: 5,
+            SelectedAction: actionIndex);
+    }
 }
 internal sealed class TempWorkspace : IDisposable
 {

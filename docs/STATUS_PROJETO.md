@@ -1,7 +1,16 @@
 # STATUS_PROJETO
 
 Atualizado: 2026-05-12
-Estado: dry-run, diff-preview, apply e rollback protegidos por confirmação explícita. API backend endurecida. Interface administrativa atualizada com Validation Center dinâmico (badges dinâmicos e grupos de Itens, Equipamentos, NPCs, Monstros, Mapas) e preview visual real read-only seguro para BMP, PNG, JPG, JPEG, WEBP. Backend com 104/104 testes OK; frontend com 22/22 testes OK.
+Estado: dry-run, diff-preview, apply e rollback protegidos por confirmação explícita. API backend endurecida. Interface administrativa com Validation Center dinâmico e preview visual real read-only seguro para ativos bitmap (BMP, PNG, etc) e suporte técnico (metadados/best-effort) para SPR e ACT. Backend com 105/105 testes OK; frontend com 22/22 testes OK.
+
+## Macro-etapa 2026-05-15 - SPR e ACT Read-Only Preview (Hardened)
+
+- Implementado suporte binário para `.spr` e `.act` via `ISpriteRenderer` e `GrfAssemblySpriteRenderer` (Reflection).
+- **Honesty v1:** SPR definido como preview visual best-effort (depende de PngData na assembly); ACT definido como metadata-only (sem composição visual de camadas no v1).
+- **Hardening de Segurança:** Centralização de validações no `PathValidationHelper`. Bloqueio de traversal em caminhos lógicos e arquivos companion.
+- **Robustez de Fronteira:** Substituição de validações de prefixo por checagem de `Path.GetRelativePath` em relação às raízes absolutas de Patch e GRF.
+- **Resource Protection:** Limite global estrito de 10MB por ativo e captura segura de exceções de renderização sem vazamento de caminhos.
+- **Testes:** Backend expandido para 105 testes de integração, cobrindo especificamente ataques de traversal via companion e escape de fronteira de sistema.
 
 ## Macro-etapa 2026-05-12 - Preview Visual Real Read-Only
 

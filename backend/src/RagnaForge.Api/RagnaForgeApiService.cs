@@ -192,7 +192,9 @@ public sealed class RagnaForgeApiService
     public AssetPreviewResponse CreateAssetPreview(AssetPreviewRequest request, string correlationId)
     {
         var manifest = LoadValidatedManifest(request.ConfigPath);
-        var service = new RagnaForge.Application.Assets.AssetPreviewService(new GrfAssemblyFileExtractor());
+        var service = new RagnaForge.Application.Assets.AssetPreviewService(
+            new GrfAssemblyFileExtractor(),
+            new GrfAssemblySpriteRenderer());
         return service.CreatePreview(manifest.Paths, _workspaceRoot, request, correlationId);
     }
 

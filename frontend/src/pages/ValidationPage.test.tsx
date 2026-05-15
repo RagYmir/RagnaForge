@@ -194,7 +194,7 @@ describe("ValidationPage", () => {
     expect(screen.getAllByText(/rf_missing\.bmp/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/rf_ambiguous\.rsm/i).length).toBeGreaterThan(0);
     expect(
-      screen.getAllByText(/Preview visual real pendente de endpoint seguro de leitura\./i).length,
+      screen.getAllByText(/Preview visual read-only seguro via API\./i).length,
     ).toBeGreaterThan(0);
     expect(screen.queryByRole("button", { name: /apply/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /rollback/i })).not.toBeInTheDocument();

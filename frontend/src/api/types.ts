@@ -189,6 +189,46 @@ export interface PipelineReport {
   [key: string]: unknown;
 }
 
+export interface AssetPreviewRequest {
+  source: string;
+  container: string;
+  entryPath: string;
+  expectedExtension: string;
+  configPath?: string;
+  maxBytes?: number;
+  frameIndex?: number;
+  actionIndex?: number;
+  companionEntryPath?: string;
+}
+
+export interface AssetPreviewMetadata {
+  frameCount?: number;
+  actionCount?: number;
+  selectedFrame?: number;
+  selectedAction?: number;
+  formatVersion?: string;
+  renderMode?: string;
+  layerCount?: number;
+  referencedSpriteFrames?: number[];
+  extra?: Record<string, string>;
+}
+
+export interface AssetPreviewResponse {
+  assetName: string;
+  entryPath: string;
+  extension: string;
+  contentType: string | null;
+  previewKind: string;
+  dataUrl: string | null;
+  width: number | null;
+  height: number | null;
+  source: string;
+  provenance: string;
+  warnings: string[];
+  errors: string[];
+  metadata?: AssetPreviewMetadata;
+}
+
 export type DiscoveryData = Record<string, unknown>;
 export type GrfIndexData = Record<string, unknown>;
 export type GrfInspectData = Record<string, unknown>;

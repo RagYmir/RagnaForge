@@ -135,10 +135,13 @@ Status: em andamento, limitada a read-only, dry-run e diff-preview
 
 ### Atualizacao 2026-05-12 - Preview Visual Real
 
-- Preview visual real read-only de ícones/assets bitmap (BMP, PNG, JPG, JPEG, WEBP): concluído.
+- [x] Preview visual real read-only de ícones/assets bitmap (BMP/PNG): concluído.
+- [x] Suporte a metadados (SPR/ACT) e preview visual best-effort (SPR) via GrfCL/Reflection: concluído.
+
 - Endpoint `POST /api/assets/preview` endurecido com bloqueio de path traversal e limpeza de temporários.
 - Frontend integrado com `PassiveAssetPreviewPanel` visual.
 - Proximo bloco recomendado:
   - parser binario read-only dedicado para `.rsw/.gnd` (scan profundo sem string search); ou
   - persistencia segura de `ClientDate` no manifest; ou
-  - suporte visual para formatos complexos (SPR/ACT) via conversão segura.
+  - renderização básica de mapas (.rsw/.gnd) via BabylonJS/ThreeJS (Read-Only); ou
+  - suporte a paletas customizadas (.pal) para SPR preview.

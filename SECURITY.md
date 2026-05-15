@@ -39,19 +39,21 @@ Esses comandos **não estão disponíveis via API/UI nesta fase**.
 O endpoint `POST /api/assets/preview` é estritamente de leitura.
 
 Ele permite visualizar ícones e assets bitmap nos formatos:
-- `.bmp`
-- `.png`
-- `.jpg`
-- `.jpeg`
-- `.webp`
+- `.bmp`, `.png`, `.jpg`, `.jpeg`, `.webp` (Visual completo)
+- `.spr` (Metadados e preview visual best-effort)
+- `.act` (Metadata-only no v1)
 
 O processo utiliza extração temporária e controlada via `tmp/`, apenas para conversão imediata para DataURL/base64.
+
+A segurança é garantida por:
+- `PathValidationHelper`: bloqueio de traversal, caminhos rootados e normalização de caminhos lógicos.
+- Validação de fronteira via `Path.GetRelativePath`: impede escape das raízes de Patch e GRF Repository.
+- Limite físico de 10MB por ativo.
+- Limpeza imediata de temporários.
 
 Os arquivos temporários devem ser removidos imediatamente após o processamento, sem escrita persistente nos repositórios de rAthena, Patch/client, GRFs ou diretórios de cache/log/backups.
 
 Formatos complexos permanecem como placeholders informativos nesta fase, incluindo:
-- `.spr`
-- `.act`
 - `.tga`
 - `.gat`
 - `.gnd`
@@ -107,5 +109,5 @@ Nesta fase, a política oficial é:
 - CLI: apply/rollback apenas com confirmação explícita e trilha de segurança;
 - GRFs originais: nunca alterados diretamente;
 - `.lub` bytecode: bloqueado para edição/decompilação/recompilação;
-- assets complexos: apenas placeholder até existir parser/conversor seguro;
+- assets complexos: apenas placeholder (GAT/RSW/RSM) ou metadados seguros (SPR/ACT);
 - apply/rollback via API/UI: fora de escopo até nova decisão formal de segurança.
