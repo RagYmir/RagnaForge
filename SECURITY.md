@@ -1,22 +1,111 @@
 # Security Policy
 
-O RagnaForge leva a segurança de arquivos de servidores e manipulação visual a sério. Devido ao design do software, nós manipulamos os bancos de dados originais de rAthena e os diretórios visuais.
+O RagnaForge leva a segurança de arquivos de servidores, repositórios rAthena, Patch/client, GRFs e manipulação visual a sério.
 
-## Read-Only Mode
-No atual estado do projeto, o RagnaForge opera exclusivamente em modo **Read-Only** (Dry-Run / Diff-Preview). Não forneça chaves de banco de dados e não subverta as configurações de segurança inseridas pelo `ApiSafetyPolicy`.
+O projeto trabalha com leitura, análise e geração de propostas sobre estruturas sensíveis de servidor e client Ragnarok. Por isso, qualquer operação de escrita deve ser tratada como crítica e controlada.
 
-## Alertas sobre API Key e Configurações
-- A chave do administrador `X-RagnaForge-Api-Key` deve ficar sempre protegida localmente em arquivos `.env` ou settings do seu sistema operacional.
-- O seu arquivo com configurações locais (e possíveis Absolute Paths) **nunca** deve ser incluído no repositório. Mantenha `repositories.local.json` isolado.
+## Read-Only Mode (API e UI)
+
+A API e a interface administrativa operam exclusivamente em modo **Read-Only**, **Dry-Run** e **Diff-Preview** nesta fase.
+
+Não existem endpoints de escrita (`apply` ou `rollback`) mapeados na API, e a interface administrativa não possui botões, rotas ou fluxos para executar essas operações.
+
+A API/UI não deve:
+- aplicar alterações em rAthena;
+- aplicar alterações no Patch/client;
+- alterar GRFs originais;
+- copiar assets para Patch;
+- executar comandos da CLI;
+- editar `.lub` bytecode;
+- criar fluxos automáticos de repair/write.
+
+## CLI (Command Line Interface)
+
+A CLI possui comandos funcionais de `apply` e `rollback` para algumas categorias já implementadas no pipeline.
+
+Esses comandos são protegidos por:
+- confirmação explícita obrigatória (`--confirm APPLY` ou `--confirm ROLLBACK`);
+- geração de diff/dry-run antes da escrita;
+- criação automática de backups antes de qualquer alteração;
+- logs detalhados em `data/logs/`;
+- manifests de rollback;
+- validação de hash para evitar rollback cego sobre arquivos modificados manualmente;
+- restrição de escrita às raízes permitidas.
+
+Esses comandos **não estão disponíveis via API/UI nesta fase**.
+
+## Asset Preview Read-Only
+
+O endpoint `POST /api/assets/preview` é estritamente de leitura.
+
+Ele permite visualizar ícones e assets bitmap nos formatos:
+- `.bmp`
+- `.png`
+- `.jpg`
+- `.jpeg`
+- `.webp`
+
+O processo utiliza extração temporária e controlada via `tmp/`, apenas para conversão imediata para DataURL/base64.
+
+Os arquivos temporários devem ser removidos imediatamente após o processamento, sem escrita persistente nos repositórios de rAthena, Patch/client, GRFs ou diretórios de cache/log/backups.
+
+Formatos complexos permanecem como placeholders informativos nesta fase, incluindo:
+- `.spr`
+- `.act`
+- `.tga`
+- `.gat`
+- `.gnd`
+- `.rsw`
+- `.rsm`
+- formatos binários/client específicos ainda não mapeados com segurança.
+
+## API Key e Configurações Locais
+
+A chave administrativa `X-RagnaForge-Api-Key` deve ficar sempre protegida localmente.
+
+Não faça commit de:
+- `.env`;
+- arquivos de secrets;
+- `repositories.local.json`;
+- arquivos com caminhos absolutos reais do ambiente;
+- configurações locais com credenciais;
+- dumps de banco;
+- logs reais sensíveis.
+
+Use templates limpos, como `repositories.example.json`, para documentar a estrutura esperada sem expor dados locais.
 
 ## Arquivos Proibidos no Git
-Por medidas de segurança intelectual e de arquivos volumosos, proíbe-se expressamente que qualquer usuário faça commit de:
-- Conteúdos advindos de arquivos originais GRF
-- Sprites/Assets (ex: BMP, SPR, ACT) do Client Core
-- Arquivos de credenciais ou dumps do MySQL rAthena
-- Scripts locais com senhas preenchidas
+
+É proibido commitar:
+- GRFs originais;
+- Thor/GPF privados;
+- assets extraídos de GRF;
+- sprites, ACTs, BMPs, TGAs, texturas, mapas ou arquivos do client core;
+- dumps MySQL/rAthena;
+- backups reais;
+- logs reais com caminhos locais;
+- arquivos temporários de extração;
+- arquivos contendo API keys, senhas, tokens ou caminhos sensíveis.
+
+Pastas como `data/cache/`, `data/indexes/`, `data/logs/`, `data/backups/` e `tmp/` devem manter apenas `.gitkeep` ou templates seguros quando necessário.
 
 ## Reportando Vulnerabilidades
-Se você descobrir alguma rota que possa ser abusada no modo Read-Only, contorne os bloqueios da API, ou introduza riscos de sobrescrita destrutiva dos bancos rAthena:
-- Por favor, abra um relatório de Issue focado na flag [Security].
-- Não divulgue exploits funcionalmente ativos de `Apply`/`Rollback` nos fóruns abertos. Levante a falha de bloqueio para o time corrigir imediatamente.
+
+Se você descobrir uma falha de segurança, bypass de read-only, vazamento de arquivo, path traversal, escrita indevida ou possibilidade de exploração:
+
+- utilize o **GitHub Security Advisory**, se disponível;
+- ou entre em contato privado com o mantenedor;
+- se abrir uma Issue pública, não inclua exploits funcionais, payloads destrutivos, caminhos sensíveis, chaves, tokens, dumps, arquivos privados ou instruções detalhadas de bypass.
+
+Issues públicas devem descrever apenas o impacto de forma sanitizada, sem material reproduzível perigoso.
+
+## Escopo de Segurança Atual
+
+Nesta fase, a política oficial é:
+
+- API/UI: read-only, dry-run e diff-preview;
+- CLI: apply/rollback apenas com confirmação explícita e trilha de segurança;
+- GRFs originais: nunca alterados diretamente;
+- `.lub` bytecode: bloqueado para edição/decompilação/recompilação;
+- assets complexos: apenas placeholder até existir parser/conversor seguro;
+- apply/rollback via API/UI: fora de escopo até nova decisão formal de segurança.

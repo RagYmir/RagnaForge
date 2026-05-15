@@ -1,4 +1,4 @@
-﻿# Decisoes tecnicas
+# Decisoes tecnicas
 
 Data: 2026-05-06
 
@@ -16,7 +16,7 @@ Nao acoplar dominio ao GRF Editor. Criar `GrfEditorIntegration` e contratos `IGr
 
 ## D-004: Equipamento e especializacao de item
 
-No dominio/backend, equipamento herda/compÃµe item base. Aba visual separada e permitida, modelo duplicado independente nao.
+No dominio/backend, equipamento herda/compõe item base. Aba visual separada e permitida, modelo duplicado independente nao.
 
 ## D-005: Fonte da verdade externa
 
@@ -121,7 +121,7 @@ Decisao:
 
 ## D-017: Diff preview de item sera derivado do proprio dry-run
 
-Nesta fase nao vamos criar um pipeline separado para diff. O proprio `ItemDryRunReport` passa a carregar um `DiffPreview` estruturado, e a CLI expÃµe isso tambem por `item diff-preview`.
+Nesta fase nao vamos criar um pipeline separado para diff. O proprio `ItemDryRunReport` passa a carregar um `DiffPreview` estruturado, e a CLI expõe isso tambem por `item diff-preview`.
 
 Isso reduz duplicacao e garante que:
 
@@ -431,3 +431,19 @@ Com a API e a UI ainda em modo seguro, a decisao tecnica fica:
 - bloquear desde ja qualquer ideia de liberar `map apply` primeiro;
 - tratar `.lub` bytecode, asset critico ausente, conflito de hash, rename binario de mapa e ambiguidade critica como bloqueios absolutos mesmo no futuro;
 - liberar escrita, se um dia existir, por categoria e com feature flags desligadas por padrao.
+
+## D-044: Preview visual real de assets por endpoint isolado
+
+Com o objetivo de enriquecer a auditoria visual sem abrir riscos de segurança, a decisão é:
+
+- Criar `AssetPreviewService` para encapsular a lógica de extração e conversão.
+- Utilizar `GrfAssemblyFileExtractor` (que usa `GRF.dll`) para extração controlada e temporária de assets.
+- Converter assets BMP e PNG para `DataURL` (base64) diretamente na API, enviando o payload visual para o frontend.
+- Limpar rigorosamente arquivos temporários em blocos `finally` após a conversão.
+- Endurecer o endpoint `POST /api/assets/preview`:
+  - Exigir `ApiOperationGuard` no modo `ReadOnly`.
+  - Validar `extension` contra whitelist (inicialmente `.bmp`, `.png`, `.jpg`, `.jpeg`, `.webp`).
+  - Bloquear caminhos que contenham `..` (path traversal).
+  - Bloquear caminhos absolutos arbitrários; apenas caminhos relativos ao container ou raízes permitidas são aceitos.
+  - Limitar o tamanho do asset para 1MB por requisição.
+- Manter o frontend como consumidor passivo, exibindo placeholders para formatos ainda não suportados para conversão visual segura.
