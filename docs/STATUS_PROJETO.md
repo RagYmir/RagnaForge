@@ -1,5 +1,4 @@
 # STATUS_PROJETO
-# STATUS_PROJETO
 
 Atualizado: 2026-05-12
 Estado: dry-run, diff-preview, apply e rollback protegidos por confirmação explícita. API backend endurecida. Interface administrativa atualizada com Validation Center dinâmico (badges dinâmicos e grupos de Itens, Equipamentos, NPCs, Monstros, Mapas) e preview visual real read-only seguro para BMP, PNG, JPG, JPEG, WEBP. Backend com 104/104 testes OK; frontend com 22/22 testes OK.
