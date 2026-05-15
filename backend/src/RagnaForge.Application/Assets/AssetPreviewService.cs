@@ -181,8 +181,8 @@ public sealed class AssetPreviewService
                 new AssetPreviewMetadata(
                     renderResult.FrameCount,
                     renderResult.ActionCount,
-                    request.FrameIndex,
-                    request.ActionIndex,
+                    renderResult.SelectedFrame ?? request.FrameIndex,
+                    renderResult.SelectedAction ?? request.ActionIndex,
                     renderResult.FormatVersion,
                     renderResult.RenderMode,
                     renderResult.LayerCount,

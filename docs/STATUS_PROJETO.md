@@ -1,7 +1,7 @@
 # STATUS_PROJETO
 
 Atualizado: 2026-05-12
-Estado: dry-run, diff-preview, apply e rollback protegidos por confirmação explícita. API backend endurecida. Interface administrativa com Validation Center dinâmico e preview visual real read-only seguro para ativos bitmap (BMP, PNG, etc) e suporte técnico (metadados/best-effort) para SPR e ACT. Backend com 105/105 testes OK; frontend com 22/22 testes OK.
+Estado: dry-run, diff-preview, apply e rollback protegidos por confirmação explícita. API backend endurecida. Interface administrativa com Validation Center dinâmico e preview visual real read-only seguro para ativos bitmap (BMP, PNG, etc) e suporte técnico (metadados/best-effort) para SPR e ACT. Backend com 114/114 testes OK; frontend com 22/22 testes OK.
 
 ## Macro-etapa 2026-05-15 - SPR e ACT Read-Only Preview (Hardened)
 
@@ -10,7 +10,7 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmação exp
 - **Hardening de Segurança:** Centralização de validações no `PathValidationHelper`. Bloqueio de traversal em caminhos lógicos e arquivos companion.
 - **Robustez de Fronteira:** Substituição de validações de prefixo por checagem de `Path.GetRelativePath` em relação às raízes absolutas de Patch e GRF.
 - **Resource Protection:** Limite global estrito de 10MB por ativo e captura segura de exceções de renderização sem vazamento de caminhos.
-- **Testes:** Backend expandido para 105 testes de integração, cobrindo especificamente ataques de traversal via companion e escape de fronteira de sistema.
+- **Testes:** Backend expandido para 114 testes de integração, cobrindo especificamente ataques de traversal via companion, escape de fronteira de sistema e normalização de índices de frame/action.
 
 ## Macro-etapa 2026-05-12 - Preview Visual Real Read-Only
 

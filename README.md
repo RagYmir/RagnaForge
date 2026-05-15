@@ -24,7 +24,7 @@ Para proteger os caminhos do seu disco local de entrarem no GitHub, o projeto re
 **(ATENÇÃO: Nunca adicione `repositories.local.json` nos seus commits! Ele já está no `.gitignore`)**
 
 ### 2. Rodar o Backend
-O backend foi construído em .NET 10.0 e possui 98 testes garantindo a segurança de todos os scanners e bloqueios.
+O backend foi construído em .NET 10.0 e possui 114 testes garantindo a segurança de todos os scanners e bloqueios.
 ```sh
 # Compilar a solucao
 dotnet build RagnaForge.slnx
@@ -56,5 +56,5 @@ npm run dev
 *   As modificações de código sempre devem passar por uma rotina completa de testes unitários.
 
 ## Status de Testes
-*   **Backend:** 98/98 Testes Unitários/Integração PASS (100% cobrindo a política read-only e diffs).
+*   **Backend:** 114/114 Testes Unitários/Integração PASS (100% cobrindo a política read-only e diffs).
 *   **Frontend:** 22/22 Testes de Componentes PASS (100% cobrindo matrizes de UI e UX Safety).

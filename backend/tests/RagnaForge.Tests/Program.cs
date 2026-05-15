@@ -143,6 +143,8 @@ var tests = new List<(string Name, Action Test)>
     ("Asset preview service blocks invalid companion path", AssetPreviewServiceBlocksInvalidCompanionPath),
     ("Asset preview service handles ACT without companion", AssetPreviewServiceHandlesActWithoutCompanion),
     ("Asset preview service fallbacks to SPR metadata if visual fails", AssetPreviewServiceFallbacksToSpriteMetadata),
+    ("Asset preview service reports effective frame index on fallback", AssetPreviewServiceReportsEffectiveFrameIndex),
+    ("Asset preview service reports effective action index on fallback", AssetPreviewServiceReportsEffectiveActionIndex),
     ("Asset preview service cleans up extraction temporary directory", AssetPreviewServiceCleansUpTemporaries),
     ("Path validation helper blocks traversal and rooted paths", PathValidationHelperBlocksUnsafe),
     ("Path validation helper enforces companion directory rules", PathValidationHelperEnforcesCompanionRules),
@@ -3910,6 +3912,41 @@ static void AssetPreviewServiceFallbacksToSpriteMetadata()
     Assert(response.DataUrl == null, "DataUrl should be null in metadata fallback.");
 }
 
+static void AssetPreviewServiceReportsEffectiveFrameIndex()
+{
+    var fakeRenderer = new FakeSpriteRenderer();
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor(), fakeRenderer);
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    
+    var looseFile = Path.Combine(workspace.Root, "test.spr");
+    File.WriteAllBytes(looseFile, [1, 2, 3]);
+
+    // Requesting frame 999 (invalid, fakeRenderer has 10 frames)
+    var request = new AssetPreviewRequest("Patch", "Loose", "test.spr", ".spr", FrameIndex: 999);
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    // FakeSpriteRenderer logic: if index >= count, it should return 0 (or whatever it normalized to)
+    Assert(response.Metadata?.SelectedFrame == 0, "Metadata should report effective frame index 0 when requested index was out of bounds.");
+}
+
+static void AssetPreviewServiceReportsEffectiveActionIndex()
+{
+    var fakeRenderer = new FakeSpriteRenderer();
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor(), fakeRenderer);
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    
+    var looseFile = Path.Combine(workspace.Root, "test.act");
+    File.WriteAllBytes(looseFile, [1, 2, 3]);
+
+    // Requesting action 999 (invalid, fakeRenderer has 5 actions)
+    var request = new AssetPreviewRequest("Patch", "Loose", "test.act", ".act", ActionIndex: 999);
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    Assert(response.Metadata?.SelectedAction == 0, "Metadata should report effective action index 0 when requested index was out of bounds.");
+}
+
 static void AssetPreviewServiceCleansUpTemporaries()
 {
     var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
@@ -3967,22 +4004,30 @@ internal sealed class FakeSpriteRenderer : ISpriteRenderer
     {
         if (extension == ".spr")
         {
+            var frameCount = 10;
+            var selected = frameIndex ?? 0;
+            if (selected < 0 || selected >= frameCount) selected = 0;
+
             return new SpriteRenderResult(
                 ImageBytes: ReturnImage ? [0, 0, 0] : null,
                 Width: 32,
                 Height: 32,
                 PreviewKind: ReturnImage ? "SpriteFrame" : "SpriteMetadata",
-                FrameCount: 10,
-                SelectedFrame: frameIndex);
+                FrameCount: frameCount,
+                SelectedFrame: selected);
         }
+
+        var actionCount = 5;
+        var selectedAction = actionIndex ?? 0;
+        if (selectedAction < 0 || selectedAction >= actionCount) selectedAction = 0;
 
         return new SpriteRenderResult(
             ImageBytes: null,
             Width: 32,
             Height: 32,
             PreviewKind: "ActMetadata",
-            ActionCount: 5,
-            SelectedAction: actionIndex);
+            ActionCount: actionCount,
+            SelectedAction: selectedAction);
     }
 }
 internal sealed class TempWorkspace : IDisposable

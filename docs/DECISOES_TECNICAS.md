@@ -462,3 +462,4 @@ Em 2026-05-15, foi decidido expandir o sistema de preview para suportar formatos
    - **PathValidationHelper:** Introdução de helper centralizado para validar caminhos lógicos, bloquear traversal (`..`) e caminhos rootados (`:`, `/`).
    - **Validação de Fronteira (Boundary):** Uso de `Path.GetFullPath` e `Path.GetRelativePath` para garantir que arquivos de Patch ou containers GRF nunca escapem das raízes permitidas. Checagem manual de prefixo foi considerada insuficiente e substituída por lógica de resolução de caminho canônico.
    - **Resource Limits:** Implementação de limite global físico de 10MB para qualquer leitura de ativo, independente do que for solicitado via API.
+6. **Normalização de Índices:** O sistema garante que a metadata retornada reflita o índice efetivamente selecionado pelo renderer (com fallback para 0), garantindo que o frontend tenha ciência de quando um índice fora de range foi solicitado.

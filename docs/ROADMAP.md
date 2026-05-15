@@ -98,7 +98,7 @@ Status: em andamento, limitada a read-only, dry-run e diff-preview
 - Auditoria pre-producao de dry-run/diff-preview: concluida em modo read-only.
 - API backend apenas para read-only, dry-run e diff-preview: iniciada e validada com 84/84 testes.
 - Apply/rollback via API deve ficar bloqueado por feature flag/confirmacao forte ate nova decisao.
-- API hardening com auth local, ProblemDetails, operation guards, rate/concurrency, CORS restrito e correlationId: concluido com 97/97 testes.
+- API hardening com auth local, ProblemDetails, operation guards, rate/concurrency, CORS restrito e correlationId: concluido com 114/114 testes.
 - Interface administrativa read-only/dry-run/diff-preview: iniciada.
 - Proximo bloco: rodada de UX/auditoria visual da interface e ajuste fino dos fluxos de analise.
 

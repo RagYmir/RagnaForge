@@ -38,10 +38,10 @@ Esses comandos **não estão disponíveis via API/UI nesta fase**.
 
 O endpoint `POST /api/assets/preview` é estritamente de leitura.
 
-Ele permite visualizar ícones e assets bitmap nos formatos:
-- `.bmp`, `.png`, `.jpg`, `.jpeg`, `.webp` (Visual completo)
-- `.spr` (Metadados e preview visual best-effort)
-- `.act` (Metadata-only no v1)
+Ele permite visualizar ativos nos formatos:
+- **Bitmaps:** `.bmp`, `.png`, `.jpg`, `.jpeg`, `.webp` (Visual completo)
+- **Complexos:** `.spr` (Preview visual best-effort com fallback para metadados); `.act` (Metadata-only no v1).
+- **Placeholders:** `.tga`, `.gat`, `.gnd`, `.rsw`, `.rsm` permanecem como placeholders informativos até a implementação de parsers/conversores seguros.
 
 O processo utiliza extração temporária e controlada via `tmp/`, apenas para conversão imediata para DataURL/base64.
 
@@ -52,14 +52,6 @@ A segurança é garantida por:
 - Limpeza imediata de temporários.
 
 Os arquivos temporários devem ser removidos imediatamente após o processamento, sem escrita persistente nos repositórios de rAthena, Patch/client, GRFs ou diretórios de cache/log/backups.
-
-Formatos complexos permanecem como placeholders informativos nesta fase, incluindo:
-- `.tga`
-- `.gat`
-- `.gnd`
-- `.rsw`
-- `.rsm`
-- formatos binários/client específicos ainda não mapeados com segurança.
 
 ## API Key e Configurações Locais
 
