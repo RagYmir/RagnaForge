@@ -101,5 +101,5 @@ Nesta fase, a política oficial é:
 - CLI: apply/rollback apenas com confirmação explícita e trilha de segurança;
 - GRFs originais: nunca alterados diretamente;
 - `.lub` bytecode: bloqueado para edição/decompilação/recompilação;
-- assets complexos: apenas placeholder (GAT/RSW/RSM) ou metadados seguros (SPR/ACT);
+- assets complexos: SPR em preview visual best-effort com fallback para metadados; ACT metadata-only; TGA/GAT/GND/RSW/RSM permanecem placeholders ate parser/conversor seguro;
 - apply/rollback via API/UI: fora de escopo até nova decisão formal de segurança.

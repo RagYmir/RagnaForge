@@ -17,10 +17,10 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmação exp
 - Implementado endpoint `POST /api/assets/preview` no backend com `ApiOperationGuard` (ReadOnly).
 - Criado `AssetPreviewService` com suporte a extração em memória via `GrfAssemblyFileExtractor`.
 - Suporte inicial a preview visual (DataURL/base64) para formatos BMP, PNG, JPG, JPEG e WEBP.
-- Formatos complexos (SPR, ACT, RSM, GAT, etc.) mantidos como placeholders informativos no frontend.
+- Formatos complexos estavam como placeholders nessa rodada inicial; a macro-etapa posterior de 2026-05-15 elevou SPR para preview visual best-effort e manteve ACT como metadata-only.
 - Segurança endurecida: bloqueio de path traversal, validação de extensão permitida, limite de 1MB por asset e limpeza imediata de arquivos temporários em bloco `finally`.
 - `PassiveAssetPreviewPanel` atualizado para consumir a API e renderizar previews visuais reais com contenção via CSS.
-- Backend atualizado para 104 testes de integração (incluindo suíte de segurança de assets); frontend com 22 testes OK.
+- Backend recebeu a suíte inicial de segurança de assets nessa rodada; a contagem vigente foi supersedida pela macro-etapa SPR/ACT Hardened, atualmente em 114/114 backend e 22/22 frontend.
 - Branch `feature/asset-preview-readonly` pronta para merge (após PR).
 
 ## Macro-etapa 2026-05-12 - UI, produtividade local e validação read-only
@@ -649,7 +649,7 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmação exp
 ### Validacao desta rodada
 
 - `dotnet build RagnaForge.slnx` com 0 erros e 0 avisos.
-- `dotnet run --project backend\\tests\\RagnaForge.Tests\\RagnaForge.Tests.csproj` com 97/97 testes OK.
+- `dotnet run --project backend\\tests\\RagnaForge.Tests\\RagnaForge.Tests.csproj` passou nesta rodada de hardening da API; a contagem vigente foi supersedida pelas macro-etapas posteriores.
 - Smoke HTTP seguro:
   - `/health` sem key: `200`.
   - `/api/status` sem key: `401` com `ProblemDetails`.
