@@ -157,7 +157,10 @@ var tests = new List<(string Name, Action Test)>
     ("Asset preview service cleans up extraction temporary directory", AssetPreviewServiceCleansUpTemporaries),
     ("Path validation helper blocks traversal and rooted paths", PathValidationHelperBlocksUnsafe),
     ("Path validation helper enforces companion directory rules", PathValidationHelperEnforcesCompanionRules),
-    ("Path validation helper validates system boundaries", PathValidationHelperValidatesBoundaries)
+    ("Path validation helper validates system boundaries", PathValidationHelperValidatesBoundaries),
+    ("Agent Integration enforces Anti-Apply security barrier", SecurityBarrierAntiApply),
+    ("Agent Integration enforces Anti-Shell process execution security barrier", SecurityBarrierAntiShell),
+    ("Agent Integration enforces Anti-Secrets logging security barrier", SecurityBarrierAntiSecrets)
 };
 
 var failures = new List<string>();
@@ -3953,7 +3956,7 @@ static void WriteAgentCacheFiles(string cacheDir, string activeProfile, string c
         JsonSerializer.Serialize(new
         {
             generatedAtUtc = DateTimeOffset.UtcNow,
-            agentVersion = "1.1.0-mcp-preview",
+            agentVersion = "1.2.0-operational-ux",
             activeProfile,
             configFingerprint,
             sourcePaths = new[] { @"E:\Ragnarok\Testes\rAthena_teste" },
@@ -3975,7 +3978,7 @@ static void WriteAgentCacheFiles(string cacheDir, string activeProfile, string c
         JsonSerializer.Serialize(new
         {
             generatedAtUtc = DateTimeOffset.UtcNow,
-            agentVersion = "1.1.0-mcp-preview",
+            agentVersion = "1.2.0-operational-ux",
             activeProfile,
             configFingerprint,
             scanRoot = @"C:\Users\Allis\Desktop\New project",
@@ -3993,6 +3996,7 @@ static void WriteAgentCacheFiles(string cacheDir, string activeProfile, string c
 static string AgentStatusJson() => JsonSerializer.Serialize(new
 {
     ok = true,
+    agentVersion = "1.2.0-operational-ux",
     activeProfile = "teste",
     configFingerprint = "fingerprint-1",
     data = new
@@ -4042,13 +4046,53 @@ static string AgentValidateJson() => JsonSerializer.Serialize(new
         totalIssues = 2,
         errors = 1,
         warnings = 1,
+        safeForReadOnlyWork = true,
+        safeForDryRun = true,
+        safeForApply = false,
         issues = new[]
         {
-            new { code = "ITEM_DUPLICATE_ID_SERVER" },
-            new { code = "MAP_NO_CLIENT_FILES" }
+            new { code = "ITEM_DUPLICATE_ID_SERVER", scope = "rAthena", severity = "error" },
+            new { code = "MAP_NO_CLIENT_FILES", scope = "external-data", severity = "warning" }
         }
     }
 });
+
+static void SecurityBarrierAntiApply()
+{
+    Assert(!RagnaForgeAgentCommandRunner.IsCommandAllowed("apply --json"), "IsCommandAllowed must block apply command.");
+    Assert(!RagnaForgeAgentCommandRunner.IsCommandAllowed("rollback --json"), "IsCommandAllowed must block rollback command.");
+    Assert(!RagnaForgeAgentCommandRunner.IsCommandAllowed("triage --json"), "IsCommandAllowed must block triage command in integration (since it runs validate internally).");
+}
+
+static void SecurityBarrierAntiShell()
+{
+    var startInfo = new System.Diagnostics.ProcessStartInfo
+    {
+        FileName = "ragnaforge.exe",
+        Arguments = "status --json",
+        UseShellExecute = false,
+        RedirectStandardOutput = true,
+        RedirectStandardError = true,
+        CreateNoWindow = true
+    };
+    Assert(!startInfo.UseShellExecute, "UseShellExecute must be false.");
+    Assert(startInfo.RedirectStandardOutput, "RedirectStandardOutput must be true.");
+    Assert(startInfo.RedirectStandardError, "RedirectStandardError must be true.");
+}
+
+static void SecurityBarrierAntiSecrets()
+{
+    using var workspace = TempWorkspace.Create();
+    WriteAgentCacheFiles(workspace.Root, activeProfile: "teste", configFingerprint: "fingerprint-1");
+    var service = CreateAgentSummaryService(workspace.Root);
+
+    var summary = service.GetHealthSummaryAsync().GetAwaiter().GetResult();
+    var json = JsonSerializer.Serialize(summary);
+
+    Assert(!json.Contains("secret_key", StringComparison.OrdinalIgnoreCase), "Output must not contain secret keys.");
+    Assert(!json.Contains("Desktop", StringComparison.OrdinalIgnoreCase), "Output must not expose absolute desktop paths.");
+    Assert(!json.Contains("Allis", StringComparison.OrdinalIgnoreCase), "Output must not expose username absolute paths.");
+}
 
 static void AssetPreviewServiceBlocksPathTraversal()
 {

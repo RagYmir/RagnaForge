@@ -1,7 +1,7 @@
 # STATUS_PROJETO
 
 Atualizado: 2026-05-18
-Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao explicita. API backend endurecida. Interface administrativa com Validation Center dinamico, preview visual real read-only seguro para ativos bitmap (BMP, PNG, etc), suporte tecnico (metadados/best-effort) para SPR e ACT, e integracao Agent Health read-only allowlisted. Backend com 123/123 testes OK; frontend com 30/30 testes OK; Agent com 179/179 testes OK.
+Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao explicita. API backend endurecida. Interface administrativa com Validation Center dinamico, preview visual real read-only seguro para ativos bitmap (BMP, PNG, etc), suporte tecnico (metadados/best-effort) para SPR e ACT, e integracao Agent Health read-only allowlisted. Backend com 126/126 testes OK; frontend com 30/30 testes OK; Agent com 183/183 testes OK.
 
 ## Macro-etapa 2026-05-15 - SPR e ACT Read-Only Preview (Hardened)
 
@@ -10,7 +10,7 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao expli
 - **Hardening de Segurança:** Centralização de validações no `PathValidationHelper`. Bloqueio de traversal em caminhos lógicos e arquivos companion.
 - **Robustez de Fronteira:** Substituição de validações de prefixo por checagem de `Path.GetRelativePath` em relação às raízes absolutas de Patch e GRF.
 - **Resource Protection:** Limite global estrito de 10MB por ativo e captura segura de exceções de renderização sem vazamento de caminhos.
-- **Testes:** Backend expandido para 123 testes de integracao, cobrindo traversal via companion, escape de fronteira, normalizacao de indices de frame/action e a integracao Agent Health read-only.
+- **Testes:** Backend expandido para 126 testes de integracao, cobrindo traversal via companion, escape de fronteira, normalizacao de indices de frame/action e a integracao Agent Health read-only.
 
 ## Macro-etapa 2026-05-12 - Preview Visual Real Read-Only
 
@@ -20,7 +20,7 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao expli
 - Formatos complexos estavam como placeholders nessa rodada inicial; a macro-etapa posterior de 2026-05-15 elevou SPR para preview visual best-effort e manteve ACT como metadata-only.
 - Segurança endurecida: bloqueio de path traversal, validação de extensão permitida, limite de 1MB por asset e limpeza imediata de arquivos temporários em bloco `finally`.
 - `PassiveAssetPreviewPanel` atualizado para consumir a API e renderizar previews visuais reais com contenção via CSS.
-- Backend recebeu a suite inicial de seguranca de assets nessa rodada; a contagem vigente foi supersedida pela consolidacao final da branch, atualmente em 123/123 backend e 30/30 frontend.
+- Backend recebeu a suite inicial de seguranca de assets nessa rodada; a contagem vigente foi supersedida pela consolidacao final da branch, atualmente em 126/126 backend e 30/30 frontend.
 
 ## Macro-etapa 2026-05-18 - Agent Health Integration e consolidacao final da branch
 
