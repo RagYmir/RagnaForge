@@ -296,7 +296,9 @@ public sealed class RagnaForgeAgentSummaryService
         var scan = ReadScanSummaryFromCache(status.ActiveProfile, status.ConfigFingerprint, warnings);
         var validation = await ReadValidateSummaryAsync(ct);
 
-        var agentVersion = index.AgentVersion ?? scan.AgentVersion ?? "unknown";
+        var agentVersion = !string.IsNullOrWhiteSpace(status.AgentVersion)
+            ? status.AgentVersion
+            : index.AgentVersion ?? scan.AgentVersion ?? "unknown";
 
         return new AgentHealthSummary(
             AgentReachable: statusDoc is not null,
@@ -332,6 +334,7 @@ public sealed class RagnaForgeAgentSummaryService
         var statusOk = GetBool(root, "ok");
         var activeProfile = GetString(root, "activeProfile", "unknown");
         var configFingerprint = GetString(root, "configFingerprint", string.Empty);
+        var agentVersion = GetString(root, "agentVersion", string.Empty);
         var dbMode = "unknown";
         var grfProtected = false;
         var lubBlocked = false;
@@ -370,6 +373,7 @@ public sealed class RagnaForgeAgentSummaryService
         return new AgentStatusState(
             statusOk,
             activeProfile,
+            agentVersion,
             configFingerprint,
             dbMode,
             grfProtected,
@@ -584,6 +588,7 @@ public sealed class RagnaForgeAgentSummaryService
     private sealed record AgentStatusState(
         bool StatusOk,
         string ActiveProfile,
+        string? AgentVersion,
         string ConfigFingerprint,
         string DbMode,
         bool GrfProtected,
@@ -595,6 +600,7 @@ public sealed class RagnaForgeAgentSummaryService
         public static AgentStatusState Unavailable { get; } = new(
             false,
             "unknown",
+            null,
             string.Empty,
             "unknown",
             false,

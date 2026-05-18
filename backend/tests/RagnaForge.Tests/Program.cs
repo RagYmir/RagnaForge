@@ -3956,7 +3956,7 @@ static void WriteAgentCacheFiles(string cacheDir, string activeProfile, string c
         JsonSerializer.Serialize(new
         {
             generatedAtUtc = DateTimeOffset.UtcNow,
-            agentVersion = "1.1.0-mcp-preview",
+            agentVersion = "1.2.0-operational-ux",
             activeProfile,
             configFingerprint,
             sourcePaths = new[] { @"E:\Ragnarok\Testes\rAthena_teste" },
@@ -3978,7 +3978,7 @@ static void WriteAgentCacheFiles(string cacheDir, string activeProfile, string c
         JsonSerializer.Serialize(new
         {
             generatedAtUtc = DateTimeOffset.UtcNow,
-            agentVersion = "1.1.0-mcp-preview",
+            agentVersion = "1.2.0-operational-ux",
             activeProfile,
             configFingerprint,
             scanRoot = @"C:\Users\Allis\Desktop\New project",
@@ -3996,6 +3996,7 @@ static void WriteAgentCacheFiles(string cacheDir, string activeProfile, string c
 static string AgentStatusJson() => JsonSerializer.Serialize(new
 {
     ok = true,
+    agentVersion = "1.2.0-operational-ux",
     activeProfile = "teste",
     configFingerprint = "fingerprint-1",
     data = new

@@ -54,6 +54,10 @@ function healthyResponse() {
         totalIssues: 150,
         errorCount: 0,
         warningCount: 150,
+        expectedNoiseCount: 150,
+        isReadOnlySafe: true,
+        isDryRunSafe: true,
+        isApplySafe: false,
         topCategories: [
           { code: "MAP_NO_CLIENT_FILES", count: 120 },
           { code: "NPC_NO_MAP", count: 30 },

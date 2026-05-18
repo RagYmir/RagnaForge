@@ -202,15 +202,15 @@ export function AgentHealthPage() {
                     </article>
                     <article className="stat-card">
                       <h3>Safe for Audit</h3>
-                      <p>{agent.validation.isReadOnlySafe ? "Sim ✅" : "Nao ❌"}</p>
+                      <p>{agent.validation.isReadOnlySafe ? "Sim" : "Nao"}</p>
                     </article>
                     <article className="stat-card">
                       <h3>Safe for Dry-Run</h3>
-                      <p>{agent.validation.isDryRunSafe ? "Sim ✅" : "Nao ❌"}</p>
+                      <p>{agent.validation.isDryRunSafe ? "Sim" : "Nao"}</p>
                     </article>
                     <article className="stat-card">
                       <h3>Safe for Apply</h3>
-                      <p>{agent.validation.isApplySafe ? "Sim ✅" : "Nao ❌"}</p>
+                      <p>{agent.validation.isApplySafe ? "Sim" : "Nao"}</p>
                     </article>
                   </div>
                   {agent.validation.topCategories.length > 0 ? (

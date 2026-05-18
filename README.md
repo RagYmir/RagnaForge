@@ -69,9 +69,9 @@ npm run dev
 
 ## Status de testes desta consolidacao
 
-- Backend: `123/123` testes passando
+- Backend: `126/126` testes passando
 - Frontend: `30/30` testes passando
-- Agent auxiliar: `179/179` testes passando
+- Agent auxiliar: `183/183` testes passando
 
 ## Avisos finais
 

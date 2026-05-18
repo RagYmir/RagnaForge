@@ -35,7 +35,7 @@ Expandir o preview do RagnaForge para suportar arquivos `.spr` e `.act` de forma
 - Captura de exceções na renderização sem vazamento de stack traces ou caminhos absolutos.
 
 ## Validação
-- **Backend:** Suite consolidada em 123 testes passando ao final da branch, cobrindo traversal via companion, escape de fronteira, normalizacao de indices de frame/action, falhas de renderizacao seguras e integracao Agent Health read-only.
+- **Backend:** Suite consolidada em 126 testes passando ao final da branch, cobrindo traversal via companion, escape de fronteira, normalizacao de indices de frame/action, falhas de renderizacao seguras e integracao Agent Health read-only.
 - **Frontend:** Suite consolidada em 30 testes passando ao final da branch, incluindo a superficie `Agent Health` e a ausencia de botoes de apply/rollback.
 
 ## Próximos Passos

@@ -35,7 +35,7 @@ builder.Services.AddSingleton<ApiInMemoryRateLimiter>();
 builder.Services.AddSingleton<ApiEndpointExecutor>();
 builder.Services.AddSingleton(new RagnaForgeApiService(workspaceRoot, apiOptions));
 
-// Agent integration — read-only, strict allowlist, configurable paths
+// Agent integration: read-only, strict allowlist, configurable paths.
 var agentExePath = builder.Configuration["RagnaForge:Agent:AgentExePath"] ?? "ragnaforge.exe";
 var agentCacheDir = builder.Configuration["RagnaForge:Agent:AgentCacheDir"] ?? "cache/agent";
 var agentTimeoutSeconds = builder.Configuration.GetValue("RagnaForge:Agent:AgentTimeoutSeconds", 30);
