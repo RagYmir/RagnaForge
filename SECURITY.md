@@ -19,6 +19,18 @@ A API/UI não deve:
 - editar `.lub` bytecode;
 - criar fluxos automáticos de repair/write.
 
+## Agent Health Integration
+
+O endpoint `GET /api/agent/health` existe apenas para diagnóstico local read-only.
+
+Ele:
+- não aceita comando livre;
+- não expõe shell;
+- usa allowlist rígida para conversar com o Agent local;
+- não executa `apply`;
+- não executa rollback real;
+- não altera rAthena, Patch/client, GRFs ou `.lub`.
+
 ## CLI (Command Line Interface)
 
 A CLI possui comandos funcionais de `apply` e `rollback` para algumas categorias já implementadas no pipeline.

@@ -58,6 +58,15 @@ var tests = new List<(string Name, Action Test)>
     ("API CORS defaults are restricted to local origins", ApiCorsDefaultsAreRestricted),
     ("API service blocks workspace path traversal", ApiServiceBlocksWorkspacePathTraversal),
     ("API service blocks oversized GRF index request", ApiServiceBlocksOversizedGrfIndexRequest),
+    ("RagnaForge Agent runner blocks arbitrary command", RagnaForgeAgentRunnerBlocksArbitraryCommand),
+    ("RagnaForge Agent runner blocks rollback command", RagnaForgeAgentRunnerBlocksRollbackCommand),
+    ("RagnaForge Agent runner handles unavailable executable", RagnaForgeAgentRunnerHandlesUnavailableExecutable),
+    ("RagnaForge Agent runner handles timeout safely", RagnaForgeAgentRunnerHandlesTimeoutSafely),
+    ("RagnaForge Agent runner reads stdout and stderr", RagnaForgeAgentRunnerReadsStdoutAndStderr),
+    ("RagnaForge Agent summary reports missing cache", RagnaForgeAgentSummaryReportsMissingCache),
+    ("RagnaForge Agent summary rejects stale cache", RagnaForgeAgentSummaryRejectsStaleCache),
+    ("RagnaForge Agent summary returns sanitized DTO", RagnaForgeAgentSummaryReturnsSanitizedDto),
+    ("RagnaForge Agent summary exposes blocked apply and rollback flags", RagnaForgeAgentSummaryExposesBlockedApplyAndRollbackFlags),
     ("Visual theme manifest store round-trips default catalog", VisualThemeManifestStoreRoundTripsDefaultCatalog),
     ("Visual theme manifest validator blocks duplicate keys", VisualThemeManifestValidatorBlocksDuplicateKeys),
     ("Visual equipment theme matcher suggests fofo for rabbit visuals", VisualEquipmentThemeMatcherSuggestsFofoTheme),
@@ -554,6 +563,157 @@ static void ApiServiceBlocksOversizedGrfIndexRequest()
     AssertThrows<ApiException>(
         () => service.IndexGrfs(new GrfIndexRequest(ConfigPath: Path.Combine("data", "manifests", "repositories.local.json"), MaxContainers: 2, SaveCache: false)),
         "API service should block oversized GRF index requests before scanning.");
+}
+
+static void RagnaForgeAgentRunnerBlocksArbitraryCommand()
+{
+    using var workspace = TempWorkspace.Create();
+    var fakeExe = Path.Combine(workspace.Root, "ragnaforge.exe");
+    File.WriteAllText(fakeExe, "fake");
+    var executor = new FakeAgentProcessExecutor();
+    var runner = new RagnaForgeAgentCommandRunner(
+        fakeExe,
+        TimeSpan.FromSeconds(1),
+        executor,
+        NullLogger<RagnaForgeAgentCommandRunner>.Instance);
+
+    var result = runner.ExecuteAsync("apply --json").GetAwaiter().GetResult();
+
+    Assert(result is null, "Runner should block arbitrary/non-allowlisted commands.");
+    Assert(executor.Calls.Count == 0, "Blocked commands must not reach process execution.");
+    Assert(!RagnaForgeAgentCommandRunner.IsCommandAllowed("rollback --json"), "Rollback must not be allowlisted.");
+}
+
+static void RagnaForgeAgentRunnerBlocksRollbackCommand()
+{
+    using var workspace = TempWorkspace.Create();
+    var fakeExe = Path.Combine(workspace.Root, "ragnaforge.exe");
+    File.WriteAllText(fakeExe, "fake");
+    var executor = new FakeAgentProcessExecutor();
+    var runner = new RagnaForgeAgentCommandRunner(
+        fakeExe,
+        TimeSpan.FromSeconds(1),
+        executor,
+        NullLogger<RagnaForgeAgentCommandRunner>.Instance);
+
+    var result = runner.ExecuteAsync("rollback --list --json").GetAwaiter().GetResult();
+
+    Assert(result is null, "Runner should block rollback commands from the API integration.");
+    Assert(executor.Calls.Count == 0, "Blocked rollback must not reach process execution.");
+}
+
+static void RagnaForgeAgentRunnerHandlesUnavailableExecutable()
+{
+    var executor = new FakeAgentProcessExecutor();
+    var runner = new RagnaForgeAgentCommandRunner(
+        Path.Combine(Path.GetTempPath(), "missing-ragnaforge.exe"),
+        TimeSpan.FromSeconds(1),
+        executor,
+        NullLogger<RagnaForgeAgentCommandRunner>.Instance);
+
+    var result = runner.ExecuteAsync("status --json").GetAwaiter().GetResult();
+
+    Assert(result is null, "Missing agent executable should be handled safely.");
+    Assert(executor.Calls.Count == 0, "Unavailable executable must not invoke process execution.");
+}
+
+static void RagnaForgeAgentRunnerHandlesTimeoutSafely()
+{
+    using var workspace = TempWorkspace.Create();
+    var fakeExe = Path.Combine(workspace.Root, "ragnaforge.exe");
+    File.WriteAllText(fakeExe, "fake");
+    var executor = new FakeAgentProcessExecutor
+    {
+        NextResult = new RagnaForgeAgentProcessResult(-1, "", "timed out", TimedOut: true)
+    };
+    var runner = new RagnaForgeAgentCommandRunner(
+        fakeExe,
+        TimeSpan.FromMilliseconds(10),
+        executor,
+        NullLogger<RagnaForgeAgentCommandRunner>.Instance);
+
+    var result = runner.ExecuteAsync("status --json").GetAwaiter().GetResult();
+
+    Assert(result is null, "Timed out agent command should return a safe null result.");
+    Assert(executor.Calls.Count == 1, "Allowlisted command should reach process executor exactly once.");
+}
+
+static void RagnaForgeAgentRunnerReadsStdoutAndStderr()
+{
+    using var workspace = TempWorkspace.Create();
+    var fakeExe = Path.Combine(workspace.Root, "ragnaforge.exe");
+    File.WriteAllText(fakeExe, "fake");
+    var executor = new FakeAgentProcessExecutor
+    {
+        NextResult = new RagnaForgeAgentProcessResult(0, AgentStatusJson(), "diagnostic warning", TimedOut: false)
+    };
+    var runner = new RagnaForgeAgentCommandRunner(
+        fakeExe,
+        TimeSpan.FromSeconds(1),
+        executor,
+        NullLogger<RagnaForgeAgentCommandRunner>.Instance);
+
+    using var result = runner.ExecuteAsync("status --json").GetAwaiter().GetResult();
+
+    Assert(result is not null, "Runner should parse stdout JSON even when stderr contains diagnostics.");
+    Assert(executor.Calls.Single().Arguments == "status --json", "Runner should pass only the allowlisted arguments.");
+}
+
+static void RagnaForgeAgentSummaryReportsMissingCache()
+{
+    using var workspace = TempWorkspace.Create();
+    var service = CreateAgentSummaryService(workspace.Root);
+
+    var summary = service.GetHealthSummaryAsync().GetAwaiter().GetResult();
+
+    Assert(summary.AgentReachable, "Status command should be reachable in fake service.");
+    Assert(summary.Index is null, "Missing entity cache should not produce trusted index counts.");
+    Assert(summary.Scan is null, "Missing project cache should not produce trusted scan counts.");
+    Assert(summary.Warnings.Any(w => w.Contains("entities_index.json", StringComparison.Ordinal)), "Missing entity cache warning should be returned.");
+    Assert(summary.Warnings.Any(w => w.Contains("project_index.json", StringComparison.Ordinal)), "Missing project cache warning should be returned.");
+}
+
+static void RagnaForgeAgentSummaryRejectsStaleCache()
+{
+    using var workspace = TempWorkspace.Create();
+    WriteAgentCacheFiles(workspace.Root, activeProfile: "old-profile", configFingerprint: "old-fingerprint");
+    var service = CreateAgentSummaryService(workspace.Root);
+
+    var summary = service.GetHealthSummaryAsync().GetAwaiter().GetResult();
+
+    Assert(summary.Index is null, "Stale entity cache should not be trusted.");
+    Assert(summary.Scan is null, "Stale project cache should not be trusted.");
+    Assert(summary.Warnings.Count(w => w.Contains("stale", StringComparison.OrdinalIgnoreCase)) >= 2, "Stale cache warnings should be explicit.");
+}
+
+static void RagnaForgeAgentSummaryReturnsSanitizedDto()
+{
+    using var workspace = TempWorkspace.Create();
+    WriteAgentCacheFiles(workspace.Root, activeProfile: "teste", configFingerprint: "fingerprint-1");
+    var service = CreateAgentSummaryService(workspace.Root);
+
+    var summary = service.GetHealthSummaryAsync().GetAwaiter().GetResult();
+    var json = JsonSerializer.Serialize(summary);
+
+    Assert(summary.StatusOk, "Status should be OK.");
+    Assert(summary.DoctorOk, "Doctor should be OK.");
+    Assert(summary.Index is not null && summary.Index.ItemsFound == 10, "Sanitized DTO should expose trusted aggregate counts.");
+    Assert(summary.Scan is not null && summary.Scan.FilesIndexed == 5, "Sanitized DTO should expose trusted scan counts.");
+    Assert(summary.Validation is not null && summary.Validation.TotalIssues == 2, "Validation summary should be exposed.");
+    Assert(!json.Contains(workspace.Root, StringComparison.OrdinalIgnoreCase), "Agent DTO must not expose cache filesystem paths.");
+    Assert(!json.Contains("E:\\", StringComparison.OrdinalIgnoreCase), "Agent DTO must not expose external absolute paths.");
+}
+
+static void RagnaForgeAgentSummaryExposesBlockedApplyAndRollbackFlags()
+{
+    using var workspace = TempWorkspace.Create();
+    WriteAgentCacheFiles(workspace.Root, activeProfile: "teste", configFingerprint: "fingerprint-1");
+    var service = CreateAgentSummaryService(workspace.Root);
+
+    var summary = service.GetHealthSummaryAsync().GetAwaiter().GetResult();
+
+    Assert(summary.Safety.ApplyBlocked, "Agent summary should expose apply as blocked in the integration.");
+    Assert(summary.Safety.RollbackRealBlocked, "Agent summary should expose real rollback as blocked in the integration.");
 }
 
 static void VisualThemeManifestStoreRoundTripsDefaultCatalog()
@@ -3762,6 +3922,134 @@ static void AssertThrows<TException>(Action action, string message)
     throw new InvalidOperationException(message);
 }
 
+static RagnaForgeAgentSummaryService CreateAgentSummaryService(string cacheDir)
+{
+    var executor = new FakeAgentProcessExecutor();
+    Directory.CreateDirectory(cacheDir);
+    var fakeExe = Path.Combine(cacheDir, "ragnaforge.exe");
+    File.WriteAllText(fakeExe, "fake");
+
+    executor.Results["status --json"] = new RagnaForgeAgentProcessResult(0, AgentStatusJson(), "", TimedOut: false);
+    executor.Results["doctor --json"] = new RagnaForgeAgentProcessResult(0, AgentDoctorJson(), "", TimedOut: false);
+    executor.Results["validate --json"] = new RagnaForgeAgentProcessResult(0, AgentValidateJson(), "", TimedOut: false);
+
+    var runner = new RagnaForgeAgentCommandRunner(
+        fakeExe,
+        TimeSpan.FromSeconds(1),
+        executor,
+        NullLogger<RagnaForgeAgentCommandRunner>.Instance);
+
+    return new RagnaForgeAgentSummaryService(
+        runner,
+        cacheDir,
+        NullLogger<RagnaForgeAgentSummaryService>.Instance);
+}
+
+static void WriteAgentCacheFiles(string cacheDir, string activeProfile, string configFingerprint)
+{
+    Directory.CreateDirectory(cacheDir);
+    File.WriteAllText(
+        Path.Combine(cacheDir, "entities_index.json"),
+        JsonSerializer.Serialize(new
+        {
+            generatedAtUtc = DateTimeOffset.UtcNow,
+            agentVersion = "1.1.0-mcp-preview",
+            activeProfile,
+            configFingerprint,
+            sourcePaths = new[] { @"E:\Ragnarok\Testes\rAthena_teste" },
+            stats = new
+            {
+                itemsFound = 10,
+                monstersFound = 2,
+                npcsFound = 3,
+                mapsFound = 4,
+                filesScanned = 20,
+                filesParsed = 8,
+                filesSkipped = 12,
+                durationMs = 15
+            }
+        }));
+
+    File.WriteAllText(
+        Path.Combine(cacheDir, "project_index.json"),
+        JsonSerializer.Serialize(new
+        {
+            generatedAtUtc = DateTimeOffset.UtcNow,
+            agentVersion = "1.1.0-mcp-preview",
+            activeProfile,
+            configFingerprint,
+            scanRoot = @"C:\Users\Allis\Desktop\New project",
+            stats = new
+            {
+                filesVisited = 5,
+                filesIndexed = 5,
+                filesSkipped = 0,
+                directoriesVisited = 2,
+                durationMs = 7
+            }
+        }));
+}
+
+static string AgentStatusJson() => JsonSerializer.Serialize(new
+{
+    ok = true,
+    activeProfile = "teste",
+    configFingerprint = "fingerprint-1",
+    data = new
+    {
+        dbMode = "renewal",
+        grfProtected = true,
+        lubEditingBlocked = true,
+        cache = new
+        {
+            indexExists = true,
+            matchesActiveFingerprint = true
+        },
+        safety = new
+        {
+            requireDryRunBeforeApply = true,
+            requireDiffBeforeApply = true,
+            requireExplicitConfirmation = true,
+            backupBeforeApply = true,
+            blockOriginalGrfWrite = true,
+            blockLubEditing = true,
+            invalidateCacheOnPathChange = true,
+            cacheMustMatchActiveProfile = true,
+            applyBlocked = true,
+            rollbackRealBlocked = true
+        }
+    }
+});
+
+static string AgentDoctorJson() => JsonSerializer.Serialize(new
+{
+    ok = true,
+    data = new
+    {
+        checks = new[]
+        {
+            new { check = "security.grfReadOnly", severity = "pass", message = "ok" },
+            new { check = "safety.blockLubEditing", severity = "pass", message = "ok" }
+        }
+    }
+});
+
+static string AgentValidateJson() => JsonSerializer.Serialize(new
+{
+    ok = true,
+    data = new
+    {
+        totalIssues = 2,
+        errors = 1,
+        warnings = 1,
+        issues = new[]
+        {
+            new { code = "ITEM_DUPLICATE_ID_SERVER" },
+            new { code = "MAP_NO_CLIENT_FILES" }
+        }
+    }
+});
+
 static void AssetPreviewServiceBlocksPathTraversal()
 {
     var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
@@ -4030,6 +4318,33 @@ internal sealed class FakeSpriteRenderer : ISpriteRenderer
             SelectedAction: selectedAction);
     }
 }
+internal sealed class FakeAgentProcessExecutor : IRagnaForgeAgentProcessExecutor
+{
+    public List<(string FileName, string Arguments)> Calls { get; } = [];
+
+    public Dictionary<string, RagnaForgeAgentProcessResult> Results { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    public RagnaForgeAgentProcessResult? NextResult { get; set; }
+
+    public Task<RagnaForgeAgentProcessResult?> ExecuteAsync(
+        string fileName,
+        string arguments,
+        TimeSpan timeout,
+        CancellationToken cancellationToken)
+    {
+        Calls.Add((fileName, arguments));
+
+        if (NextResult is not null)
+        {
+            return Task.FromResult<RagnaForgeAgentProcessResult?>(NextResult);
+        }
+
+        return Task.FromResult(Results.TryGetValue(arguments, out var result)
+            ? result
+            : null);
+    }
+}
+
 internal sealed class TempWorkspace : IDisposable
 {
     public string Root { get; } = Path.Combine(Path.GetTempPath(), "ragnaforge_tests_" + Guid.NewGuid().ToString("N"));

@@ -232,3 +232,86 @@ export interface AssetPreviewResponse {
 export type DiscoveryData = Record<string, unknown>;
 export type GrfIndexData = Record<string, unknown>;
 export type GrfInspectData = Record<string, unknown>;
+
+// Agent Integration (read-only)
+
+export interface AgentSafetySummary {
+  requireDryRunBeforeApply: boolean;
+  requireDiffBeforeApply: boolean;
+  requireExplicitConfirmation: boolean;
+  backupBeforeApply: boolean;
+  blockOriginalGrfWrite: boolean;
+  blockLubEditing: boolean;
+  invalidateCacheOnPathChange: boolean;
+  cacheMustMatchActiveProfile: boolean;
+  applyBlocked: boolean;
+  rollbackRealBlocked: boolean;
+}
+
+export interface AgentDoctorCheck {
+  check: string;
+  severity: string;
+  message: string;
+}
+
+export interface AgentDoctorSummary {
+  totalChecks: number;
+  passed: number;
+  warnings: number;
+  errors: number;
+  failedChecks: AgentDoctorCheck[];
+}
+
+export interface AgentIndexSummary {
+  itemsFound: number;
+  monstersFound: number;
+  npcsFound: number;
+  mapsFound: number;
+  filesScanned: number;
+  filesParsed: number;
+  filesSkipped: number;
+  durationMs: number;
+  generatedAtUtc: string | null;
+}
+
+export interface AgentValidateCategory {
+  code: string;
+  count: number;
+}
+
+export interface AgentValidateSummary {
+  totalIssues: number;
+  errorCount: number;
+  warningCount: number;
+  topCategories: AgentValidateCategory[];
+}
+
+export interface AgentScanSummary {
+  filesVisited: number;
+  filesIndexed: number;
+  filesSkipped: number;
+  directoriesVisited: number;
+  durationMs: number;
+}
+
+export interface AgentHealthSummary {
+  agentReachable: boolean;
+  statusOk: boolean;
+  doctorOk: boolean;
+  activeProfile: string;
+  agentVersion: string;
+  configFingerprint: string;
+  dbMode: string;
+  grfProtected: boolean;
+  lubEditingBlocked: boolean;
+  cacheExists: boolean;
+  cacheMatchesFingerprint: boolean;
+  safety: AgentSafetySummary;
+  doctor: AgentDoctorSummary;
+  index: AgentIndexSummary | null;
+  validation: AgentValidateSummary | null;
+  scan: AgentScanSummary | null;
+  warnings: string[];
+  errors: string[];
+  generatedAtUtc: string;
+}

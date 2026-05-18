@@ -35,6 +35,23 @@ builder.Services.AddSingleton<ApiInMemoryRateLimiter>();
 builder.Services.AddSingleton<ApiEndpointExecutor>();
 builder.Services.AddSingleton(new RagnaForgeApiService(workspaceRoot, apiOptions));
 
+// Agent integration — read-only, strict allowlist, configurable paths
+var agentExePath = builder.Configuration["RagnaForge:Agent:AgentExePath"] ?? "ragnaforge.exe";
+var agentCacheDir = builder.Configuration["RagnaForge:Agent:AgentCacheDir"] ?? "cache/agent";
+var agentTimeoutSeconds = builder.Configuration.GetValue("RagnaForge:Agent:AgentTimeoutSeconds", 30);
+builder.Services.AddSingleton<IRagnaForgeAgentProcessExecutor, RagnaForgeAgentProcessExecutor>();
+builder.Services.AddSingleton(sp =>
+    new RagnaForgeAgentCommandRunner(
+        agentExePath,
+        TimeSpan.FromSeconds(agentTimeoutSeconds),
+        sp.GetRequiredService<IRagnaForgeAgentProcessExecutor>(),
+        sp.GetRequiredService<ILogger<RagnaForgeAgentCommandRunner>>()));
+builder.Services.AddSingleton(sp =>
+    new RagnaForgeAgentSummaryService(
+        sp.GetRequiredService<RagnaForgeAgentCommandRunner>(),
+        agentCacheDir,
+        sp.GetRequiredService<ILogger<RagnaForgeAgentSummaryService>>()));
+
 var app = builder.Build();
 
 app.UseMiddleware<ApiCorrelationMiddleware>();
@@ -97,6 +114,11 @@ api.MapGet("/status", (HttpContext context, RagnaForgeApiService service, ApiEnd
 api.MapGet("/safety/capabilities", (HttpContext context, ApiEndpointExecutor executor) =>
     executor.Execute(context, OperationKind.ReadOnly, () => ApiSafetyPolicy.Capabilities))
     .WithTags("System")
+    .WithMetadata(new ApiOperationMetadata(OperationKind.ReadOnly, RagnaForgeApiPolicyNames.ReadOnlyPolicy));
+
+api.MapGet("/agent/health", async (HttpContext context, RagnaForgeAgentSummaryService agentService, ApiEndpointExecutor executor, CancellationToken ct) =>
+    await executor.ExecuteAsync(context, OperationKind.ReadOnly, agentService.GetHealthSummaryAsync, ct))
+    .WithTags("Agent")
     .WithMetadata(new ApiOperationMetadata(OperationKind.ReadOnly, RagnaForgeApiPolicyNames.ReadOnlyPolicy));
 
 api.MapPost("/config/validate", (HttpContext context, ConfigRequest request, RagnaForgeApiService service, ApiEndpointExecutor executor) =>
