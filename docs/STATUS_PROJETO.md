@@ -1,18 +1,35 @@
 # STATUS_PROJETO
 
-Atualizado: 2026-05-12
-Estado: dry-run, diff-preview, apply e rollback protegidos por confirmação explícita. API backend endurecida. Interface administrativa atualizada com Validation Center dinâmico (badges dinâmicos e grupos de Itens, Equipamentos, NPCs, Monstros, Mapas) e preview visual real read-only seguro para BMP, PNG, JPG, JPEG, WEBP. Backend com 104/104 testes OK; frontend com 22/22 testes OK.
+Atualizado: 2026-05-18
+Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao explicita. API backend endurecida. Interface administrativa com Validation Center dinamico, preview visual real read-only seguro para ativos bitmap (BMP, PNG, etc), suporte tecnico (metadados/best-effort) para SPR e ACT, e integracao Agent Health read-only allowlisted. Backend com 123/123 testes OK; frontend com 30/30 testes OK; Agent com 179/179 testes OK.
+
+## Macro-etapa 2026-05-15 - SPR e ACT Read-Only Preview (Hardened)
+
+- Implementado suporte binário para `.spr` e `.act` via `ISpriteRenderer` e `GrfAssemblySpriteRenderer` (Reflection).
+- **Honesty v1:** SPR definido como preview visual best-effort (depende de PngData na assembly); ACT definido como metadata-only (sem composição visual de camadas no v1).
+- **Hardening de Segurança:** Centralização de validações no `PathValidationHelper`. Bloqueio de traversal em caminhos lógicos e arquivos companion.
+- **Robustez de Fronteira:** Substituição de validações de prefixo por checagem de `Path.GetRelativePath` em relação às raízes absolutas de Patch e GRF.
+- **Resource Protection:** Limite global estrito de 10MB por ativo e captura segura de exceções de renderização sem vazamento de caminhos.
+- **Testes:** Backend expandido para 123 testes de integracao, cobrindo traversal via companion, escape de fronteira, normalizacao de indices de frame/action e a integracao Agent Health read-only.
 
 ## Macro-etapa 2026-05-12 - Preview Visual Real Read-Only
 
 - Implementado endpoint `POST /api/assets/preview` no backend com `ApiOperationGuard` (ReadOnly).
 - Criado `AssetPreviewService` com suporte a extração em memória via `GrfAssemblyFileExtractor`.
 - Suporte inicial a preview visual (DataURL/base64) para formatos BMP, PNG, JPG, JPEG e WEBP.
-- Formatos complexos (SPR, ACT, RSM, GAT, etc.) mantidos como placeholders informativos no frontend.
+- Formatos complexos estavam como placeholders nessa rodada inicial; a macro-etapa posterior de 2026-05-15 elevou SPR para preview visual best-effort e manteve ACT como metadata-only.
 - Segurança endurecida: bloqueio de path traversal, validação de extensão permitida, limite de 1MB por asset e limpeza imediata de arquivos temporários em bloco `finally`.
 - `PassiveAssetPreviewPanel` atualizado para consumir a API e renderizar previews visuais reais com contenção via CSS.
-- Backend atualizado para 104 testes de integração (incluindo suíte de segurança de assets); frontend com 22 testes OK.
-- Branch `feature/asset-preview-readonly` pronta para merge (após PR).
+- Backend recebeu a suite inicial de seguranca de assets nessa rodada; a contagem vigente foi supersedida pela consolidacao final da branch, atualmente em 123/123 backend e 30/30 frontend.
+
+## Macro-etapa 2026-05-18 - Agent Health Integration e consolidacao final da branch
+
+- Integracao `GET /api/agent/health` consolidada como superficie estritamente read-only.
+- `AgentIntegration` usa allowlist rigida com apenas `status --json`, `doctor --json`, `scan --project --json`, `index --entities --json` e `validate --json`.
+- Timeout, leitura assincrona de stdout/stderr, bloqueio de comando arbitrario e sanitizacao do DTO foram validados por teste.
+- `Agent Health` entrou na interface administrativa sem botoes de apply/rollback e com indicacao explicita de bloqueio para apply e rollback real.
+- Higiene de versionamento concluida para `.tsbuildinfo` e `.codex`.
+- Branch `feature/spr-act-preview-readonly` pronta para merge (após consolidação final).
 
 ## Macro-etapa 2026-05-12 - UI, produtividade local e validação read-only
 
@@ -640,7 +657,7 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmação exp
 ### Validacao desta rodada
 
 - `dotnet build RagnaForge.slnx` com 0 erros e 0 avisos.
-- `dotnet run --project backend\\tests\\RagnaForge.Tests\\RagnaForge.Tests.csproj` com 97/97 testes OK.
+- `dotnet run --project backend\\tests\\RagnaForge.Tests\\RagnaForge.Tests.csproj` passou nesta rodada de hardening da API; a contagem vigente foi supersedida pelas macro-etapas posteriores.
 - Smoke HTTP seguro:
   - `/health` sem key: `200`.
   - `/api/status` sem key: `401` com `ProblemDetails`.

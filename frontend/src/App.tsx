@@ -3,6 +3,7 @@ import { ConnectionPanel } from "./components/ConnectionPanel";
 import { useApiConfig } from "./features/connection/ApiConfigContext";
 import { AppShell } from "./layouts/AppShell";
 import { AuditPage } from "./pages/AuditPage";
+import { AgentHealthPage } from "./pages/AgentHealthPage";
 import { ConfigPage } from "./pages/ConfigPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { DiscoveryPage } from "./pages/DiscoveryPage";
@@ -52,6 +53,7 @@ export default function App() {
         <Route path="mapas" element={<MapsPage />} />
         <Route path="validacao" element={<ValidationPage />} />
         <Route path="auditoria" element={<AuditPage />} />
+        <Route path="agente" element={<AgentHealthPage />} />
         <Route path="seguranca" element={<SecurityPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

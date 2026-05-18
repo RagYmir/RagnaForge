@@ -17,6 +17,7 @@ const navigation = [
   { to: "/mapas", label: "Mapas" },
   { to: "/validacao", label: "Validacao" },
   { to: "/auditoria", label: "Historico/Relatorios" },
+  { to: "/agente", label: "Agent Health" },
   { to: "/seguranca", label: "Seguranca/API" },
 ];
 

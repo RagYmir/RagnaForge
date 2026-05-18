@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useApiConfig } from "../features/connection/ApiConfigContext";
+import { AssetPreviewResponse } from "../api/types";
 
 export interface PassiveAssetPreviewItem {
   key: string;
@@ -14,26 +15,12 @@ export interface PassiveAssetPreviewItem {
   note?: string;
 }
 
-interface AssetPreviewResponse {
-  assetName: string;
-  entryPath: string;
-  extension: string;
-  contentType: string | null;
-  previewKind: "Image" | "Placeholder" | "Unsupported" | "Blocked" | "Missing" | "Ambiguous" | "TooLarge";
-  dataUrl: string | null;
-  width: number | null;
-  height: number | null;
-  source: string;
-  provenance: string;
-  warnings: string[];
-  errors: string[];
-}
-
 function AssetVisualPreview({ item }: { item: PassiveAssetPreviewItem }) {
   const { client } = useApiConfig();
   const [data, setData] = useState<AssetPreviewResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [correlationId, setCorrelationId] = useState<string | null>(null);
+  const [frameIndex] = useState(0); // v1: fixo em 0
 
   useEffect(() => {
     let active = true;
@@ -43,7 +30,9 @@ function AssetVisualPreview({ item }: { item: PassiveAssetPreviewItem }) {
          return;
       }
 
-      const extension = "." + (item.path.split(".").pop()?.toLowerCase() ?? "");
+      // Normalize path to forward slashes before extension extraction
+      const normalizedPath = item.path.replace(/\\/g, '/');
+      const extension = "." + (normalizedPath.split(".").pop()?.toLowerCase() ?? "");
       const attemptableExtensions = [".bmp", ".png", ".jpg", ".jpeg", ".webp", ".tga", ".spr", ".act", ".gat", ".gnd", ".rsw", ".rsm"];
       
       if (!attemptableExtensions.includes(extension)) {
@@ -51,15 +40,22 @@ function AssetVisualPreview({ item }: { item: PassiveAssetPreviewItem }) {
       }
 
       try {
+        // Normalize companion path as well
+        const companionEntryPath = extension === ".act" 
+          ? (normalizedPath.substring(0, normalizedPath.length - 4) + ".spr").replace(/\\/g, '/')
+          : undefined;
+
         const response = await client.assetPreview({
-          source: item.origin,
+          source: item.origin!,
           container: item.provenance ?? "Loose",
-          entryPath: item.path,
+          entryPath: normalizedPath,
           expectedExtension: extension,
+          frameIndex: extension === ".spr" ? frameIndex : undefined,
+          companionEntryPath
         });
 
         if (active && response.success) {
-          setData(response.data as AssetPreviewResponse);
+          setData(response.data);
         }
       } catch (err: any) {
         if (active) {
@@ -74,7 +70,7 @@ function AssetVisualPreview({ item }: { item: PassiveAssetPreviewItem }) {
     return () => {
       active = false;
     };
-  }, [item, client]);
+  }, [item, client, frameIndex]);
 
   if (error) {
     return (
@@ -86,39 +82,64 @@ function AssetVisualPreview({ item }: { item: PassiveAssetPreviewItem }) {
   }
 
   if (data) {
-    if (data.previewKind === "Image" && data.dataUrl) {
+    const isVisual = (data.previewKind === "Image" || data.previewKind === "SpriteFrame" || data.previewKind === "ActFrame") && data.dataUrl;
+    
+    if (isVisual) {
       return (
         <div className="visual-preview-container">
           <img 
-            src={data.dataUrl} 
+            src={data.dataUrl!} 
             alt={data.assetName} 
             className="visual-preview-image" 
-            title={data.assetName} 
+            title={`${data.assetName} (${data.width}x${data.height})`} 
           />
-        </div>
-      );
-    }
-    
-    if (data.previewKind === "Unsupported") {
-      return (
-        <div className="asset-preview-placeholder">
-          <span className="muted-text">Formato {data.extension} suportado apenas como placeholder.</span>
+          {data.metadata && (
+            <div className="visual-preview-meta text-xs mt-1">
+              {data.metadata.frameCount !== undefined && (
+                <div>Frame: {data.metadata.selectedFrame ?? 0} / {data.metadata.frameCount}</div>
+              )}
+              {data.metadata.actionCount !== undefined && (
+                <div>Action: {data.metadata.selectedAction ?? 0} / {data.metadata.actionCount}</div>
+              )}
+              {data.metadata.renderMode && <div>Mode: {data.metadata.renderMode}</div>}
+              {data.metadata.formatVersion && <div>Version: {data.metadata.formatVersion}</div>}
+            </div>
+          )}
           {(data.warnings?.length ?? 0) > 0 && <div className="warning-text text-xs mt-1">{data.warnings[0]}</div>}
         </div>
       );
     }
-
+    
+    if (data.previewKind === "Unsupported" || data.previewKind?.includes("Metadata") || !data.dataUrl) {
+      return (
+        <div className="asset-preview-placeholder">
+          <span className="muted-text">
+            {data.previewKind === "ActMetadata" 
+              ? "Dados da Ação (Metadata-Only v1)" 
+              : `Formato ${data.extension} suportado apenas como metadados.`}
+          </span>
+          {data.metadata && (
+             <div className="text-xs mt-1">
+               {data.metadata.frameCount !== undefined && <div>Frames: {data.metadata.frameCount}</div>}
+               {data.metadata.actionCount !== undefined && <div>Actions: {data.metadata.actionCount}</div>}
+             </div>
+          )}
+          {(data.warnings?.length ?? 0) > 0 && <div className="warning-text text-xs mt-1">{data.warnings[0]}</div>}
+        </div>
+      );
+    }
+    
     if (data.previewKind === "TooLarge") {
       return (
         <div className="asset-preview-placeholder">
-          <span className="muted-text">Arquivo muito grande para preview web seguro.</span>
+          <span className="muted-text">Arquivo muito grande para preview web seguro (Limite 10MB).</span>
         </div>
       );
     }
 
     return (
       <div className="asset-preview-placeholder">
-        <span className="muted-text">Preview retornado como: {data.previewKind}</span>
+        <span className="muted-text">Preview: {data.previewKind}</span>
         {(data.errors?.length ?? 0) > 0 && <div className="error-text text-xs mt-1">{data.errors[0]}</div>}
       </div>
     );
@@ -126,7 +147,7 @@ function AssetVisualPreview({ item }: { item: PassiveAssetPreviewItem }) {
 
   return (
     <span className="asset-preview-placeholder">
-      Preview visual real pendente de endpoint seguro de leitura.
+      Carregando preview...
     </span>
   );
 }

@@ -19,6 +19,18 @@ A API/UI não deve:
 - editar `.lub` bytecode;
 - criar fluxos automáticos de repair/write.
 
+## Agent Health Integration
+
+O endpoint `GET /api/agent/health` existe apenas para diagnóstico local read-only.
+
+Ele:
+- não aceita comando livre;
+- não expõe shell;
+- usa allowlist rígida para conversar com o Agent local;
+- não executa `apply`;
+- não executa rollback real;
+- não altera rAthena, Patch/client, GRFs ou `.lub`.
+
 ## CLI (Command Line Interface)
 
 A CLI possui comandos funcionais de `apply` e `rollback` para algumas categorias já implementadas no pipeline.
@@ -38,26 +50,20 @@ Esses comandos **não estão disponíveis via API/UI nesta fase**.
 
 O endpoint `POST /api/assets/preview` é estritamente de leitura.
 
-Ele permite visualizar ícones e assets bitmap nos formatos:
-- `.bmp`
-- `.png`
-- `.jpg`
-- `.jpeg`
-- `.webp`
+Ele permite visualizar ativos nos formatos:
+- **Bitmaps:** `.bmp`, `.png`, `.jpg`, `.jpeg`, `.webp` (Visual completo)
+- **Complexos:** `.spr` (Preview visual best-effort com fallback para metadados); `.act` (Metadata-only no v1).
+- **Placeholders:** `.tga`, `.gat`, `.gnd`, `.rsw`, `.rsm` permanecem como placeholders informativos até a implementação de parsers/conversores seguros.
 
 O processo utiliza extração temporária e controlada via `tmp/`, apenas para conversão imediata para DataURL/base64.
 
-Os arquivos temporários devem ser removidos imediatamente após o processamento, sem escrita persistente nos repositórios de rAthena, Patch/client, GRFs ou diretórios de cache/log/backups.
+A segurança é garantida por:
+- `PathValidationHelper`: bloqueio de traversal, caminhos rootados e normalização de caminhos lógicos.
+- Validação de fronteira via `Path.GetRelativePath`: impede escape das raízes de Patch e GRF Repository.
+- Limite físico de 10MB por ativo.
+- Limpeza imediata de temporários.
 
-Formatos complexos permanecem como placeholders informativos nesta fase, incluindo:
-- `.spr`
-- `.act`
-- `.tga`
-- `.gat`
-- `.gnd`
-- `.rsw`
-- `.rsm`
-- formatos binários/client específicos ainda não mapeados com segurança.
+Os arquivos temporários devem ser removidos imediatamente após o processamento, sem escrita persistente nos repositórios de rAthena, Patch/client, GRFs ou diretórios de cache/log/backups.
 
 ## API Key e Configurações Locais
 
@@ -107,5 +113,5 @@ Nesta fase, a política oficial é:
 - CLI: apply/rollback apenas com confirmação explícita e trilha de segurança;
 - GRFs originais: nunca alterados diretamente;
 - `.lub` bytecode: bloqueado para edição/decompilação/recompilação;
-- assets complexos: apenas placeholder até existir parser/conversor seguro;
+- assets complexos: SPR em preview visual best-effort com fallback para metadados; ACT metadata-only; TGA/GAT/GND/RSW/RSM permanecem placeholders ate parser/conversor seguro;
 - apply/rollback via API/UI: fora de escopo até nova decisão formal de segurança.

@@ -1,4 +1,5 @@
 import type {
+  AgentHealthSummary,
   ApiProblemDetails,
   ApiResponse,
   ConfigValidateData,
@@ -48,6 +49,10 @@ export class ApiClient {
 
   safetyCapabilities() {
     return this.request<StatusData["capabilities"]>("/api/safety/capabilities", { method: "GET" });
+  }
+
+  agentHealth() {
+    return this.request<AgentHealthSummary>("/api/agent/health", { method: "GET" });
   }
 
   validateConfig(payload: { configPath: string }) {

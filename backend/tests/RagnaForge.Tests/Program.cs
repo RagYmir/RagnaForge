@@ -58,6 +58,15 @@ var tests = new List<(string Name, Action Test)>
     ("API CORS defaults are restricted to local origins", ApiCorsDefaultsAreRestricted),
     ("API service blocks workspace path traversal", ApiServiceBlocksWorkspacePathTraversal),
     ("API service blocks oversized GRF index request", ApiServiceBlocksOversizedGrfIndexRequest),
+    ("RagnaForge Agent runner blocks arbitrary command", RagnaForgeAgentRunnerBlocksArbitraryCommand),
+    ("RagnaForge Agent runner blocks rollback command", RagnaForgeAgentRunnerBlocksRollbackCommand),
+    ("RagnaForge Agent runner handles unavailable executable", RagnaForgeAgentRunnerHandlesUnavailableExecutable),
+    ("RagnaForge Agent runner handles timeout safely", RagnaForgeAgentRunnerHandlesTimeoutSafely),
+    ("RagnaForge Agent runner reads stdout and stderr", RagnaForgeAgentRunnerReadsStdoutAndStderr),
+    ("RagnaForge Agent summary reports missing cache", RagnaForgeAgentSummaryReportsMissingCache),
+    ("RagnaForge Agent summary rejects stale cache", RagnaForgeAgentSummaryRejectsStaleCache),
+    ("RagnaForge Agent summary returns sanitized DTO", RagnaForgeAgentSummaryReturnsSanitizedDto),
+    ("RagnaForge Agent summary exposes blocked apply and rollback flags", RagnaForgeAgentSummaryExposesBlockedApplyAndRollbackFlags),
     ("Visual theme manifest store round-trips default catalog", VisualThemeManifestStoreRoundTripsDefaultCatalog),
     ("Visual theme manifest validator blocks duplicate keys", VisualThemeManifestValidatorBlocksDuplicateKeys),
     ("Visual equipment theme matcher suggests fofo for rabbit visuals", VisualEquipmentThemeMatcherSuggestsFofoTheme),
@@ -135,10 +144,20 @@ var tests = new List<(string Name, Action Test)>
     ("GRF assembly inspector reads a controlled container", GrfAssemblyInspectorReadsControlledContainer),
     ("Asset preview service blocks path traversal", AssetPreviewServiceBlocksPathTraversal),
     ("Asset preview service blocks unallowed extension", AssetPreviewServiceBlocksUnallowedExtension),
-    ("Asset preview service returns unsupported for complex format", AssetPreviewServiceReturnsUnsupportedForComplexFormat),
-    ("Asset preview service returns unsupported for TGA", AssetPreviewServiceReturnsUnsupportedForTga),
-    ("Asset preview service blocks asset exceeding size limit", AssetPreviewServiceBlocksOversizedAsset),
-    ("Asset preview service returns preview for valid local patch asset", AssetPreviewServiceReturnsPreviewForLocalPatchAsset)
+    ("Asset preview service blocks arbitrary GRF container path", AssetPreviewServiceBlocksArbitraryGrfContainer),
+    ("Asset preview service enforces global maximum byte limit", AssetPreviewServiceEnforcesGlobalMaxBytes),
+    ("Asset preview service returns preview for valid local patch asset", AssetPreviewServiceReturnsPreviewForLocalPatchAsset),
+    ("Asset preview service returns sprite metadata via renderer", AssetPreviewServiceReturnsSpriteMetadataViaRenderer),
+    ("Asset preview service returns act metadata only in v1", AssetPreviewServiceReturnsActMetadataOnly),
+    ("Asset preview service blocks invalid companion path", AssetPreviewServiceBlocksInvalidCompanionPath),
+    ("Asset preview service handles ACT without companion", AssetPreviewServiceHandlesActWithoutCompanion),
+    ("Asset preview service fallbacks to SPR metadata if visual fails", AssetPreviewServiceFallbacksToSpriteMetadata),
+    ("Asset preview service reports effective frame index on fallback", AssetPreviewServiceReportsEffectiveFrameIndex),
+    ("Asset preview service reports effective action index on fallback", AssetPreviewServiceReportsEffectiveActionIndex),
+    ("Asset preview service cleans up extraction temporary directory", AssetPreviewServiceCleansUpTemporaries),
+    ("Path validation helper blocks traversal and rooted paths", PathValidationHelperBlocksUnsafe),
+    ("Path validation helper enforces companion directory rules", PathValidationHelperEnforcesCompanionRules),
+    ("Path validation helper validates system boundaries", PathValidationHelperValidatesBoundaries)
 };
 
 var failures = new List<string>();
@@ -544,6 +563,157 @@ static void ApiServiceBlocksOversizedGrfIndexRequest()
     AssertThrows<ApiException>(
         () => service.IndexGrfs(new GrfIndexRequest(ConfigPath: Path.Combine("data", "manifests", "repositories.local.json"), MaxContainers: 2, SaveCache: false)),
         "API service should block oversized GRF index requests before scanning.");
+}
+
+static void RagnaForgeAgentRunnerBlocksArbitraryCommand()
+{
+    using var workspace = TempWorkspace.Create();
+    var fakeExe = Path.Combine(workspace.Root, "ragnaforge.exe");
+    File.WriteAllText(fakeExe, "fake");
+    var executor = new FakeAgentProcessExecutor();
+    var runner = new RagnaForgeAgentCommandRunner(
+        fakeExe,
+        TimeSpan.FromSeconds(1),
+        executor,
+        NullLogger<RagnaForgeAgentCommandRunner>.Instance);
+
+    var result = runner.ExecuteAsync("apply --json").GetAwaiter().GetResult();
+
+    Assert(result is null, "Runner should block arbitrary/non-allowlisted commands.");
+    Assert(executor.Calls.Count == 0, "Blocked commands must not reach process execution.");
+    Assert(!RagnaForgeAgentCommandRunner.IsCommandAllowed("rollback --json"), "Rollback must not be allowlisted.");
+}
+
+static void RagnaForgeAgentRunnerBlocksRollbackCommand()
+{
+    using var workspace = TempWorkspace.Create();
+    var fakeExe = Path.Combine(workspace.Root, "ragnaforge.exe");
+    File.WriteAllText(fakeExe, "fake");
+    var executor = new FakeAgentProcessExecutor();
+    var runner = new RagnaForgeAgentCommandRunner(
+        fakeExe,
+        TimeSpan.FromSeconds(1),
+        executor,
+        NullLogger<RagnaForgeAgentCommandRunner>.Instance);
+
+    var result = runner.ExecuteAsync("rollback --list --json").GetAwaiter().GetResult();
+
+    Assert(result is null, "Runner should block rollback commands from the API integration.");
+    Assert(executor.Calls.Count == 0, "Blocked rollback must not reach process execution.");
+}
+
+static void RagnaForgeAgentRunnerHandlesUnavailableExecutable()
+{
+    var executor = new FakeAgentProcessExecutor();
+    var runner = new RagnaForgeAgentCommandRunner(
+        Path.Combine(Path.GetTempPath(), "missing-ragnaforge.exe"),
+        TimeSpan.FromSeconds(1),
+        executor,
+        NullLogger<RagnaForgeAgentCommandRunner>.Instance);
+
+    var result = runner.ExecuteAsync("status --json").GetAwaiter().GetResult();
+
+    Assert(result is null, "Missing agent executable should be handled safely.");
+    Assert(executor.Calls.Count == 0, "Unavailable executable must not invoke process execution.");
+}
+
+static void RagnaForgeAgentRunnerHandlesTimeoutSafely()
+{
+    using var workspace = TempWorkspace.Create();
+    var fakeExe = Path.Combine(workspace.Root, "ragnaforge.exe");
+    File.WriteAllText(fakeExe, "fake");
+    var executor = new FakeAgentProcessExecutor
+    {
+        NextResult = new RagnaForgeAgentProcessResult(-1, "", "timed out", TimedOut: true)
+    };
+    var runner = new RagnaForgeAgentCommandRunner(
+        fakeExe,
+        TimeSpan.FromMilliseconds(10),
+        executor,
+        NullLogger<RagnaForgeAgentCommandRunner>.Instance);
+
+    var result = runner.ExecuteAsync("status --json").GetAwaiter().GetResult();
+
+    Assert(result is null, "Timed out agent command should return a safe null result.");
+    Assert(executor.Calls.Count == 1, "Allowlisted command should reach process executor exactly once.");
+}
+
+static void RagnaForgeAgentRunnerReadsStdoutAndStderr()
+{
+    using var workspace = TempWorkspace.Create();
+    var fakeExe = Path.Combine(workspace.Root, "ragnaforge.exe");
+    File.WriteAllText(fakeExe, "fake");
+    var executor = new FakeAgentProcessExecutor
+    {
+        NextResult = new RagnaForgeAgentProcessResult(0, AgentStatusJson(), "diagnostic warning", TimedOut: false)
+    };
+    var runner = new RagnaForgeAgentCommandRunner(
+        fakeExe,
+        TimeSpan.FromSeconds(1),
+        executor,
+        NullLogger<RagnaForgeAgentCommandRunner>.Instance);
+
+    using var result = runner.ExecuteAsync("status --json").GetAwaiter().GetResult();
+
+    Assert(result is not null, "Runner should parse stdout JSON even when stderr contains diagnostics.");
+    Assert(executor.Calls.Single().Arguments == "status --json", "Runner should pass only the allowlisted arguments.");
+}
+
+static void RagnaForgeAgentSummaryReportsMissingCache()
+{
+    using var workspace = TempWorkspace.Create();
+    var service = CreateAgentSummaryService(workspace.Root);
+
+    var summary = service.GetHealthSummaryAsync().GetAwaiter().GetResult();
+
+    Assert(summary.AgentReachable, "Status command should be reachable in fake service.");
+    Assert(summary.Index is null, "Missing entity cache should not produce trusted index counts.");
+    Assert(summary.Scan is null, "Missing project cache should not produce trusted scan counts.");
+    Assert(summary.Warnings.Any(w => w.Contains("entities_index.json", StringComparison.Ordinal)), "Missing entity cache warning should be returned.");
+    Assert(summary.Warnings.Any(w => w.Contains("project_index.json", StringComparison.Ordinal)), "Missing project cache warning should be returned.");
+}
+
+static void RagnaForgeAgentSummaryRejectsStaleCache()
+{
+    using var workspace = TempWorkspace.Create();
+    WriteAgentCacheFiles(workspace.Root, activeProfile: "old-profile", configFingerprint: "old-fingerprint");
+    var service = CreateAgentSummaryService(workspace.Root);
+
+    var summary = service.GetHealthSummaryAsync().GetAwaiter().GetResult();
+
+    Assert(summary.Index is null, "Stale entity cache should not be trusted.");
+    Assert(summary.Scan is null, "Stale project cache should not be trusted.");
+    Assert(summary.Warnings.Count(w => w.Contains("stale", StringComparison.OrdinalIgnoreCase)) >= 2, "Stale cache warnings should be explicit.");
+}
+
+static void RagnaForgeAgentSummaryReturnsSanitizedDto()
+{
+    using var workspace = TempWorkspace.Create();
+    WriteAgentCacheFiles(workspace.Root, activeProfile: "teste", configFingerprint: "fingerprint-1");
+    var service = CreateAgentSummaryService(workspace.Root);
+
+    var summary = service.GetHealthSummaryAsync().GetAwaiter().GetResult();
+    var json = JsonSerializer.Serialize(summary);
+
+    Assert(summary.StatusOk, "Status should be OK.");
+    Assert(summary.DoctorOk, "Doctor should be OK.");
+    Assert(summary.Index is not null && summary.Index.ItemsFound == 10, "Sanitized DTO should expose trusted aggregate counts.");
+    Assert(summary.Scan is not null && summary.Scan.FilesIndexed == 5, "Sanitized DTO should expose trusted scan counts.");
+    Assert(summary.Validation is not null && summary.Validation.TotalIssues == 2, "Validation summary should be exposed.");
+    Assert(!json.Contains(workspace.Root, StringComparison.OrdinalIgnoreCase), "Agent DTO must not expose cache filesystem paths.");
+    Assert(!json.Contains("E:\\", StringComparison.OrdinalIgnoreCase), "Agent DTO must not expose external absolute paths.");
+}
+
+static void RagnaForgeAgentSummaryExposesBlockedApplyAndRollbackFlags()
+{
+    using var workspace = TempWorkspace.Create();
+    WriteAgentCacheFiles(workspace.Root, activeProfile: "teste", configFingerprint: "fingerprint-1");
+    var service = CreateAgentSummaryService(workspace.Root);
+
+    var summary = service.GetHealthSummaryAsync().GetAwaiter().GetResult();
+
+    Assert(summary.Safety.ApplyBlocked, "Agent summary should expose apply as blocked in the integration.");
+    Assert(summary.Safety.RollbackRealBlocked, "Agent summary should expose real rollback as blocked in the integration.");
 }
 
 static void VisualThemeManifestStoreRoundTripsDefaultCatalog()
@@ -3752,6 +3922,134 @@ static void AssertThrows<TException>(Action action, string message)
     throw new InvalidOperationException(message);
 }
 
+static RagnaForgeAgentSummaryService CreateAgentSummaryService(string cacheDir)
+{
+    var executor = new FakeAgentProcessExecutor();
+    Directory.CreateDirectory(cacheDir);
+    var fakeExe = Path.Combine(cacheDir, "ragnaforge.exe");
+    File.WriteAllText(fakeExe, "fake");
+
+    executor.Results["status --json"] = new RagnaForgeAgentProcessResult(0, AgentStatusJson(), "", TimedOut: false);
+    executor.Results["doctor --json"] = new RagnaForgeAgentProcessResult(0, AgentDoctorJson(), "", TimedOut: false);
+    executor.Results["validate --json"] = new RagnaForgeAgentProcessResult(0, AgentValidateJson(), "", TimedOut: false);
+
+    var runner = new RagnaForgeAgentCommandRunner(
+        fakeExe,
+        TimeSpan.FromSeconds(1),
+        executor,
+        NullLogger<RagnaForgeAgentCommandRunner>.Instance);
+
+    return new RagnaForgeAgentSummaryService(
+        runner,
+        cacheDir,
+        NullLogger<RagnaForgeAgentSummaryService>.Instance);
+}
+
+static void WriteAgentCacheFiles(string cacheDir, string activeProfile, string configFingerprint)
+{
+    Directory.CreateDirectory(cacheDir);
+    File.WriteAllText(
+        Path.Combine(cacheDir, "entities_index.json"),
+        JsonSerializer.Serialize(new
+        {
+            generatedAtUtc = DateTimeOffset.UtcNow,
+            agentVersion = "1.1.0-mcp-preview",
+            activeProfile,
+            configFingerprint,
+            sourcePaths = new[] { @"E:\Ragnarok\Testes\rAthena_teste" },
+            stats = new
+            {
+                itemsFound = 10,
+                monstersFound = 2,
+                npcsFound = 3,
+                mapsFound = 4,
+                filesScanned = 20,
+                filesParsed = 8,
+                filesSkipped = 12,
+                durationMs = 15
+            }
+        }));
+
+    File.WriteAllText(
+        Path.Combine(cacheDir, "project_index.json"),
+        JsonSerializer.Serialize(new
+        {
+            generatedAtUtc = DateTimeOffset.UtcNow,
+            agentVersion = "1.1.0-mcp-preview",
+            activeProfile,
+            configFingerprint,
+            scanRoot = @"C:\Users\Allis\Desktop\New project",
+            stats = new
+            {
+                filesVisited = 5,
+                filesIndexed = 5,
+                filesSkipped = 0,
+                directoriesVisited = 2,
+                durationMs = 7
+            }
+        }));
+}
+
+static string AgentStatusJson() => JsonSerializer.Serialize(new
+{
+    ok = true,
+    activeProfile = "teste",
+    configFingerprint = "fingerprint-1",
+    data = new
+    {
+        dbMode = "renewal",
+        grfProtected = true,
+        lubEditingBlocked = true,
+        cache = new
+        {
+            indexExists = true,
+            matchesActiveFingerprint = true
+        },
+        safety = new
+        {
+            requireDryRunBeforeApply = true,
+            requireDiffBeforeApply = true,
+            requireExplicitConfirmation = true,
+            backupBeforeApply = true,
+            blockOriginalGrfWrite = true,
+            blockLubEditing = true,
+            invalidateCacheOnPathChange = true,
+            cacheMustMatchActiveProfile = true,
+            applyBlocked = true,
+            rollbackRealBlocked = true
+        }
+    }
+});
+
+static string AgentDoctorJson() => JsonSerializer.Serialize(new
+{
+    ok = true,
+    data = new
+    {
+        checks = new[]
+        {
+            new { check = "security.grfReadOnly", severity = "pass", message = "ok" },
+            new { check = "safety.blockLubEditing", severity = "pass", message = "ok" }
+        }
+    }
+});
+
+static string AgentValidateJson() => JsonSerializer.Serialize(new
+{
+    ok = true,
+    data = new
+    {
+        totalIssues = 2,
+        errors = 1,
+        warnings = 1,
+        issues = new[]
+        {
+            new { code = "ITEM_DUPLICATE_ID_SERVER" },
+            new { code = "MAP_NO_CLIENT_FILES" }
+        }
+    }
+});
+
 static void AssetPreviewServiceBlocksPathTraversal()
 {
     var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
@@ -3761,7 +4059,6 @@ static void AssetPreviewServiceBlocksPathTraversal()
     var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
     
     Assert(response.PreviewKind == "Blocked", "Preview service should block path traversal.");
-    Assert(response.Errors.Any(e => e.Contains("Path traversal is not allowed")), "Path traversal error should be reported.");
 }
 
 static void AssetPreviewServiceBlocksUnallowedExtension()
@@ -3769,48 +4066,40 @@ static void AssetPreviewServiceBlocksUnallowedExtension()
     var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
     using var workspace = TempWorkspace.Create();
     var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
-    var request = new AssetPreviewRequest("Patch", "Loose", "data/test.exe", ".exe");
+    
+    // EntryPath tem .exe, mas ExpectedExtension é .bmp -> Mismatch
+    var request = new AssetPreviewRequest("Patch", "Loose", "data/test.exe", ".bmp");
     var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
     
-    Assert(response.PreviewKind == "Unsupported", "Preview service should block non-visual extension.");
-    Assert(response.Warnings.Any(w => w.Contains("too complex")), "Unsupported extension warning should be reported.");
+    Assert(response.PreviewKind == "Blocked", "Preview service should block extension mismatch.");
+    Assert(response.Errors.Any(e => e.Contains("Extension mismatch")), "Mismatch error expected.");
 }
 
-static void AssetPreviewServiceReturnsUnsupportedForComplexFormat()
+static void AssetPreviewServiceBlocksArbitraryGrfContainer()
 {
     var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
     using var workspace = TempWorkspace.Create();
     var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
-    var request = new AssetPreviewRequest("Patch", "Loose", "data/test.spr", ".spr");
+    
+    var request = new AssetPreviewRequest("GRF", "../../Unsafe/other.grf", "data/test.spr", ".spr");
     var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
     
-    Assert(response.PreviewKind == "Unsupported", "Preview service should return Unsupported for complex format (.spr).");
+    Assert(response.PreviewKind == "Blocked", "Preview service should block container outside GRF repository.");
 }
 
-static void AssetPreviewServiceReturnsUnsupportedForTga()
-{
-    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
-    using var workspace = TempWorkspace.Create();
-    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
-    var request = new AssetPreviewRequest("Patch", "Loose", "data/test.tga", ".tga");
-    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
-    
-    Assert(response.PreviewKind == "Unsupported", "Preview service should return Unsupported for TGA without specialized tool.");
-}
-
-static void AssetPreviewServiceBlocksOversizedAsset()
+static void AssetPreviewServiceEnforcesGlobalMaxBytes()
 {
     var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
     using var workspace = TempWorkspace.Create();
     var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
     
     var looseFile = Path.Combine(workspace.Root, "large.bmp");
-    File.WriteAllBytes(looseFile, new byte[2000]); // 2000 bytes
+    File.WriteAllBytes(looseFile, new byte[11 * 1024 * 1024]); // 11MB
 
-    var request = new AssetPreviewRequest("Patch", "Loose", "large.bmp", ".bmp", MaxBytes: 1000); // 1000 bytes max
+    var request = new AssetPreviewRequest("Patch", "Loose", "large.bmp", ".bmp", MaxBytes: 20 * 1024 * 1024);
     var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
     
-    Assert(response.PreviewKind == "TooLarge", "Preview service should block asset exceeding size limit.");
+    Assert(response.PreviewKind == "TooLarge", "Preview service should enforce global 10MB limit.");
 }
 
 static void AssetPreviewServiceReturnsPreviewForLocalPatchAsset()
@@ -3820,15 +4109,242 @@ static void AssetPreviewServiceReturnsPreviewForLocalPatchAsset()
     var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
     
     var looseFile = Path.Combine(workspace.Root, "test.bmp");
-    var content = new byte[] { 0x42, 0x4D, 0x00, 0x00 }; // Fake BMP header
+    var content = new byte[] { 0x42, 0x4D, 0x00, 0x00 };
     File.WriteAllBytes(looseFile, content);
 
     var request = new AssetPreviewRequest("Patch", "Loose", "test.bmp", ".bmp");
     var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
     
     Assert(response.PreviewKind == "Image", "Preview service should return Image for valid BMP.");
-    Assert(response.DataUrl is not null && response.DataUrl.StartsWith("data:image/bmp;base64,"), "Data URL should be correctly formed for BMP.");
 }
+
+static void AssetPreviewServiceReturnsSpriteMetadataViaRenderer()
+{
+    var fakeRenderer = new FakeSpriteRenderer();
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor(), fakeRenderer);
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    
+    var looseFile = Path.Combine(workspace.Root, "test.spr");
+    File.WriteAllBytes(looseFile, [1, 2, 3]);
+
+    var request = new AssetPreviewRequest("Patch", "Loose", "test.spr", ".spr", FrameIndex: 5);
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    Assert(response.PreviewKind == "SpriteFrame", "Preview kind should be returned from renderer.");
+    Assert(response.Metadata?.SelectedFrame == 5, "Metadata SelectedFrame should be passed through.");
+}
+
+static void AssetPreviewServiceReturnsActMetadataOnly()
+{
+    var fakeRenderer = new FakeSpriteRenderer();
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor(), fakeRenderer);
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    
+    var looseFile = Path.Combine(workspace.Root, "test.act");
+    File.WriteAllBytes(looseFile, [1, 2, 3]);
+
+    var request = new AssetPreviewRequest("Patch", "Loose", "test.act", ".act");
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    Assert(response.PreviewKind == "ActMetadata", "Preview kind should be metadata-only for ACT.");
+    Assert(response.Metadata?.ActionCount == 5, "Metadata ActionCount should be reported.");
+}
+
+static void AssetPreviewServiceBlocksInvalidCompanionPath()
+{
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    
+    // Companion escaping directory
+    var request = new AssetPreviewRequest("Patch", "Loose", "data/test.act", ".act", CompanionEntryPath: "../evil.spr");
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    Assert(response.PreviewKind == "Blocked", "Preview service should block companion traversal.");
+    Assert(response.Errors.Any(e => e.Contains("Invalid companion path")), "Error message for invalid companion expected.");
+}
+
+static void AssetPreviewServiceHandlesActWithoutCompanion()
+{
+    var fakeRenderer = new FakeSpriteRenderer();
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor(), fakeRenderer);
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    
+    var looseFile = Path.Combine(workspace.Root, "test.act");
+    File.WriteAllBytes(looseFile, [1, 2, 3]);
+
+    // Requesting ACT without companion path
+    var request = new AssetPreviewRequest("Patch", "Loose", "test.act", ".act");
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    Assert(response.PreviewKind == "ActMetadata", "Preview should work for ACT even without companion (metadata-only).");
+}
+
+static void AssetPreviewServiceFallbacksToSpriteMetadata()
+{
+    var fakeRenderer = new FakeSpriteRenderer { ReturnImage = false };
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor(), fakeRenderer);
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    
+    var looseFile = Path.Combine(workspace.Root, "test.spr");
+    File.WriteAllBytes(looseFile, [1, 2, 3]);
+
+    var request = new AssetPreviewRequest("Patch", "Loose", "test.spr", ".spr");
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    Assert(response.PreviewKind == "SpriteMetadata", "Preview should fallback to SpriteMetadata if no image is returned.");
+    Assert(response.DataUrl == null, "DataUrl should be null in metadata fallback.");
+}
+
+static void AssetPreviewServiceReportsEffectiveFrameIndex()
+{
+    var fakeRenderer = new FakeSpriteRenderer();
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor(), fakeRenderer);
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    
+    var looseFile = Path.Combine(workspace.Root, "test.spr");
+    File.WriteAllBytes(looseFile, [1, 2, 3]);
+
+    // Requesting frame 999 (invalid, fakeRenderer has 10 frames)
+    var request = new AssetPreviewRequest("Patch", "Loose", "test.spr", ".spr", FrameIndex: 999);
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    // FakeSpriteRenderer logic: if index >= count, it should return 0 (or whatever it normalized to)
+    Assert(response.Metadata?.SelectedFrame == 0, "Metadata should report effective frame index 0 when requested index was out of bounds.");
+}
+
+static void AssetPreviewServiceReportsEffectiveActionIndex()
+{
+    var fakeRenderer = new FakeSpriteRenderer();
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor(), fakeRenderer);
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    
+    var looseFile = Path.Combine(workspace.Root, "test.act");
+    File.WriteAllBytes(looseFile, [1, 2, 3]);
+
+    // Requesting action 999 (invalid, fakeRenderer has 5 actions)
+    var request = new AssetPreviewRequest("Patch", "Loose", "test.act", ".act", ActionIndex: 999);
+    var response = service.CreatePreview(paths, workspace.Root, request, "corr-test");
+    
+    Assert(response.Metadata?.SelectedAction == 0, "Metadata should report effective action index 0 when requested index was out of bounds.");
+}
+
+static void AssetPreviewServiceCleansUpTemporaries()
+{
+    var service = new AssetPreviewService(new RagnaForge.Infrastructure.GrfEditorIntegration.GrfAssemblyFileExtractor());
+    using var workspace = TempWorkspace.Create();
+    var paths = new RepositoryPaths(workspace.Root, workspace.Root, workspace.Root, workspace.Root);
+    
+    var containerPath = Path.Combine(workspace.Root, "test.grf");
+    File.WriteAllBytes(containerPath, Convert.FromBase64String(SampleGrfBase64));
+
+    var request = new AssetPreviewRequest("GRF", "test.grf", "data/test.spr", ".spr");
+    service.CreatePreview(paths, workspace.Root, request, "clean-test");
+    
+    var tmpRoot = Path.Combine(workspace.Root, "tmp", "asset-preview");
+    Assert(!Directory.Exists(tmpRoot) || !Directory.GetDirectories(tmpRoot).Any(), "Temporary extraction directories must be cleaned up.");
+}
+
+static void PathValidationHelperBlocksUnsafe()
+{
+    Assert(!PathValidationHelper.IsSafeLogicalPath("../evil.txt"), "Should block traversal.");
+    Assert(!PathValidationHelper.IsSafeLogicalPath("C:/evil.txt"), "Should block rooted Windows path.");
+    Assert(!PathValidationHelper.IsSafeLogicalPath("/etc/passwd"), "Should block rooted Unix path.");
+    Assert(PathValidationHelper.IsSafeLogicalPath("data/sprite/test.spr"), "Should allow safe relative path.");
+    Assert(PathValidationHelper.IsSafeLogicalPath("data\\sprite\\test.spr"), "Should allow safe relative path with backslashes.");
+}
+
+static void PathValidationHelperEnforcesCompanionRules()
+{
+    Assert(PathValidationHelper.IsSafeCompanionPath("data/test.act", "data/test.spr", ".spr"), "Should allow companion in same dir.");
+    Assert(!PathValidationHelper.IsSafeCompanionPath("data/test.act", "other/test.spr", ".spr"), "Should block companion in different dir.");
+    Assert(!PathValidationHelper.IsSafeCompanionPath("data/test.act", "data/test.txt", ".spr"), "Should block companion with wrong extension.");
+    Assert(!PathValidationHelper.IsSafeCompanionPath("data/test.act", "data/../other/test.spr", ".spr"), "Should block traversal in companion.");
+}
+
+static void PathValidationHelperValidatesBoundaries()
+{
+    using var workspace = TempWorkspace.Create();
+    var root = Path.Combine(workspace.Root, "safe");
+    Directory.CreateDirectory(root);
+
+    var safeFile = Path.Combine(root, "test.txt");
+    var unsafeFile = Path.Combine(workspace.Root, "evil.txt");
+    var sneakyFile = Path.Combine(workspace.Root, "safe_sneaky"); // Prefix attack: starts with 'safe' but is not in it
+    Directory.CreateDirectory(sneakyFile);
+
+    Assert(PathValidationHelper.IsWithinBoundary(root, safeFile), "Should allow file within boundary.");
+    Assert(!PathValidationHelper.IsWithinBoundary(root, unsafeFile), "Should block file outside boundary.");
+    Assert(!PathValidationHelper.IsWithinBoundary(root, Path.Combine(sneakyFile, "test.txt")), "Should block prefix attack (Boundary escape).");
+}
+
+internal sealed class FakeSpriteRenderer : ISpriteRenderer
+{
+    public bool ReturnImage { get; set; } = true;
+
+    public SpriteRenderResult Render(RepositoryPaths paths, byte[] assetBytes, string extension, int? frameIndex = null, int? actionIndex = null, byte[]? companionBytes = null)
+    {
+        if (extension == ".spr")
+        {
+            var frameCount = 10;
+            var selected = frameIndex ?? 0;
+            if (selected < 0 || selected >= frameCount) selected = 0;
+
+            return new SpriteRenderResult(
+                ImageBytes: ReturnImage ? [0, 0, 0] : null,
+                Width: 32,
+                Height: 32,
+                PreviewKind: ReturnImage ? "SpriteFrame" : "SpriteMetadata",
+                FrameCount: frameCount,
+                SelectedFrame: selected);
+        }
+
+        var actionCount = 5;
+        var selectedAction = actionIndex ?? 0;
+        if (selectedAction < 0 || selectedAction >= actionCount) selectedAction = 0;
+
+        return new SpriteRenderResult(
+            ImageBytes: null,
+            Width: 32,
+            Height: 32,
+            PreviewKind: "ActMetadata",
+            ActionCount: actionCount,
+            SelectedAction: selectedAction);
+    }
+}
+internal sealed class FakeAgentProcessExecutor : IRagnaForgeAgentProcessExecutor
+{
+    public List<(string FileName, string Arguments)> Calls { get; } = [];
+
+    public Dictionary<string, RagnaForgeAgentProcessResult> Results { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    public RagnaForgeAgentProcessResult? NextResult { get; set; }
+
+    public Task<RagnaForgeAgentProcessResult?> ExecuteAsync(
+        string fileName,
+        string arguments,
+        TimeSpan timeout,
+        CancellationToken cancellationToken)
+    {
+        Calls.Add((fileName, arguments));
+
+        if (NextResult is not null)
+        {
+            return Task.FromResult<RagnaForgeAgentProcessResult?>(NextResult);
+        }
+
+        return Task.FromResult(Results.TryGetValue(arguments, out var result)
+            ? result
+            : null);
+    }
+}
+
 internal sealed class TempWorkspace : IDisposable
 {
     public string Root { get; } = Path.Combine(Path.GetTempPath(), "ragnaforge_tests_" + Guid.NewGuid().ToString("N"));

@@ -32,7 +32,7 @@ describe("PassiveAssetPreviewPanel", () => {
     );
 
     expect(screen.getAllByText(/rf_headgear\.bmp/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/Preview visual real pendente de endpoint seguro de leitura\./i)).toBeInTheDocument();
+    expect(screen.getByText(/Preview visual read-only seguro via API\./i)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /extrair/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /copiar/i })).not.toBeInTheDocument();
   });

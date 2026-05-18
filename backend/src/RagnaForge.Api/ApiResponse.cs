@@ -65,6 +65,54 @@ public sealed class ApiEndpointExecutor(
         return Results.Ok(response);
     }
 
+    public async Task<IResult> ExecuteAsync<T>(
+        HttpContext context,
+        OperationKind operationKind,
+        Func<CancellationToken, Task<T>> action,
+        CancellationToken cancellationToken,
+        Func<IReadOnlyList<string>>? validate = null)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        operationGuard.EnsureAllowed(operationKind);
+
+        var validationErrors = validate?.Invoke() ?? [];
+        if (validationErrors.Count > 0)
+        {
+            throw ApiException.Unprocessable(
+                "payload.validation_failed",
+                "Request payload failed validation.",
+                new Dictionary<string, string[]> { ["request"] = validationErrors.ToArray() });
+        }
+
+        var data = await action(cancellationToken);
+        if (operationKind == OperationKind.DiffPreview && data is not null)
+        {
+            operationGuard.EnsureDiffLimit(data);
+        }
+
+        stopwatch.Stop();
+        var response = new ApiResponse<T>(
+            true,
+            data,
+            ExtractWarnings(data),
+            [],
+            DateTimeOffset.UtcNow,
+            ApiCorrelation.Get(context),
+            operationKind,
+            options.ReadOnlyMode,
+            stopwatch.ElapsedMilliseconds);
+
+        logger.LogInformation(
+            "API request completed. correlationId={CorrelationId} operationKind={OperationKind} path={Path} durationMs={DurationMs} warnings={WarningsCount}",
+            response.CorrelationId,
+            operationKind,
+            context.Request.Path.Value,
+            response.DurationMs,
+            response.Warnings.Count);
+
+        return Results.Ok(response);
+    }
+
     private static IReadOnlyList<string> ExtractWarnings<T>(T data)
     {
         if (data is null)

@@ -447,3 +447,19 @@ Com o objetivo de enriquecer a auditoria visual sem abrir riscos de segurança, 
   - Bloquear caminhos absolutos arbitrários; apenas caminhos relativos ao container ou raízes permitidas são aceitos.
   - Limitar o tamanho do asset para 1MB por requisição.
 - Manter o frontend como consumidor passivo, exibindo placeholders para formatos ainda não suportados para conversão visual segura.
+
+## D-016: Preview de ativos binários complexos (SPR/ACT) v1
+
+Em 2026-05-15, foi decidido expandir o sistema de preview para suportar formatos `.spr` e `.act`.
+
+**Decisões Técnicas:**
+
+1. **Abstração por ISpriteRenderer:** A lógica de renderização e extração de metadados deve ficar isolada em componentes injetáveis, permitindo múltiplos motores de renderização sem contaminar a camada de aplicação.
+2. **Integração por Reflexão:** Para evitar acoplamento em tempo de compilação com as assemblies do GRF Editor, o sistema utiliza reflexão dinâmica via `AssemblyLoadContext` colecionável. Isso garante que as DLLs sejam carregadas e descarregadas em memória sem travar arquivos ou vazar memória a longo prazo.
+3. **Honestidade v1 (SPR):** O preview de SPR é classificado como "Best-Effort Visual". O sistema tenta exportar um frame como PNG; se falhar (por ausência de `PngData` na assembly ou dimensões excessivas), retorna apenas metadados técnicos.
+4. **Honestidade v1 (ACT):** O preview de ACT é classificado como "Metadata-Only". O sistema extrai contagem de ações e metadados, mas não realiza composição visual de camadas (layers) no v1.
+5. **Hardening de Segurança Industrial:**
+   - **PathValidationHelper:** Introdução de helper centralizado para validar caminhos lógicos, bloquear traversal (`..`) e caminhos rootados (`:`, `/`).
+   - **Validação de Fronteira (Boundary):** Uso de `Path.GetFullPath` e `Path.GetRelativePath` para garantir que arquivos de Patch ou containers GRF nunca escapem das raízes permitidas. Checagem manual de prefixo foi considerada insuficiente e substituída por lógica de resolução de caminho canônico.
+   - **Resource Limits:** Implementação de limite global físico de 10MB para qualquer leitura de ativo, independente do que for solicitado via API.
+6. **Normalização de Índices:** O sistema garante que a metadata retornada reflita o índice efetivamente selecionado pelo renderer (com fallback para 0), garantindo que o frontend tenha ciência de quando um índice fora de range foi solicitado.
