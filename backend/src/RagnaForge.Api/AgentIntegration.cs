@@ -60,6 +60,10 @@ public sealed record AgentValidateSummary(
     int TotalIssues,
     int ErrorCount,
     int WarningCount,
+    int ExpectedNoiseCount,
+    bool IsReadOnlySafe,
+    bool IsDryRunSafe,
+    bool IsApplySafe,
     IReadOnlyList<AgentValidateCategory> TopCategories);
 
 public sealed record AgentValidateCategory(string Code, int Count);
@@ -422,13 +426,27 @@ public sealed class RagnaForgeAgentSummaryService
         var errorCount = GetInt(data, "errors");
         var warningCount = GetInt(data, "warnings");
 
+        var isReadOnlySafe = GetBool(data, "safeForReadOnlyWork");
+        var isDryRunSafe = GetBool(data, "safeForDryRun");
+        var isApplySafe = GetBool(data, "safeForApply");
+
         var categories = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        var expectedNoiseCount = 0;
+
         if (data.TryGetProperty("issues", out var issues) && issues.ValueKind == JsonValueKind.Array)
         {
             foreach (var issue in issues.EnumerateArray())
             {
                 var code = GetString(issue, "code", "UNKNOWN");
                 categories[code] = categories.GetValueOrDefault(code) + 1;
+
+                var scope = GetString(issue, "scope", string.Empty);
+                var severity = GetString(issue, "severity", string.Empty);
+                if (string.Equals(scope, "external-data", StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(severity, "warning", StringComparison.OrdinalIgnoreCase))
+                {
+                    expectedNoiseCount++;
+                }
             }
         }
 
@@ -436,6 +454,10 @@ public sealed class RagnaForgeAgentSummaryService
             totalIssues,
             errorCount,
             warningCount,
+            expectedNoiseCount,
+            isReadOnlySafe,
+            isDryRunSafe,
+            isApplySafe,
             categories
                 .Select(kvp => new AgentValidateCategory(kvp.Key, kvp.Value))
                 .OrderByDescending(c => c.Count)

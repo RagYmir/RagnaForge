@@ -283,6 +283,10 @@ export interface AgentValidateSummary {
   totalIssues: number;
   errorCount: number;
   warningCount: number;
+  expectedNoiseCount: number;
+  isReadOnlySafe: boolean;
+  isDryRunSafe: boolean;
+  isApplySafe: boolean;
   topCategories: AgentValidateCategory[];
 }
 
