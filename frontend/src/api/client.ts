@@ -7,6 +7,14 @@ import type {
   GrfIndexData,
   GrfInspectData,
   PipelineReport,
+  PipelineDiffPreviewResponse,
+  PipelineDryRunResponse,
+  PipelineIssuesResponse,
+  PipelinePlanResponse,
+  PipelineReportSummary,
+  PipelineWorkspaceRequest,
+  PipelineWorkspaceRunRequest,
+  PipelineWorkspaceStatus,
   StatusData
 } from "./types";
 
@@ -158,6 +166,43 @@ export class ApiClient {
       method: "POST",
       body: JSON.stringify(payload)
     });
+  }
+
+  pipelineStatus() {
+    return this.request<PipelineWorkspaceStatus>("/api/pipeline/status", { method: "GET" });
+  }
+
+  pipelinePlan(payload: PipelineWorkspaceRequest) {
+    return this.request<PipelinePlanResponse>("/api/pipeline/plan", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
+  }
+
+  pipelineDryRun(payload: PipelineWorkspaceRunRequest) {
+    return this.request<PipelineDryRunResponse>("/api/pipeline/dry-run", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
+  }
+
+  pipelineDiffPreview(payload: PipelineWorkspaceRunRequest) {
+    return this.request<PipelineDiffPreviewResponse>("/api/pipeline/diff-preview", {
+      method: "POST",
+      body: JSON.stringify(payload)
+    });
+  }
+
+  pipelineReports() {
+    return this.request<PipelineReportSummary[]>("/api/pipeline/reports", { method: "GET" });
+  }
+
+  pipelineReport(id: string) {
+    return this.request<string>(`/api/pipeline/reports/${encodeURIComponent(id)}`, { method: "GET" });
+  }
+
+  pipelineIssues() {
+    return this.request<PipelineIssuesResponse>("/api/pipeline/issues", { method: "GET" });
   }
 
   async request<T>(path: string, init: RequestInit) {

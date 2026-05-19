@@ -31,6 +31,19 @@ Ele:
 - não executa rollback real;
 - não altera rAthena, Patch/client, GRFs ou `.lub`.
 
+## API Pipeline Workspace
+
+Os endpoints `/api/pipeline/*` existem apenas para organizar status, planejamento, dry-run seguro, diff-preview, issues e reports em uma superficie operacional unica.
+
+Eles:
+- sao protegidos por API key e `ApiOperationGuard`;
+- retornam `ApiResponse<T>` com `correlationId`;
+- nao aceitam comando livre;
+- nao chamam shell;
+- nao mapeiam `apply` nem rollback real;
+- nao escrevem em rAthena, Patch/client, GRFs ou `.lub`;
+- mantem `safeForApply=false` quando o Agent indica blocker ou quando a operacao e apenas de auditoria.
+
 ## CLI (Command Line Interface)
 
 A CLI possui comandos funcionais de `apply` e `rollback` para algumas categorias já implementadas no pipeline.

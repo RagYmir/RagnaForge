@@ -319,3 +319,140 @@ export interface AgentHealthSummary {
   errors: string[];
   generatedAtUtc: string;
 }
+
+export interface PipelineWorkspaceStatus {
+  apiReadOnly: boolean;
+  dryRunAvailable: boolean;
+  diffPreviewAvailable: boolean;
+  applyAvailable: boolean;
+  rollbackRealAvailable: boolean;
+  agentHealthSummary: AgentHealthSummary | null;
+  safeForReadOnlyWork: boolean;
+  safeForDryRun: boolean;
+  safeForApply: boolean;
+  externalDataIssueCount: number;
+  currentKnownLimitations: string[];
+}
+
+export interface PipelineWorkspaceRequest {
+  entityType: string;
+  mode: string;
+  payload: Record<string, unknown>;
+  sourceHints?: string;
+  includeAssets: boolean;
+  includeClientSide: boolean;
+  includeServerSide: boolean;
+}
+
+export interface PipelineDependencyItem {
+  name: string;
+  type: string;
+  status: string;
+  expectedPath: string;
+  source: string;
+  notes?: string | null;
+}
+
+export interface PipelineDependencySummary {
+  serverDb: PipelineDependencyItem[];
+  clientDb: PipelineDependencyItem[];
+  scripts: PipelineDependencyItem[];
+  assets: PipelineDependencyItem[];
+}
+
+export interface PipelineStep {
+  name: string;
+  action: string;
+  target: string;
+  status: string;
+  reason?: string | null;
+}
+
+export interface PipelineReadiness {
+  canInspect: boolean;
+  canDryRun: boolean;
+  canDiffPreview: boolean;
+  canApply: boolean;
+}
+
+export interface PipelineIssueReference {
+  code: string;
+  severity: string;
+  message: string;
+  scope: string;
+  entityName: string;
+  sourceFile?: string | null;
+}
+
+export interface PipelineIssueSummary {
+  total: number;
+  errors: number;
+  warnings: number;
+  issues: PipelineIssueReference[];
+  externalDataCount: number;
+  applyBlockersCount: number;
+  dryRunBlockersCount: number;
+}
+
+export interface PipelinePlanResponse {
+  operationId: string;
+  readOnly: boolean;
+  entityType: string;
+  dependencySummary: PipelineDependencySummary;
+  validationSummary: PipelineIssueSummary;
+  plannedSteps: PipelineStep[];
+  blockedSteps: PipelineStep[];
+  warnings: string[];
+  errors: string[];
+  readiness: PipelineReadiness;
+  links: {
+    dryRun: string;
+    diffPreview: string;
+    report: string;
+  };
+}
+
+export interface PipelineWorkspaceRunRequest {
+  operationId: string;
+  entityType: string;
+  payload: Record<string, unknown>;
+}
+
+export interface PipelineDryRunResponse {
+  operationId: string;
+  noPersistentWrites: boolean;
+  dryRunReport: unknown;
+  generatedFilesPreview: string[];
+  warnings: string[];
+  errors: string[];
+  safeForApply: boolean;
+}
+
+export interface PipelineDiffPreviewResponse {
+  operationId: string;
+  noPersistentWrites: boolean;
+  diffByFile: DiffEntry[];
+  additions: number;
+  modifications: number;
+  deletions: number;
+  riskLevel: string;
+}
+
+export interface PipelineReportSummary {
+  id: string;
+  title: string;
+  entityType: string;
+  generatedAtUtc: string;
+  sizeBytes: number;
+}
+
+export interface PipelineIssuesResponse {
+  readOnly: boolean;
+  safeForReadOnlyWork: boolean;
+  safeForDryRun: boolean;
+  safeForApply: boolean;
+  summary: PipelineIssueSummary;
+  issues: PipelineIssueReference[];
+  warnings: string[];
+  errors: string[];
+}

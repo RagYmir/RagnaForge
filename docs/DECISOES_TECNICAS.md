@@ -463,3 +463,17 @@ Em 2026-05-15, foi decidido expandir o sistema de preview para suportar formatos
    - **Validação de Fronteira (Boundary):** Uso de `Path.GetFullPath` e `Path.GetRelativePath` para garantir que arquivos de Patch ou containers GRF nunca escapem das raízes permitidas. Checagem manual de prefixo foi considerada insuficiente e substituída por lógica de resolução de caminho canônico.
    - **Resource Limits:** Implementação de limite global físico de 10MB para qualquer leitura de ativo, independente do que for solicitado via API.
 6. **Normalização de Índices:** O sistema garante que a metadata retornada reflita o índice efetivamente selecionado pelo renderer (com fallback para 0), garantindo que o frontend tenha ciência de quando um índice fora de range foi solicitado.
+
+## D-045: API Pipeline Workspace organiza a esteira sem virar apply
+
+Com a rodada `API Pipeline Workspace v1`, a API passa a ter uma superficie unica para status, planejamento, dry-run, diff-preview, issues e reports.
+
+Decisao:
+
+- expor apenas endpoints seguros em `/api/pipeline/*`;
+- manter `plan` como orquestracao/readiness, sem escrita persistente;
+- tratar `dry-run` e `diff-preview` como operacoes seguras, sem apply implicito;
+- nunca aceitar comando livre, shell, path arbitrario ou payload que vire escrita direta;
+- evitar declarar dependencia como `Present` quando a API nao verificou o arquivo real;
+- manter `safeForApply=false` na API/UI enquanto apply por HTTP continuar fora da politica;
+- usar a tela `Pipeline API` como workspace operacional de auditoria, nao como CRUD e nao como repair center.

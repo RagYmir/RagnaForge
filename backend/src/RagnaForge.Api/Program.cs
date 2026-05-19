@@ -34,6 +34,11 @@ builder.Services.AddSingleton<ApiKeyValidator>();
 builder.Services.AddSingleton<ApiInMemoryRateLimiter>();
 builder.Services.AddSingleton<ApiEndpointExecutor>();
 builder.Services.AddSingleton(new RagnaForgeApiService(workspaceRoot, apiOptions));
+builder.Services.AddSingleton(sp => new PipelineWorkspaceService(
+    sp.GetRequiredService<RagnaForgeApiService>(),
+    sp.GetService<RagnaForgeAgentSummaryService>(),
+    workspaceRoot,
+    sp.GetRequiredService<ILogger<PipelineWorkspaceService>>()));
 
 // Agent integration: read-only, strict allowlist, configurable paths.
 var agentExePath = builder.Configuration["RagnaForge:Agent:AgentExePath"] ?? "ragnaforge.exe";
@@ -194,6 +199,41 @@ api.MapPost("/maps/diff-preview", (HttpContext context, MapDryRunRequest request
 api.MapPost("/assets/preview", (HttpContext context, RagnaForge.Application.Assets.AssetPreviewRequest request, RagnaForgeApiService service, ApiEndpointExecutor executor) =>
     executor.Execute(context, OperationKind.ReadOnly, () => service.CreateAssetPreview(request, Guid.NewGuid().ToString("N")), () => Require(request.Source, nameof(request.Source), request.EntryPath, nameof(request.EntryPath), request.ExpectedExtension, nameof(request.ExpectedExtension))))
     .WithTags("Assets")
+    .WithMetadata(new ApiOperationMetadata(OperationKind.ReadOnly, RagnaForgeApiPolicyNames.ReadOnlyPolicy));
+
+api.MapGet("/pipeline/status", async (HttpContext context, PipelineWorkspaceService service, ApiEndpointExecutor executor, CancellationToken ct) =>
+    await executor.ExecuteAsync(context, OperationKind.ReadOnly, token => service.GetStatusAsync(token), ct))
+    .WithTags("Pipeline")
+    .WithMetadata(new ApiOperationMetadata(OperationKind.ReadOnly, RagnaForgeApiPolicyNames.ReadOnlyPolicy));
+
+api.MapPost("/pipeline/plan", async (HttpContext context, PipelinePlanRequest request, PipelineWorkspaceService service, ApiEndpointExecutor executor, CancellationToken ct) =>
+    await executor.ExecuteAsync(context, OperationKind.ReadOnly, token => service.PlanAsync(request, token), ct, () => Require(request.EntityType, nameof(request.EntityType), request.Mode, nameof(request.Mode))))
+    .WithTags("Pipeline")
+    .WithMetadata(new ApiOperationMetadata(OperationKind.ReadOnly, RagnaForgeApiPolicyNames.ReadOnlyPolicy));
+
+api.MapPost("/pipeline/dry-run", async (HttpContext context, PipelineDryRunRequest request, PipelineWorkspaceService service, ApiEndpointExecutor executor, CancellationToken ct) =>
+    await executor.ExecuteAsync(context, OperationKind.DryRun, token => service.DryRunAsync(request, token), ct, () => Require(request.OperationId, nameof(request.OperationId), request.EntityType, nameof(request.EntityType))))
+    .WithTags("Pipeline")
+    .WithMetadata(new ApiOperationMetadata(OperationKind.DryRun, RagnaForgeApiPolicyNames.DryRunPolicy));
+
+api.MapPost("/pipeline/diff-preview", async (HttpContext context, PipelineDryRunRequest request, PipelineWorkspaceService service, ApiEndpointExecutor executor, CancellationToken ct) =>
+    await executor.ExecuteAsync(context, OperationKind.DiffPreview, token => service.DiffPreviewAsync(request, token), ct, () => Require(request.OperationId, nameof(request.OperationId), request.EntityType, nameof(request.EntityType))))
+    .WithTags("Pipeline")
+    .WithMetadata(new ApiOperationMetadata(OperationKind.DiffPreview, RagnaForgeApiPolicyNames.DiffPreviewPolicy));
+
+api.MapGet("/pipeline/reports", async (HttpContext context, PipelineWorkspaceService service, ApiEndpointExecutor executor, CancellationToken ct) =>
+    await executor.ExecuteAsync(context, OperationKind.ReadOnly, token => service.ListReportsAsync(token), ct))
+    .WithTags("Pipeline")
+    .WithMetadata(new ApiOperationMetadata(OperationKind.ReadOnly, RagnaForgeApiPolicyNames.ReadOnlyPolicy));
+
+api.MapGet("/pipeline/reports/{id}", async (HttpContext context, string id, PipelineWorkspaceService service, ApiEndpointExecutor executor, CancellationToken ct) =>
+    await executor.ExecuteAsync(context, OperationKind.ReadOnly, token => service.ReadReportAsync(id, token), ct, () => Require(id, nameof(id))))
+    .WithTags("Pipeline")
+    .WithMetadata(new ApiOperationMetadata(OperationKind.ReadOnly, RagnaForgeApiPolicyNames.ReadOnlyPolicy));
+
+api.MapGet("/pipeline/issues", async (HttpContext context, PipelineWorkspaceService service, ApiEndpointExecutor executor, CancellationToken ct) =>
+    await executor.ExecuteAsync(context, OperationKind.ReadOnly, token => service.GetIssuesAsync(token), ct))
+    .WithTags("Pipeline")
     .WithMetadata(new ApiOperationMetadata(OperationKind.ReadOnly, RagnaForgeApiPolicyNames.ReadOnlyPolicy));
 
 app.Run();

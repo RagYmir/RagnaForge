@@ -36,6 +36,20 @@ A branch atual inclui uma integracao read-only com o RagnaForge Agent:
 - sem apply/rollback
 - sem shell generico
 
+## API Pipeline Workspace v1
+
+A API e a UI tambem expoem um workspace operacional read-only para orquestrar a esteira:
+
+- `GET /api/pipeline/status`
+- `POST /api/pipeline/plan`
+- `POST /api/pipeline/dry-run`
+- `POST /api/pipeline/diff-preview`
+- `GET /api/pipeline/issues`
+- `GET /api/pipeline/reports`
+- `GET /api/pipeline/reports/{id}`
+
+A tela `Pipeline API` mostra plano, dependencies, readiness, issues, reports, dry-run e diff-preview. Ela nao possui botao de apply/rollback, nao aceita comando livre e nao chama CLI pelo frontend.
+
 ## Como configurar e rodar
 
 ### 1. Manifesto local
@@ -69,8 +83,8 @@ npm run dev
 
 ## Status de testes desta consolidacao
 
-- Backend: `126/126` testes passando
-- Frontend: `30/30` testes passando
+- Backend: `141/141` testes passando
+- Frontend: `32/32` testes passando
 - Agent auxiliar: `183/183` testes passando
 
 ## Avisos finais
