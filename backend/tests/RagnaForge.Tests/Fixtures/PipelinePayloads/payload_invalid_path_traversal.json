@@ -1,0 +1,5 @@
+{
+  "entityType": "item",
+  "aegisName": "../../etc/passwd",
+  "displayName": "Path Traversal Test"
+}

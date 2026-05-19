@@ -163,6 +163,13 @@ Status: em andamento, limitada a read-only, dry-run e diff-preview
 - Dependency summary agora evita presenca inventada: arquivos nao verificados aparecem como `NotChecked`/`Placeholder`.
 - Apply e rollback continuam fora da API/UI; `safeForApply` permanece `false`.
 - Totais atuais:
-  - Backend: 141/141 testes
-  - Frontend: 32/32 testes
-  - Agent: 183/183 testes
+  - Backend: 145/145 testes
+  - Frontend: 33/33 testes
+  - Agent: 199/199 testes
+
+### Atualizacao 2026-05-19 - Pipeline Real Payload Battery v1
+
+- Bateria real de payloads da Pipeline API concluida para payloads validos, invalidos, traversal, command injection, oversized, concorrencia, repeticao, reports e knowledge.
+- `diff-preview` documentado como stateless e sem escrita persistente.
+- `429 TooManyRequests` fica restrito a cenarios de stress/rate-limit, sem mascarar testes funcionais normais.
+- Proximo passo: rodar a mesma bateria contra amostras sanitizadas do servidor progressivo quando houver novos casos reais.

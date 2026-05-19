@@ -1,0 +1,11 @@
+{
+  "entityType": "npc",
+  "name": "Kafra Test",
+  "mapName": "prontera",
+  "x": 150,
+  "y": 150,
+  "direction": 4,
+  "sprite": "4_F_KAFRA1",
+  "scriptBody": "mes \"Test NPC.\"; close;",
+  "fileSlug": "kafra_test"
+}

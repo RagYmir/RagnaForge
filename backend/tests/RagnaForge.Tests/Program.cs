@@ -1,4 +1,5 @@
-﻿using RagnaForge.Application.Assets;
+using RagnaForge.Tests;
+using RagnaForge.Application.Assets;
 using RagnaForge.Application.Discovery;
 using RagnaForge.Application.Configuration;
 using RagnaForge.Application.Abstractions;
@@ -178,7 +179,8 @@ var tests = new List<(string Name, Action Test)>
     ("Rollback does not exist", PipelineRollbackDoesNotExist),
     ("AgentIntegration does not accept free commands", PipelineAgentIntegrationDoesNotAcceptFreeCommands),
     ("safeForApply remains false when agent reports blocker", PipelineSafeForApplyRemainsFalseWhenAgentReportsBlocker),
-    ("payload invalid returns safe error", PipelineInvalidPayloadReturnsSafeError)
+    ("payload invalid returns safe error", PipelineInvalidPayloadReturnsSafeError),
+    ("Pipeline real payload stress battery", new Action(() => PipelineRealPayloadBatteryTests.RunAllTests().GetAwaiter().GetResult()))
 };
 
 var failures = new List<string>();

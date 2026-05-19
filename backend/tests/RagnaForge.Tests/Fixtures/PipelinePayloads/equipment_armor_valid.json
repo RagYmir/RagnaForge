@@ -1,0 +1,10 @@
+{
+  "entityType": "equipment",
+  "id": 22002,
+  "aegisName": "RF_BATTERY_ARMOR",
+  "displayName": "RF Battery Armor",
+  "type": "Armor",
+  "equipLocations": ["Body"],
+  "visualCategory": "Robe",
+  "clientSpriteName": "rf_battery_armor"
+}

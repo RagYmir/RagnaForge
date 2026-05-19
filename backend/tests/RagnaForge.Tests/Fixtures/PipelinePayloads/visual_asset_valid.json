@@ -1,0 +1,7 @@
+﻿{
+  "entityType": "asset",
+  "assetType": "visual",
+  "resourceName": "test_icon",
+  "expectedExtension": ".bmp",
+  "sourceHint": "mock_source"
+}

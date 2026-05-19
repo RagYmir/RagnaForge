@@ -1,0 +1,5 @@
+{
+  "entityType": "item",
+  "aegisName": "test_cmd",
+  "displayName": "Injection Test && whoami ; rm -rf /"
+}

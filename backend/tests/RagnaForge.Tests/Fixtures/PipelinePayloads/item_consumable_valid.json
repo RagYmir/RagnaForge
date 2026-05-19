@@ -1,0 +1,10 @@
+{
+  "entityType": "item",
+  "aegisName": "Apple_Test",
+  "displayName": "Apple",
+  "type": "Consumable",
+  "buy": 15,
+  "sell": 7,
+  "weight": 20,
+  "identifiedDescriptionLines": ["A delicious test apple."]
+}

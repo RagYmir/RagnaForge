@@ -1,0 +1,15 @@
+{
+  "entityType": "monster",
+  "id": 3999,
+  "aegisName": "RF_BATTERY_PORING",
+  "displayName": "Test Poring",
+  "mapName": "prontera",
+  "level": 1,
+  "hp": 50,
+  "amount": 1,
+  "respawnMilliseconds": 60000,
+  "spriteOverride": "PORING",
+  "drops": [
+    { "itemId": 501, "chance": 500 }
+  ]
+}
