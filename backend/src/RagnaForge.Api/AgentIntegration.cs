@@ -194,6 +194,16 @@ public sealed class RagnaForgeAgentCommandRunner
         "validate --json"
     };
 
+    private static readonly HashSet<string> AllowedKnowledgeEntities = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "item",
+        "equipment",
+        "mob",
+        "npc",
+        "map",
+        "asset"
+    };
+
     private readonly string _agentExePath;
     private readonly TimeSpan _timeout;
     private readonly IRagnaForgeAgentProcessExecutor _processExecutor;
@@ -211,7 +221,128 @@ public sealed class RagnaForgeAgentCommandRunner
         _logger = logger;
     }
 
-    public static bool IsCommandAllowed(string command) => AllowedCommands.Contains(command);
+    public static bool IsCommandAllowed(string command)
+    {
+        if (string.IsNullOrWhiteSpace(command))
+        {
+            return false;
+        }
+
+        var normalized = command.Trim();
+        return AllowedCommands.Contains(normalized) || IsAllowedKnowledgeCommand(normalized);
+    }
+
+    public static string CreateKnowledgeSourcesCommand() => "knowledge sources --json";
+
+    public static string CreateKnowledgeValidateCommand() => "knowledge validate --json";
+
+    public static string? CreateKnowledgeSearchCommand(string? query) =>
+        CreateKnowledgeTextCommand("search", "query", query, 512);
+
+    public static string? CreateKnowledgeExplainCommand(string? topic) =>
+        CreateKnowledgeTextCommand("explain", "topic", topic, 512);
+
+    public static string? CreateKnowledgeSchemaCommand(string? entity)
+    {
+        var errors = GetKnowledgeInputErrors(entity, "entity", 32, rejectPathLike: true);
+        if (errors.Count > 0)
+        {
+            return null;
+        }
+
+        var normalized = entity!.Trim().ToLowerInvariant();
+        return AllowedKnowledgeEntities.Contains(normalized)
+            ? $"knowledge schema --entity \"{normalized}\" --json"
+            : null;
+    }
+
+    public static IReadOnlyList<string> GetKnowledgeInputErrors(
+        string? value,
+        string name,
+        int maxLength,
+        bool rejectPathLike)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return [$"{name} is required."];
+        }
+
+        if (value.Length > maxLength)
+        {
+            return [$"{name} exceeds the maximum length of {maxLength} characters."];
+        }
+
+        if (value.Any(char.IsControl))
+        {
+            return [$"{name} contains blocked control characters."];
+        }
+
+        if (value.Contains('"', StringComparison.Ordinal))
+        {
+            return [$"{name} contains blocked quote characters."];
+        }
+
+        if (rejectPathLike && IsPathLikeKnowledgeInput(value))
+        {
+            return [$"{name} must not be path-like."];
+        }
+
+        return [];
+    }
+
+    private static string? CreateKnowledgeTextCommand(string subCommand, string optionName, string? value, int maxLength)
+    {
+        var errors = GetKnowledgeInputErrors(value, optionName, maxLength, rejectPathLike: true);
+        return errors.Count == 0
+            ? $"knowledge {subCommand} --{optionName} \"{value!.Trim()}\" --json"
+            : null;
+    }
+
+    private static bool IsAllowedKnowledgeCommand(string command)
+    {
+        if (command.Equals(CreateKnowledgeSourcesCommand(), StringComparison.OrdinalIgnoreCase)
+            || command.Equals(CreateKnowledgeValidateCommand(), StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return IsAllowedKnowledgeTextCommand(command, "search", "query", 512)
+            || IsAllowedKnowledgeTextCommand(command, "explain", "topic", 512)
+            || IsAllowedKnowledgeSchemaCommand(command);
+    }
+
+    private static bool IsAllowedKnowledgeTextCommand(string command, string subCommand, string optionName, int maxLength)
+    {
+        var value = ExtractQuotedOption(command, $"knowledge {subCommand} --{optionName} \"", "\" --json");
+        return value is not null
+            && GetKnowledgeInputErrors(value, optionName, maxLength, rejectPathLike: true).Count == 0;
+    }
+
+    private static bool IsAllowedKnowledgeSchemaCommand(string command)
+    {
+        var value = ExtractQuotedOption(command, "knowledge schema --entity \"", "\" --json");
+        return value is not null
+            && GetKnowledgeInputErrors(value, "entity", 32, rejectPathLike: true).Count == 0
+            && AllowedKnowledgeEntities.Contains(value);
+    }
+
+    private static string? ExtractQuotedOption(string command, string prefix, string suffix)
+    {
+        if (!command.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
+            || !command.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        var valueLength = command.Length - prefix.Length - suffix.Length;
+        return valueLength >= 0 ? command.Substring(prefix.Length, valueLength) : null;
+    }
+
+    private static bool IsPathLikeKnowledgeInput(string value) =>
+        value.Contains("..", StringComparison.Ordinal)
+        || value.Contains(':', StringComparison.Ordinal)
+        || value.Contains('\\', StringComparison.Ordinal)
+        || value.Contains('/', StringComparison.Ordinal);
 
     public async Task<JsonDocument?> ExecuteAsync(string command, CancellationToken cancellationToken = default)
     {
