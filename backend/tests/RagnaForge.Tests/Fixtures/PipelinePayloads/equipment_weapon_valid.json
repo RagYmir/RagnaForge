@@ -1,0 +1,13 @@
+{
+  "entityType": "equipment",
+  "id": 22001,
+  "aegisName": "RF_BATTERY_WEAPON",
+  "displayName": "RF Battery Weapon",
+  "type": "Weapon",
+  "viewId": 1234,
+  "weaponBaseType": "Sword",
+  "weaponLevel": 1,
+  "equipLocations": ["RightHand"],
+  "clientSpriteName": "sword_test",
+  "clientSymbolName": "WEAPON_SWORD_TEST"
+}

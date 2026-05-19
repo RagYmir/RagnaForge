@@ -1,7 +1,16 @@
 # STATUS_PROJETO
 
-Atualizado: 2026-05-18
-Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao explicita. API backend endurecida. Interface administrativa com Validation Center dinamico, preview visual real read-only seguro para ativos bitmap (BMP, PNG, etc), suporte tecnico (metadados/best-effort) para SPR e ACT, integracao Agent Health read-only allowlisted e API Pipeline Workspace v1. Backend com 141/141 testes OK; frontend com 32/32 testes OK; Agent com 183/183 testes OK.
+Atualizado: 2026-05-19
+Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao explicita. API backend endurecida. Interface administrativa com Validation Center dinamico, preview visual real read-only seguro para ativos bitmap (BMP, PNG, etc), suporte tecnico (metadados/best-effort) para SPR e ACT, integracao Agent Health read-only allowlisted, API Pipeline Workspace v1 e bateria real de payloads da pipeline. Backend com 145/145 testes OK; frontend com 33/33 testes OK; Agent com 199/199 testes OK.
+
+## Macro-etapa 2026-05-19 - Pipeline Real Payload Battery v1
+
+- Adicionada bateria `PipelineRealPayloadBatteryTests` com fixtures sanitizadas para item, equipamento, asset visual, NPC, monstro, mapa, invalid required, invalid entity type, traversal, command injection, unicode, casing, external-data warning e knowledge hint.
+- A bateria valida `/api/pipeline/status`, `plan`, `dry-run`, `diff-preview`, `issues`, `reports`, report read, endpoints knowledge e ausencia de `/api/apply` e `/api/rollback`.
+- `dry-run` e `diff-preview` seguem com `NoPersistentWrites=true`; `safeForApply` permanece `false`.
+- `diff-preview` e tratado como stateless: operationId desconhecido nao aplica diff nem escreve externamente.
+- `429 TooManyRequests` e aceito apenas nos cenarios de concorrencia/repeticao/rate-limit; testes funcionais normais continuam exigindo o codigo seguro esperado.
+- Nenhum arquivo rAthena, Patch/client, GRF ou `.lub` foi alterado.
 
 ## Macro-etapa 2026-05-18 - API Pipeline Workspace v1
 
@@ -9,7 +18,7 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao expli
 - A API Pipeline Workspace usa apenas `ReadOnly`, `DryRun` e `DiffPreview` permitidos pelo `ApiOperationGuard`; nao existe endpoint de apply ou rollback real.
 - O dependency summary foi endurecido para nao afirmar `Present` quando a API nao verificou o arquivo; estados nao verificados aparecem como `NotChecked` ou `Placeholder`.
 - A UI ganhou a tela `Pipeline API`, com badges read-only, selector de entidade, editor JSON, plan, dry-run seguro, diff-preview, issues, reports, readiness, warnings/errors e correlationId.
-- Testes expandidos para 141 backend e 32 frontend, cobrindo endpoints pipeline, ausencia de apply/rollback e workspace visual read-only.
+- Testes expandidos para 145 backend e 33 frontend, cobrindo endpoints pipeline, ausencia de apply/rollback, workspace visual read-only e bateria real de payloads.
 - Nenhum arquivo rAthena, Patch/client, GRF ou `.lub` foi alterado.
 
 ## Macro-etapa 2026-05-15 - SPR e ACT Read-Only Preview (Hardened)

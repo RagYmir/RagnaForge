@@ -370,3 +370,4 @@ static IReadOnlyList<string> ValidateKnowledgeEntity(string? entityType)
         ? ["entityType is not supported."]
         : [];
 }
+public partial class Program { }

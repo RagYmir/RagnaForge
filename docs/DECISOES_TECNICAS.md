@@ -487,3 +487,15 @@ Com a rodada de hardening da RagnaKnowledge Library v1, a semantica de cache pas
 - ferramentas MCP de knowledge seguem a mesma regra read-only e nao persistem indice;
 - se o indice persistido nao existir ou estiver ilegivel, as consultas usam indice transiente em memoria e retornam warning seguro;
 - a API principal consome knowledge apenas por comandos allowlisted, com limite de input e sem comando livre.
+
+## D-047: Pipeline Real Payload Battery valida payloads reais sem transformar diff-preview em estado
+
+A bateria `PipelineRealPayloadBatteryTests` foi adicionada para validar a API Pipeline com fixtures pequenas e sanitizadas.
+
+Decisao:
+
+- cobrir casos validos e invalidos de item, equipamento, asset, NPC, monstro, mapa, traversal, command injection, unicode, casing, external-data e knowledge;
+- manter `dry-run` e `diff-preview` como operacoes read-only, sem escrita externa e sem apply implicito;
+- tratar `diff-preview` como stateless: `operationId` e apenas identificador logico seguro, nao autorizacao para recuperar/aplicar estado persistido;
+- aceitar `429 TooManyRequests` somente em cenarios de concorrencia/repeticao/rate-limit, nunca como sucesso generico de teste funcional;
+- validar que fixtures nao contem paths reais, segredos, dumps, GRFs ou assets privados.

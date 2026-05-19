@@ -28,6 +28,7 @@ Todos exigem `X-RagnaForge-Api-Key` como os demais endpoints `/api/*`.
 - rAthena, Patch/client, GRFs e `.lub` nao sao modificados.
 - Reports bloqueiam traversal e path absoluto no identificador.
 - Dependency summary usa `NotChecked` ou `Placeholder` quando a API nao verificou o arquivo real.
+- `diff-preview` e stateless: um `operationId` desconhecido nao aplica nada, nao escreve externamente e deve retornar apenas preview seguro ou warning.
 
 ## UI
 
@@ -46,9 +47,17 @@ Nao ha botao de apply, botao de rollback, input de comando livre ou persistencia
 
 ## Validacao
 
-- Backend: `141/141` testes passando.
-- Frontend: `32/32` testes passando.
-- Agent: `183/183` testes passando.
+- Backend: `145/145` testes passando.
+- Frontend: `33/33` testes passando.
+- Agent: `199/199` testes passando.
+
+## Bateria real de payloads
+
+A bateria `PipelineRealPayloadBatteryTests` cobre fixtures sanitizadas para item consumable, equipment weapon, equipment armor, asset visual, NPC, monstro, mapa existente, mapa com dependencias ausentes, payload invalido sem campo obrigatorio, entity type invalido, traversal, command injection, unicode, variacoes de casing, warning de external-data e knowledge hint.
+
+As fixtures ficam em `backend/tests/RagnaForge.Tests/Fixtures/PipelinePayloads/` e nao contem path real, segredo, token, dump, GRF, Patch real ou asset privado. Payloads maliciosos sao tratados como dados/rejeitados, sem shell, sem stack trace e sem vazamento de path absoluto em resposta.
+
+`429 TooManyRequests` so e aceito em cenarios de concorrencia/repeticao/rate-limit; testes funcionais normais continuam exigindo `200`, `400`, `422` ou o codigo seguro esperado.
 
 ## Limites conhecidos
 
