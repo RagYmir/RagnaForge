@@ -1,0 +1,12 @@
+{
+  "id": "acteditor",
+  "name": "ACT Editor Reference Manual",
+  "sourceType": "ThirdPartyToolspec",
+  "url": "https://rathena.org/board/files/file/3455-act-editor/",
+  "license": "Proprietary / Freeware specs",
+  "permissionNote": "Metadata structure and schema definitions of sprite actions.",
+  "lastReviewedUtc": "2026-05-19T00:00:00Z",
+  "trustLevel": "informative",
+  "allowedUse": "validation rules and asset schemas.",
+  "notes": "Reference for client action/sprite tables (.act and .spr structures)."
+}

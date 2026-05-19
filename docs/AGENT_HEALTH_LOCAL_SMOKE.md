@@ -1,6 +1,6 @@
-# RagnaForge Agent Health - Local Smoke Test
+# Agente Setimmo Health - Local Smoke Test
 
-This document describes the local smoke flow for the read-only integration between the RagnaForge API/UI and the local RagnaForge Agent.
+This document describes the local smoke flow for the read-only integration between the RagnaForge API/UI and the local Agente Setimmo.
 
 ## Scope
 
@@ -21,8 +21,8 @@ Example shape:
 {
   "RagnaForge": {
     "Agent": {
-      "AgentExePath": "<AGENT_ROOT>\\dist\\ragnaforge\\ragnaforge.exe",
-      "AgentCacheDir": "<AGENT_ROOT>\\cache\\agent",
+      "AgentExePath": "dist/agent/agente-setimmo.exe",
+      "AgentCacheDir": "Agente_Setimmo/cache",
       "AgentTimeoutSeconds": 30
     }
   }

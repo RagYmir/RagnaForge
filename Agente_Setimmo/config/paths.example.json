@@ -1,0 +1,21 @@
+{
+  "agentRoot": ".\\Agente_Setimmo",
+  "activeProfile": "local",
+  "profiles": {
+    "local": {
+      "ragnaforgeMainProjectPath": ".",
+      "rathenaPath": "E:\\Ragnarok\\Testes\\rAthena_teste",
+      "patchPath": "E:\\Ragnarok\\Testes\\Patch_teste",
+      "grfRepositoryPath": "E:\\Ragnarok\\Conteudo Ragnarok\\GRF'S",
+      "grfEditorPath": "C:\\Program Files (x86)\\GRF Editor",
+      "dbMode": "renewal",
+      "writableRoots": [
+        ".",
+        ".\\Agente_Setimmo"
+      ],
+      "readOnlyRoots": [
+        "E:\\Ragnarok\\Conteudo Ragnarok\\GRF'S"
+      ]
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "id": "ragnaforge-internal",
+  "name": "RagnaForge Governance & Security Manifesto",
+  "sourceType": "LocalManifesto",
+  "url": "agent://docs/SECURITY.md",
+  "license": "Proprietary",
+  "permissionNote": "Internal policies establishing boundaries for operations.",
+  "lastReviewedUtc": "2026-05-19T00:00:00Z",
+  "trustLevel": "authoritative",
+  "allowedUse": "validation boundaries, security check triggers, CLI enforcement.",
+  "notes": "Immutable security canon for RagnaForge development."
+}

@@ -36,7 +36,7 @@ export function AgentHealthPage() {
     <div className="stack-lg">
       <PageHeader
         title="Agent Health"
-        description="Painel de diagnostico read-only do RagnaForge Agent local. Nenhuma operacao de escrita e permitida."
+        description="Painel de diagnostico read-only do Agente Setimmo local. Nenhuma operacao de escrita e permitida."
       />
       <PipelineWorkspaceLayout
         sidebar={

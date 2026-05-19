@@ -4,7 +4,7 @@ Data: 2026-05-18
 
 ## Escopo
 
-Fechamento operacional da branch de SPR/ACT preview read-only com integracao Agent Health e uso do RagnaForge Agent como ferramenta auxiliar segura.
+Fechamento operacional da branch de SPR/ACT preview read-only com integracao Agent Health e uso do Agente Setimmo como ferramenta auxiliar segura.
 
 ## Estado validado
 

@@ -1,130 +1,82 @@
 # Security Policy
 
-O RagnaForge leva a segurança de arquivos de servidores, repositórios rAthena, Patch/client, GRFs e manipulação visual a sério.
+Ragna_Forge trabalha com arquivos sensiveis de rAthena, Patch/client e GRFs. Por isso, o padrao de seguranca e simples: ler primeiro, validar sempre, escrever nunca sem uma politica futura formal.
 
-O projeto trabalha com leitura, análise e geração de propostas sobre estruturas sensíveis de servidor e client Ragnarok. Por isso, qualquer operação de escrita deve ser tratada como crítica e controlada.
+## Escopo atual
 
-## Read-Only Mode (API e UI)
+- API: read-only, dry-run e diff-preview.
+- UI: read-only, dry-run e diff-preview.
+- Agente Setimmo: diagnostico, validacao, conhecimento, MCP read-only e relatorios seguros.
+- Apply real: fora da API/UI e bloqueado no Agente Setimmo neste MVP.
+- Rollback real: fora da API/UI; rollback do agente e informacional/listagem segura.
 
-A API e a interface administrativa operam exclusivamente em modo **Read-Only**, **Dry-Run** e **Diff-Preview** nesta fase.
+## Proibido nesta fase
 
-Não existem endpoints de escrita (`apply` ou `rollback`) mapeados na API, e a interface administrativa não possui botões, rotas ou fluxos para executar essas operações.
+- Endpoint HTTP de apply.
+- Endpoint HTTP de rollback real.
+- Botao Apply.
+- Botao Rollback.
+- Shell generico.
+- Comando livre vindo do usuario.
+- Escrita em rAthena por API/UI.
+- Escrita no Patch/client por API/UI.
+- Alteracao de GRF original.
+- Edicao, decompilacao ou recompilacao automatica de `.lub`.
+- Commit de secrets, GRFs, sprites, assets privados, dumps, cache real ou logs reais.
 
-A API/UI não deve:
-- aplicar alterações em rAthena;
-- aplicar alterações no Patch/client;
-- alterar GRFs originais;
-- copiar assets para Patch;
-- executar comandos da CLI;
-- editar `.lub` bytecode;
-- criar fluxos automáticos de repair/write.
+## Agent Health
 
-## Agent Health Integration
+`GET /api/agent/health` existe apenas para diagnostico local read-only.
 
-O endpoint `GET /api/agent/health` existe apenas para diagnóstico local read-only.
+Ele usa allowlist rigida para conversar com o Agente Setimmo:
 
-Ele:
-- não aceita comando livre;
-- não expõe shell;
-- usa allowlist rígida para conversar com o Agent local;
-- não executa `apply`;
-- não executa rollback real;
-- não altera rAthena, Patch/client, GRFs ou `.lub`.
+- `status --json`
+- `doctor --json`
+- `scan --project --json`
+- `index --entities --json`
+- `validate --json`
+- comandos read-only de knowledge quando configurados
+
+O endpoint nao aceita comando livre, nao executa apply, nao executa rollback real e nao expoe shell.
 
 ## API Pipeline Workspace
 
-Os endpoints `/api/pipeline/*` existem apenas para organizar status, planejamento, dry-run seguro, diff-preview, issues e reports em uma superficie operacional unica.
+Os endpoints `/api/pipeline/*` organizam status, plano, dry-run, diff-preview, issues e reports.
 
 Eles:
-- sao protegidos por API key e `ApiOperationGuard`;
-- retornam `ApiResponse<T>` com `correlationId`;
-- nao aceitam comando livre;
-- nao chamam shell;
-- nao mapeiam `apply` nem rollback real;
-- nao escrevem em rAthena, Patch/client, GRFs ou `.lub`;
-- mantem `safeForApply=false` quando o Agent indica blocker ou quando a operacao e apenas de auditoria.
 
-## CLI (Command Line Interface)
+- exigem API key quando configurado;
+- retornam `correlationId`;
+- nao aplicam diff;
+- nao escrevem em rAthena, Patch/client ou GRFs;
+- mantem `safeForApply=false` quando ha blocker ou quando a operacao e apenas de auditoria.
 
-A CLI possui comandos funcionais de `apply` e `rollback` para algumas categorias já implementadas no pipeline.
+## Asset Preview
 
-Esses comandos são protegidos por:
-- confirmação explícita obrigatória (`--confirm APPLY` ou `--confirm ROLLBACK`);
-- geração de diff/dry-run antes da escrita;
-- criação automática de backups antes de qualquer alteração;
-- logs detalhados em `data/logs/`;
-- manifests de rollback;
-- validação de hash para evitar rollback cego sobre arquivos modificados manualmente;
-- restrição de escrita às raízes permitidas.
+- Bitmaps comuns: preview visual read-only.
+- `.spr`: preview visual best-effort com fallback para metadados.
+- `.act`: metadata-only no v1.
+- `.tga`, `.gat`, `.gnd`, `.rsw`, `.rsm`: placeholders ate existir parser/conversor seguro.
 
-Esses comandos **não estão disponíveis via API/UI nesta fase**.
+Temporarios devem ficar em area controlada e ser limpos. Nenhum asset extraido deve ser persistido como resultado automatico.
 
-## Asset Preview Read-Only
+## Arquivos que nao entram no Git
 
-O endpoint `POST /api/assets/preview` é estritamente de leitura.
+- `.env`
+- `repositories.local.json`
+- `Agente_Setimmo/config/paths.json`
+- `node_modules`
+- `bin` / `obj`
+- `frontend/dist`
+- `tmp` real
+- cache real
+- logs reais
+- `TestResults`
+- `.trx`
+- `.tsbuildinfo`
+- GRF/GPF/THOR
+- SPR/ACT/BMP/TGA/GAT/GND/RSW/RSM/PAL
 
-Ele permite visualizar ativos nos formatos:
-- **Bitmaps:** `.bmp`, `.png`, `.jpg`, `.jpeg`, `.webp` (Visual completo)
-- **Complexos:** `.spr` (Preview visual best-effort com fallback para metadados); `.act` (Metadata-only no v1).
-- **Placeholders:** `.tga`, `.gat`, `.gnd`, `.rsw`, `.rsm` permanecem como placeholders informativos até a implementação de parsers/conversores seguros.
+## Como reportar falha
 
-O processo utiliza extração temporária e controlada via `tmp/`, apenas para conversão imediata para DataURL/base64.
-
-A segurança é garantida por:
-- `PathValidationHelper`: bloqueio de traversal, caminhos rootados e normalização de caminhos lógicos.
-- Validação de fronteira via `Path.GetRelativePath`: impede escape das raízes de Patch e GRF Repository.
-- Limite físico de 10MB por ativo.
-- Limpeza imediata de temporários.
-
-Os arquivos temporários devem ser removidos imediatamente após o processamento, sem escrita persistente nos repositórios de rAthena, Patch/client, GRFs ou diretórios de cache/log/backups.
-
-## API Key e Configurações Locais
-
-A chave administrativa `X-RagnaForge-Api-Key` deve ficar sempre protegida localmente.
-
-Não faça commit de:
-- `.env`;
-- arquivos de secrets;
-- `repositories.local.json`;
-- arquivos com caminhos absolutos reais do ambiente;
-- configurações locais com credenciais;
-- dumps de banco;
-- logs reais sensíveis.
-
-Use templates limpos, como `repositories.example.json`, para documentar a estrutura esperada sem expor dados locais.
-
-## Arquivos Proibidos no Git
-
-É proibido commitar:
-- GRFs originais;
-- Thor/GPF privados;
-- assets extraídos de GRF;
-- sprites, ACTs, BMPs, TGAs, texturas, mapas ou arquivos do client core;
-- dumps MySQL/rAthena;
-- backups reais;
-- logs reais com caminhos locais;
-- arquivos temporários de extração;
-- arquivos contendo API keys, senhas, tokens ou caminhos sensíveis.
-
-Pastas como `data/cache/`, `data/indexes/`, `data/logs/`, `data/backups/` e `tmp/` devem manter apenas `.gitkeep` ou templates seguros quando necessário.
-
-## Reportando Vulnerabilidades
-
-Se você descobrir uma falha de segurança, bypass de read-only, vazamento de arquivo, path traversal, escrita indevida ou possibilidade de exploração:
-
-- utilize o **GitHub Security Advisory**, se disponível;
-- ou entre em contato privado com o mantenedor;
-- se abrir uma Issue pública, não inclua exploits funcionais, payloads destrutivos, caminhos sensíveis, chaves, tokens, dumps, arquivos privados ou instruções detalhadas de bypass.
-
-Issues públicas devem descrever apenas o impacto de forma sanitizada, sem material reproduzível perigoso.
-
-## Escopo de Segurança Atual
-
-Nesta fase, a política oficial é:
-
-- API/UI: read-only, dry-run e diff-preview;
-- CLI: apply/rollback apenas com confirmação explícita e trilha de segurança;
-- GRFs originais: nunca alterados diretamente;
-- `.lub` bytecode: bloqueado para edição/decompilação/recompilação;
-- assets complexos: SPR em preview visual best-effort com fallback para metadados; ACT metadata-only; TGA/GAT/GND/RSW/RSM permanecem placeholders ate parser/conversor seguro;
-- apply/rollback via API/UI: fora de escopo até nova decisão formal de segurança.
+Se encontrar bypass de read-only, path traversal, vazamento de path sensivel, segredo exposto ou escrita externa indevida, reporte de forma privada quando possivel. Nao publique exploit funcional, token, dump, path sensivel ou arquivo privado.

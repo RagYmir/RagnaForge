@@ -1,0 +1,49 @@
+{
+  "id": "grf-spr-act",
+  "name": "GRF Sprites and Actions (SPR/ACT) Knowledge Pack",
+  "version": "1.0",
+  "description": "Technical details about SPR/ACT pairing, binary layouts, palette constraints, frames and action indexes.",
+  "sourceIds": ["grfeditor", "acteditor"],
+  "generatedBy": "Agente Setimmo",
+  "generatedAtUtc": "2026-05-19T00:00:00Z",
+  "entries": [
+    {
+      "id": "grf.spr_act.pairing",
+      "title": "SPR and ACT Pairing Requirements",
+      "category": "asset",
+      "topic": "spr act binary file pairing",
+      "summary": "Every visual asset in Ragnarok must consist of matching .spr and .act files.",
+      "details": "The '.spr' (Sprite) file contains the raw image frames, indexed colors, and palette metadata. The '.act' (Action) file defines animation frames, anchor coordinates, attachment nodes (e.g. where the head attaches to the body), sound triggers, and action sequences. Both files must reside in the same directory under matching basenames.",
+      "appliesTo": "All sprite/ACT pairs",
+      "entityTypes": ["asset"],
+      "filePatterns": ["**/*.spr", "**/*.act"],
+      "sourceIds": ["acteditor"],
+      "sourceRefs": ["https://rathena.org/board/files/file/3455-act-editor/"],
+      "confidence": "authoritative",
+      "warnings": ["Having an .act file without a matching .spr file, or vice versa, causes character rendering crashes or floating headless glitches in-game."],
+      "relatedEntries": [],
+      "tags": ["spr", "act", "animation", "palette", "spritesheet"],
+      "version": "1.0",
+      "lastReviewedUtc": "2026-05-19T00:00:00Z"
+    },
+    {
+      "id": "grf.spr_act.metadata_parsing",
+      "title": "Best-Effort Binary Parsing Limitations",
+      "category": "asset",
+      "topic": "best effort binary parsing",
+      "summary": "Parser constraints of the local Agent read-only integration.",
+      "details": "RagnaForge parses SPR and ACT metadata in a secure, best-effort mode. For SPR files, it extracts frame counts, dimensions, and indexing formats. For ACT files, it extracts action indices and basic frames count. Complete layering, vector offset calculations, and sprite compositions are deferred to the client rendering engine to keep the server API fully sandboxed and safe.",
+      "appliesTo": "RagnaForge SPR/ACT parser",
+      "entityTypes": ["asset"],
+      "filePatterns": ["**/*.spr", "**/*.act"],
+      "sourceIds": ["acteditor", "grfeditor"],
+      "sourceRefs": ["https://rathena.github.io/user-guides/client/asset-rendering.html"],
+      "confidence": "informative",
+      "warnings": ["Highly complex ACT files with custom scripts or nested sound trigger events are not fully decoded by the server-side validator, displaying a structured metadata warning instead."],
+      "relatedEntries": [],
+      "tags": ["parser", "binary", "limitations", "sandbox"],
+      "version": "1.0",
+      "lastReviewedUtc": "2026-05-19T00:00:00Z"
+    }
+  ]
+}

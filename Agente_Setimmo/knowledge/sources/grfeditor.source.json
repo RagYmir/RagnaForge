@@ -1,0 +1,12 @@
+{
+  "id": "grfeditor",
+  "name": "GRF Editor Technical Reference",
+  "sourceType": "ThirdPartyToolspec",
+  "url": "https://rathena.org/board/files/file/2766-grf-editor/",
+  "license": "Proprietary / Freeware specs",
+  "permissionNote": "Specification and behaviors derived from GRF Editor public manuals.",
+  "lastReviewedUtc": "2026-05-19T00:00:00Z",
+  "trustLevel": "informative",
+  "allowedUse": "validation options, indexation specs.",
+  "notes": "Primary reference for GRF versioning, file encoding, and encryption standards."
+}

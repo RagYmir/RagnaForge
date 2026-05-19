@@ -1,0 +1,12 @@
+{
+  "id": "deepwiki-rathena",
+  "name": "rAthena DeepWiki",
+  "sourceType": "GeneratedDocumentation",
+  "url": "https://ragnaforge.local/deepwiki-rathena",
+  "license": "Creative Commons BY-NC-SA 4.0",
+  "permissionNote": "DeepWiki references generated internally for development. Mark as generated and unauthoritative.",
+  "lastReviewedUtc": "2026-05-19T00:00:00Z",
+  "trustLevel": "warning",
+  "allowedUse": "reference and onboarding only, must be verified against real source.",
+  "notes": "Curated LLM/deep research wiki compiled from various community boards."
+}

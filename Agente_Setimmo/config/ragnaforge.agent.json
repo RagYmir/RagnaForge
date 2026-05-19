@@ -1,0 +1,14 @@
+{
+  "agentName": "Agente Setimmo",
+  "mode": "local-orchestrator",
+  "primaryOperators": [
+    "Codex",
+    "Google Antigravity"
+  ],
+  "codexIntegration": true,
+  "antigravityIntegration": true,
+  "defaultOutputFormat": "json",
+  "cacheEnabled": true,
+  "logsEnabled": true,
+  "progressiveEpisodeServer": true
+}

@@ -41,8 +41,10 @@ builder.Services.AddSingleton(sp => new PipelineWorkspaceService(
     sp.GetRequiredService<ILogger<PipelineWorkspaceService>>()));
 
 // Agent integration: read-only, strict allowlist, configurable paths.
-var agentExePath = builder.Configuration["RagnaForge:Agent:AgentExePath"] ?? "ragnaforge.exe";
-var agentCacheDir = builder.Configuration["RagnaForge:Agent:AgentCacheDir"] ?? "cache/agent";
+var agentExePath = builder.Configuration["RagnaForge:Agent:AgentExePath"] ?? "dist/agent/agente-setimmo.exe";
+var agentCacheDir = builder.Configuration["RagnaForge:Agent:AgentCacheDir"] ?? "Agente_Setimmo/cache";
+agentExePath = ResolveRelativeToWorkspace(workspaceRoot, agentExePath);
+agentCacheDir = ResolveRelativeToWorkspace(workspaceRoot, agentCacheDir);
 var agentTimeoutSeconds = builder.Configuration.GetValue("RagnaForge:Agent:AgentTimeoutSeconds", 30);
 builder.Services.AddSingleton<IRagnaForgeAgentProcessExecutor, RagnaForgeAgentProcessExecutor>();
 builder.Services.AddSingleton(sp =>
@@ -330,6 +332,19 @@ static string ResolveWorkspaceRoot(IConfiguration configuration)
     }
 
     return Directory.GetCurrentDirectory();
+}
+
+static string ResolveRelativeToWorkspace(string workspaceRoot, string path)
+{
+    if (string.IsNullOrWhiteSpace(path))
+    {
+        return path;
+    }
+
+    var expanded = Environment.ExpandEnvironmentVariables(path);
+    return Path.IsPathRooted(expanded)
+        ? Path.GetFullPath(expanded)
+        : Path.GetFullPath(Path.Combine(workspaceRoot, expanded));
 }
 
 static IReadOnlyList<string> Require(params string?[] valuesAndNames)

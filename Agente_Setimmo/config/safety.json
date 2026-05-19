@@ -1,0 +1,17 @@
+{
+  "requireDryRunBeforeApply": true,
+  "requireDiffBeforeApply": true,
+  "requireValidationBeforeApply": true,
+  "requireExplicitConfirmation": true,
+  "applyConfirmationText": "APLICAR",
+  "rollbackConfirmationText": "REVERTER",
+  "backupBeforeApply": true,
+  "blockOriginalGrfWrite": true,
+  "blockLubEditing": true,
+  "maxFilesPerOperationWithoutWarning": 10,
+  "stopOnCriticalWarning": true,
+  "aiOperatorsMustUseReviewMode": true,
+  "blockDangerousShellCommandsByDefault": true,
+  "invalidateCacheOnPathChange": true,
+  "cacheMustMatchActiveProfile": true
+}

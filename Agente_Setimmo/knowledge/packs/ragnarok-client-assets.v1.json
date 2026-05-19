@@ -1,0 +1,49 @@
+{
+  "id": "ragnarok-client-assets",
+  "name": "Ragnarok Client Assets Knowledge Pack",
+  "version": "1.0",
+  "description": "Knowledge about client-side file packaging (GRF), DATA.INI priorities, SPR and ACT file pairings, and image formats.",
+  "sourceIds": ["grfeditor", "acteditor", "ragnarok-file-formats"],
+  "generatedBy": "Agente Setimmo",
+  "generatedAtUtc": "2026-05-19T00:00:00Z",
+  "entries": [
+    {
+      "id": "ragnarok.asset.grf_container",
+      "title": "GRF File Packaging and DATA.INI Priorities",
+      "category": "asset",
+      "topic": "grf container data.ini",
+      "summary": "How the client prioritizes file loading from multiple GRFs.",
+      "details": "Ragnarok Online clients pack files inside custom GRF archives. The loading priority is governed by 'DATA.INI' in the client folder. DATA.INI lists GRFs in descending order of priority: 0 is the highest priority (e.g. '0=custom.grf'), followed by 1, 2, and so on. Assets in higher-priority GRFs will override assets with matching paths in lower-priority GRFs. Loose files in 'data/' directory take the absolute highest priority on legacy clients.",
+      "appliesTo": "DATA.INI, .grf containers",
+      "entityTypes": ["asset"],
+      "filePatterns": ["DATA.INI", "*.grf"],
+      "sourceIds": ["grfeditor"],
+      "sourceRefs": ["https://rathena.org/board/files/file/2766-grf-editor/"],
+      "confidence": "authoritative",
+      "warnings": ["Writing directly to a GRF file during active gameplay will corrupt the file. RagnaForge operates strictly in dry-run/read-only mode to prevent this."],
+      "relatedEntries": [],
+      "tags": ["grf", "container", "data.ini", "priority"],
+      "version": "1.0",
+      "lastReviewedUtc": "2026-05-19T00:00:00Z"
+    },
+    {
+      "id": "ragnarok.asset.file_paths",
+      "title": "Client Asset Path Normalization",
+      "category": "asset",
+      "topic": "path normalization spr act bmp",
+      "summary": "Best practices for locating custom items, NPC and monster sprites.",
+      "details": "Ragnarok client files are organized into standard directories within the GRF: item inventory icons are under 'data/texture/유저인터페이스/item/', collection illustrations under 'data/texture/유저인터페이스/collection/', equipment sprites under 'data/sprite/아이템/', headgears under 'data/sprite/악세사리/여/' and '/남/', monster sprites under 'data/sprite/monster/', and NPCs under 'data/sprite/npc/'. Path lookup is case-insensitive, but files use EUC-KR encoding (Korean character set Code Page 949).",
+      "appliesTo": "All client sprites and textures",
+      "entityTypes": ["asset"],
+      "filePatterns": ["data/texture/**/*", "data/sprite/**/*"],
+      "sourceIds": ["grfeditor", "deepwiki-rathena"],
+      "sourceRefs": ["https://rathena.github.io/user-guides/client/custom-sprites.html"],
+      "confidence": "authoritative",
+      "warnings": ["Encoding mismatches when naming files inside GRF container (e.g., using UTF-8 instead of EUC-KR) will cause the client to fail sprite detection and display a blank frame or error wrapper."],
+      "relatedEntries": [],
+      "tags": ["sprite", "texture", "korean", "encoding", "euc-kr"],
+      "version": "1.0",
+      "lastReviewedUtc": "2026-05-19T00:00:00Z"
+    }
+  ]
+}

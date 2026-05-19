@@ -499,3 +499,17 @@ Decisao:
 - tratar `diff-preview` como stateless: `operationId` e apenas identificador logico seguro, nao autorizacao para recuperar/aplicar estado persistido;
 - aceitar `429 TooManyRequests` somente em cenarios de concorrencia/repeticao/rate-limit, nunca como sucesso generico de teste funcional;
 - validar que fixtures nao contem paths reais, segredos, dumps, GRFs ou assets privados.
+
+## D-048: Ragna_Forge incorpora o Agente Setimmo sem refatorar namespaces
+
+Na reorganizacao estrutural, o projeto principal passa a se chamar `Ragna_Forge` e o agente local passa a ter nome publico `Agente Setimmo`.
+
+Decisao:
+
+- usar a pasta tecnica `Agente_Setimmo` para evitar problemas com espacos em scripts;
+- publicar o executavel principal do agente como `dist/agent/agente-setimmo.exe`;
+- manter `dist/agent/ragnaforge.exe` apenas como compatibilidade operacional quando publicado;
+- manter namespaces e assemblies `RagnaForge.Agent.*` nesta etapa, porque renomear tudo exigiria refatoracao ampla e elevaria risco sem ganho de seguranca;
+- ignorar `Agente_Setimmo/config/paths.json` e commitar somente `paths.example.json`;
+- manter API/UI read-only e sem endpoint/botao de apply/rollback;
+- usar scripts allowlisted para limpeza e pacote limpo, preservando source, tests, docs, knowledge packs e `.gitkeep`.

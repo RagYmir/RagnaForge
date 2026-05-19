@@ -1,0 +1,49 @@
+{
+  "id": "rathena-mobs",
+  "name": "rAthena Monsters Knowledge Pack",
+  "version": "1.0",
+  "description": "Knowledge about monster databases, YAML properties, drops configurations, and spawn instructions.",
+  "sourceIds": ["rathena", "rathena-user-guides"],
+  "generatedBy": "Agente Setimmo",
+  "generatedAtUtc": "2026-05-19T00:00:00Z",
+  "entries": [
+    {
+      "id": "rathena.mob.db_yaml",
+      "title": "Monster Database (mob_db.yml) Schema",
+      "category": "mob",
+      "topic": "monster database schema",
+      "summary": "Structure of rAthena's standard mob_db.yml files.",
+      "details": "The monster database (db/import/mob_db.yml or db/re/mob_db.yml) defines monster parameters such as 'Id', 'AegisName', 'Name', 'Hp', 'Lv', 'Race', 'Element', 'Size', and list properties like 'Drops' and 'Skills'. AegisName maps directly to the client-side GRF sprite files (e.g. data/sprite/monster/AegisName.spr).",
+      "appliesTo": "mob_db.yml",
+      "entityTypes": ["mob"],
+      "filePatterns": ["**/mob_db.yml", "**/mob_db.txt"],
+      "sourceIds": ["rathena"],
+      "sourceRefs": ["https://github.com/rathena/rathena/blob/master/doc/mob_db.txt"],
+      "confidence": "authoritative",
+      "warnings": ["An unresolved Item Id in the Drops list will trigger validation errors and block Dry-Runs."],
+      "relatedEntries": [],
+      "tags": ["monster", "mob", "yaml", "drops", "skills"],
+      "version": "1.0",
+      "lastReviewedUtc": "2026-05-19T00:00:00Z"
+    },
+    {
+      "id": "rathena.mob.spawn",
+      "title": "Monster Spawns and Event Binding",
+      "category": "mob",
+      "topic": "monster spawn configuration",
+      "summary": "Setting up spawns on specific maps and event triggers.",
+      "details": "Monster spawns can be defined in map scripts or YAML configs. A spawn entry contains 'Map', 'X', 'Y', 'Amount', 'RespawnTime', and optional 'SpawnEvent' labels (e.g. 'EventName::OnMyMobDeath'). Spawn events trigger custom rAthena scripts when the monster is slain.",
+      "appliesTo": "Map scripts and spawn configs",
+      "entityTypes": ["mob", "map"],
+      "filePatterns": ["npc/**/*.txt", "db/import/mob_spawn.yml"],
+      "sourceIds": ["rathena-user-guides"],
+      "sourceRefs": ["https://rathena.github.io/user-guides/scripting/monster-spawn.html"],
+      "confidence": "authoritative",
+      "warnings": ["Spawning a monster on a non-existent map or referencing a duplicate event name will fail validations."],
+      "relatedEntries": [],
+      "tags": ["spawn", "map", "event", "respawn"],
+      "version": "1.0",
+      "lastReviewedUtc": "2026-05-19T00:00:00Z"
+    }
+  ]
+}

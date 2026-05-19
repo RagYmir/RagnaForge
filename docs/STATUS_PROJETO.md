@@ -1,7 +1,17 @@
 # STATUS_PROJETO
 
 Atualizado: 2026-05-19
-Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao explicita. API backend endurecida. Interface administrativa com Validation Center dinamico, preview visual real read-only seguro para ativos bitmap (BMP, PNG, etc), suporte tecnico (metadados/best-effort) para SPR e ACT, integracao Agent Health read-only allowlisted, API Pipeline Workspace v1 e bateria real de payloads da pipeline. Backend com 145/145 testes OK; frontend com 33/33 testes OK; Agent com 199/199 testes OK.
+Estado: projeto reorganizado como `Ragna_Forge`, com Agente Setimmo incorporado em `Agente_Setimmo`. API/UI seguem read-only, dry-run e diff-preview; apply/rollback continuam fora da API/UI. Backend com 145/145 testes OK; frontend com 33/33 testes OK; Agent com 199/199 testes OK na ultima validacao antes da reorganizacao.
+
+## Macro-etapa 2026-05-19 - Ragna_Forge + Agente Setimmo
+
+- Diretório operacional final definido como `C:\Users\Allis\Desktop\Ragna_Forge`.
+- Agent incorporado sob a pasta tecnica `Agente_Setimmo`, com nome publico "Agente Setimmo".
+- Namespaces/assemblies `RagnaForge.Agent.*` foram mantidos por compatibilidade e para evitar refatoracao ampla de baixo valor nesta etapa.
+- Scripts adicionados para limpeza, publicacao local, smoke e pacote limpo.
+- `.gitignore` e `.gitattributes` foram endurecidos para bloquear caches, logs, bin/obj, node_modules, assets privados e configs locais.
+- Documentacao para leigos criada em `docs/GUIA_RAPIDO_PARA_LEIGOS.md` e documentos relacionados.
+- API permanece configurada para usar o executavel publicado `dist/agent/agente-setimmo.exe`.
 
 ## Macro-etapa 2026-05-19 - Pipeline Real Payload Battery v1
 

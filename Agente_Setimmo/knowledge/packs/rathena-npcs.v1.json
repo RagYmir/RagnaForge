@@ -1,0 +1,49 @@
+{
+  "id": "rathena-npcs",
+  "name": "rAthena NPCs and Scripts Knowledge Pack",
+  "version": "1.0",
+  "description": "Knowledge about NPC script syntax, positioning, duplicate names, shop scripts, and client-side registrations.",
+  "sourceIds": ["rathena", "rathena-user-guides", "deepwiki-rathena"],
+  "generatedBy": "Agente Setimmo",
+  "generatedAtUtc": "2026-05-19T00:00:00Z",
+  "entries": [
+    {
+      "id": "rathena.npc.syntax",
+      "title": "NPC Script Header Syntax",
+      "category": "npc",
+      "topic": "npc script syntax",
+      "summary": "Standard layout of an rAthena NPC script header.",
+      "details": "An NPC script header is tab-separated: 'map,x,y,dir<TAB>script<TAB>NPC Name<TAB>SpriteID,{...}'. Standard types include 'script' for interactive NPCs, 'shop' for sellers, 'warp' for portals, and 'duplicate' for referencing another script with a different sprite/location.",
+      "appliesTo": "npc scripts (.txt)",
+      "entityTypes": ["npc"],
+      "filePatterns": ["npc/**/*.txt"],
+      "sourceIds": ["rathena"],
+      "sourceRefs": ["https://github.com/rathena/rathena/blob/master/doc/script_commands.txt"],
+      "confidence": "authoritative",
+      "warnings": ["Using spaces instead of tab characters in the header will throw a critical parser error on server start."],
+      "relatedEntries": [],
+      "tags": ["npc", "script", "syntax", "tab"],
+      "version": "1.0",
+      "lastReviewedUtc": "2026-05-19T00:00:00Z"
+    },
+    {
+      "id": "rathena.npc.duplicate_names",
+      "title": "Duplicate NPC Names",
+      "category": "npc",
+      "topic": "npc duplicate names",
+      "summary": "How rAthena handles duplicate NPC names and unique display names.",
+      "details": "All NPC display names in rAthena must be unique unless they use the name-hiding syntax. By adding '#' followed by a unique suffix (e.g. 'John#01' or 'John#02'), the client will only display 'John' to the players, while the server retains unique identifiers. Duplicate names without a '#' suffix cause database collisions.",
+      "appliesTo": "NPC names",
+      "entityTypes": ["npc"],
+      "filePatterns": ["npc/**/*.txt"],
+      "sourceIds": ["rathena-user-guides"],
+      "sourceRefs": ["https://rathena.github.io/user-guides/scripting/npc-names.html"],
+      "confidence": "authoritative",
+      "warnings": ["Duplicate script NPC names without hashtags will cause compilation errors or script overrides during dry-run validation."],
+      "relatedEntries": [],
+      "tags": ["npc", "name", "duplicate", "hashtag"],
+      "version": "1.0",
+      "lastReviewedUtc": "2026-05-19T00:00:00Z"
+    }
+  ]
+}

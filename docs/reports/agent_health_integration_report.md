@@ -4,7 +4,7 @@ Data: 2026-05-18
 
 ## Objetivo
 
-Fortalecer a integracao read-only entre o RagnaForge principal e o RagnaForge Agent local, mantendo a API e a UI sem apply/rollback e sem escrita em rAthena, Patch/client, GRFs ou arquivos `.lub`.
+Fortalecer a integracao read-only entre o RagnaForge principal e o Agente Setimmo local, mantendo a API e a UI sem apply/rollback e sem escrita em rAthena, Patch/client, GRFs ou arquivos `.lub`.
 
 ## Escopo
 
@@ -48,7 +48,7 @@ Arquivos untracked ja existentes antes desta rodada:
 - `frontend/src/pages/AgentHealthPage.tsx`
 - `frontend/src/pages/AgentHealthPage.test.tsx`
 
-## Comandos do RagnaForge Agent executados
+## Comandos do Agente Setimmo executados
 
 - `ragnaforge status --json`
 - `ragnaforge doctor --json`

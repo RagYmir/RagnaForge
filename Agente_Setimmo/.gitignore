@@ -1,0 +1,43 @@
+# Build artifacts
+bin/
+obj/
+dist/**
+!dist/
+!dist/agente-setimmo/
+!dist/agente-setimmo/.gitkeep
+node_modules/
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Cache
+cache/**/*.json
+cache/**/*.md
+!cache/**/.gitkeep
+
+# Logs (keep structure, exclude content)
+logs/**/*.json
+logs/**/*.md
+!logs/**/.gitkeep
+
+# Test artifacts
+tests_output.txt
+*.trx
+TestResults/
+
+# OS
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Secrets
+*.env
+*.local.json
+config/paths.json
+
+# Temp
+tmp/
+temp/

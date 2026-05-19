@@ -1,0 +1,12 @@
+{
+  "id": "ragnarok-file-formats",
+  "name": "Ragnarok Online File Format Wiki",
+  "sourceType": "CommunityWiki",
+  "url": "https://github.com/Open-Ragnarok/Format-Specs",
+  "license": "MIT / Creative Commons",
+  "permissionNote": "Open-Ragnarok specifications for GND, RSW, GAT, and RSM formats.",
+  "lastReviewedUtc": "2026-05-19T00:00:00Z",
+  "trustLevel": "authoritative",
+  "allowedUse": "safe parsing parameters and schema details.",
+  "notes": "Collaborative repository detailing binary formats of map and model files."
+}

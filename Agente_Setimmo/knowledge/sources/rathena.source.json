@@ -1,0 +1,12 @@
+{
+  "id": "rathena",
+  "name": "rAthena Git Repository",
+  "sourceType": "GitHubRepository",
+  "url": "https://github.com/rathena/rathena",
+  "license": "GPL-3.0",
+  "permissionNote": "User reported permission/authorization from rAthena contacts to use technical information for RagnaForge. Preserve attribution and provenance.",
+  "lastReviewedUtc": "2026-05-19T00:00:00Z",
+  "trustLevel": "authoritative",
+  "allowedUse": "schema extraction, documentation summary, validation rules, source-referenced explanations.",
+  "notes": "Primary open-source emulation project for Ragnarok Online server."
+}

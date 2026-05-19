@@ -1,93 +1,155 @@
-# RagnaForge
+# Ragna_Forge
 
-RagnaForge e uma ferramenta administrativa para pipelines seguros sobre rAthena, Patch/client e GRFs. O foco atual nao e CRUD nem escrita direta por API/UI; e uma esteira de leitura, analise, `dry-run`, `diff-preview`, validacao e auditoria.
+Ragna_Forge e uma esteira segura para analisar, validar e preparar mudancas de servidor Ragnarok baseado em rAthena, Patch/client e GRFs.
 
-## Estado atual
+Ele nao e um CRUD simples. O uso normal hoje e:
 
-- API: `read-only`, `dry-run` e `diff-preview`
-- Admin UI: `read-only`, `dry-run` e `diff-preview`
-- CLI: pipelines de apply/rollback existem, mas continuam fora da API e da interface e exigem confirmacao explicita
-- Agent auxiliar: disponivel para `status`, `doctor`, `scan`, `index`, `validate`, `baseline` e `health`
+1. ler o estado do projeto;
+2. resolver dependencias;
+3. rodar `dry-run`;
+4. ver `diff-preview`;
+5. gerar relatorio;
+6. revisar com uma pessoa.
 
-## Regras de seguranca
+## Partes do projeto
 
-- Nao existem endpoints de `apply` ou `rollback` na API
-- Nao existem botoes ou rotas funcionais de `apply` ou `rollback` na UI
-- `.lub` bytecode continua bloqueado
-- GRFs originais nao sao alteradas
-- rAthena e Patch/client externos nao sao alterados por API/UI
-- Asset preview segue read-only
+- `backend/`: API local do Ragna_Forge.
+- `frontend/`: interface administrativa React/Vite.
+- `Agente_Setimmo/`: Agente Setimmo, ferramenta local de diagnostico, validacao, conhecimento e auditoria.
+- `data/manifests/`: templates de configuracao local.
+- `scripts/`: limpeza, publicacao, smoke e pacote limpo.
+- `dist/`: saida local publicada da API e do Agente. Binarios gerados nao entram no Git.
 
-## Preview de assets
+## O que esta liberado hoje
 
-- Bitmaps (`.bmp`, `.png`, `.jpg`, `.jpeg`, `.webp`): preview visual read-only
-- `.spr`: preview visual best-effort com fallback para metadados
-- `.act`: metadata-only no v1
-- `.tga`, `.gat`, `.gnd`, `.rsw`, `.rsm`: placeholders informativos nesta fase
+- API/UI em modo `read-only`.
+- `dry-run`.
+- `diff-preview`.
+- Validacao de recursos.
+- Preview passivo de assets.
+- RagnaKnowledge.
+- Pipeline API.
+- Agent Health com o Agente Setimmo.
+- MCP read-only no Agente Setimmo.
 
-## Agent Health integration
+## O que NAO esta liberado hoje
 
-A branch atual inclui uma integracao read-only com o RagnaForge Agent:
+- Apply real pela API.
+- Rollback real pela API.
+- Botao Apply na UI.
+- Botao Rollback na UI.
+- Escrita direta em rAthena.
+- Escrita direta no Patch/client.
+- Alteracao de GRF original.
+- Edicao de `.lub`.
 
-- endpoint `GET /api/agent/health`
-- pagina `Agent Health` no frontend
-- allowlist rigida no backend
-- sem comando arbitrario
-- sem apply/rollback
-- sem shell generico
+O Agente Setimmo tambem mantem `apply` bloqueado por politica neste MVP. Rollback real nao e executado pela API/UI.
 
-## API Pipeline Workspace v1
+## Primeiros passos
 
-A API e a UI tambem expoem um workspace operacional read-only para orquestrar a esteira:
+### 1. Instale os pre-requisitos
 
-- `GET /api/pipeline/status`
-- `POST /api/pipeline/plan`
-- `POST /api/pipeline/dry-run`
-- `POST /api/pipeline/diff-preview`
-- `GET /api/pipeline/issues`
-- `GET /api/pipeline/reports`
-- `GET /api/pipeline/reports/{id}`
+- .NET SDK usado pelo projeto.
+- Node.js LTS.
+- PowerShell.
 
-A tela `Pipeline API` mostra plano, dependencies, readiness, issues, reports, dry-run e diff-preview. Ela nao possui botao de apply/rollback, nao aceita comando livre e nao chama CLI pelo frontend.
+### 2. Configure caminhos locais
 
-## Como configurar e rodar
+Copie o template:
 
-### 1. Manifesto local
-
-Crie `data/manifests/repositories.local.json` a partir do template:
-
-```sh
-cp data/manifests/repositories.example.json data/manifests/repositories.local.json
+```powershell
+Copy-Item .\data\manifests\repositories.example.json .\data\manifests\repositories.local.json
+Copy-Item .\Agente_Setimmo\config\paths.example.json .\Agente_Setimmo\config\paths.json
 ```
 
-Preencha os caminhos locais reais para rAthena, Patch/client, GRFs e GRF Editor.
+Edite os arquivos locais com os caminhos reais de rAthena, Patch/client, GRFs e GRF Editor.
 
-> Nunca commite `repositories.local.json`.
+Nunca commite `repositories.local.json`, `.env` ou `Agente_Setimmo/config/paths.json`.
 
-### 2. Backend
+### 3. Publique os executaveis locais
 
-```sh
-dotnet build RagnaForge.slnx
-dotnet run --project backend/tests/RagnaForge.Tests/RagnaForge.Tests.csproj
-dotnet run --project backend/src/RagnaForge.Api/RagnaForge.Api.csproj
+```powershell
+.\scripts\publish-all.ps1
 ```
 
-### 3. Frontend
+Saidas esperadas:
 
-```sh
-cd frontend
-npm install
-npm run test
-npm run dev
+- API: `.\dist\api\`
+- Agente Setimmo: `.\dist\agent\agente-setimmo.exe`
+- Compatibilidade do agente: `.\dist\agent\ragnaforge.exe`
+
+### 4. Rode o Agente Setimmo
+
+```powershell
+cd .\Agente_Setimmo
+dotnet run --project src\RagnaForge.Agent.Cli -- status --json
+dotnet run --project src\RagnaForge.Agent.Cli -- doctor --json
+dotnet run --project src\RagnaForge.Agent.Cli -- health --json
 ```
 
-## Status de testes desta consolidacao
+### 5. Rode a API
 
-- Backend: `145/145` testes passando
-- Frontend: `33/33` testes passando
-- Agent auxiliar: `199/199` testes passando
+```powershell
+dotnet run --project .\backend\src\RagnaForge.Api\RagnaForge.Api.csproj
+```
 
-## Avisos finais
+### 6. Rode a UI
 
-- Nao commite `.env`, `repositories.local.json`, caches, indexes, logs reais, `node_modules`, `dist`, `tmp` ou `.tsbuildinfo`
-- Toda mudanca deve passar por build, testes e auditoria anti-apply antes de merge
+```powershell
+cd .\frontend
+npm.cmd ci
+npm.cmd run dev
+```
+
+Acesse a URL exibida pelo Vite, normalmente `http://localhost:5173`.
+
+## Testes
+
+```powershell
+dotnet build .\RagnaForge.slnx
+dotnet run --project .\backend\tests\RagnaForge.Tests\RagnaForge.Tests.csproj
+
+cd .\frontend
+npm.cmd ci
+npm.cmd run build
+npm.cmd run test
+cd ..
+
+cd .\Agente_Setimmo
+dotnet build .\RagnaForge.Agent.slnx
+dotnet test .\RagnaForge.Agent.slnx
+cd ..
+```
+
+Ultima validacao antes da reorganizacao:
+
+- Backend: `145/145` testes.
+- Frontend: `33/33` testes.
+- Agente Setimmo: `199/199` testes.
+
+## Limpeza e pacote limpo
+
+Limpar artefatos locais:
+
+```powershell
+.\scripts\clean-workspace.ps1
+```
+
+Gerar pacote limpo:
+
+```powershell
+.\scripts\package-clean.ps1
+```
+
+O pacote nao deve conter `.git`, `node_modules`, `bin`, `obj`, `tmp` real, cache/log real, `.env`, `repositories.local.json` ou assets privados.
+
+## Leitura recomendada
+
+- `docs/GUIA_RAPIDO_PARA_LEIGOS.md`
+- `docs/INSTALACAO_E_CONFIGURACAO.md`
+- `docs/COMO_RODAR_API_UI_AGENT.md`
+- `docs/AGENTE_SETIMMO.md`
+- `docs/ESTRUTURA_DO_PROJETO.md`
+- `docs/LIMPEZA_E_RELEASE.md`
+- `docs/TROUBLESHOOTING.md`
+- `SECURITY.md`

@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/RagnaForge.Agent.Cli/RagnaForge.Agent.Cli.csproj" />
+    <Project Path="src/RagnaForge.Agent.Core/RagnaForge.Agent.Core.csproj" />
+    <Project Path="src/RagnaForge.Agent.Mcp/RagnaForge.Agent.Mcp.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/RagnaForge.Agent.Core.Tests/RagnaForge.Agent.Core.Tests.csproj" />
+  </Folder>
+</Solution>

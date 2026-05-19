@@ -64,7 +64,7 @@ describe("AuditPage", () => {
           data: {
             service: "RagnaForge API",
             mode: "read-only-dry-run-diff-preview",
-            workspaceRoot: "C:/Users/Allis/Documents/New project",
+            workspaceRoot: "C:/Users/Allis/Desktop/Ragna_Forge",
             readOnlyMode: true,
             applyEndpointsEnabled: false,
             rollbackEndpointsEnabled: false,

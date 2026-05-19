@@ -1,0 +1,49 @@
+{
+  "id": "rathena-maps",
+  "name": "rAthena Maps Knowledge Pack",
+  "version": "1.0",
+  "description": "Knowledge about server-side map_index.txt, map_cache, maps_athena.conf, and client-side map file dependencies.",
+  "sourceIds": ["rathena", "ragnarok-file-formats"],
+  "generatedBy": "Agente Setimmo",
+  "generatedAtUtc": "2026-05-19T00:00:00Z",
+  "entries": [
+    {
+      "id": "rathena.map.index_cache",
+      "title": "Map Index and Map Cache files",
+      "category": "map",
+      "topic": "map_index map_cache",
+      "summary": "How maps are registered on the server.",
+      "details": "Every server map must be added to 'db/import/map_index.txt' (or db/map_index.txt) mapping to a unique numerical index, and configured inside 'conf/maps_athena.conf'. Additionally, the server compiles coordinates and passability data into a single bin 'db/map_cache.dat' (for standard servers) to speed up loading and collision detection.",
+      "appliesTo": "map_index.txt, maps_athena.conf",
+      "entityTypes": ["map"],
+      "filePatterns": ["**/map_index.txt", "**/maps_athena.conf", "**/map_cache.dat"],
+      "sourceIds": ["rathena"],
+      "sourceRefs": ["https://github.com/rathena/rathena/blob/master/doc/map_cache.txt"],
+      "confidence": "authoritative",
+      "warnings": ["Adding a map to maps_athena.conf without registering it in map_index.txt leads to server loading failures."],
+      "relatedEntries": [],
+      "tags": ["map", "index", "cache", "server"],
+      "version": "1.0",
+      "lastReviewedUtc": "2026-05-19T00:00:00Z"
+    },
+    {
+      "id": "rathena.map.client_trio",
+      "title": "Map Client-Side Trio File Dependencies",
+      "category": "map",
+      "topic": "rsw gnd gat map files",
+      "summary": "The three essential files required for a client map.",
+      "details": "Every map in the Ragnarok client consists of three interconnected files inside the GRF under the 'data/' directory: 1. .rsw (Resource World) stores overall map structure, lighting, and ambient assets. 2. .gnd (Ground) stores terrain elevations, tilesets, and texture coordinates. 3. .gat (Ground Attribute Table) stores passability grids, cell heights, and blockable areas.",
+      "appliesTo": "client map files",
+      "entityTypes": ["map", "asset"],
+      "filePatterns": ["data/*.rsw", "data/*.gnd", "data/*.gat"],
+      "sourceIds": ["ragnarok-file-formats"],
+      "sourceRefs": ["https://github.com/Open-Ragnarok/Format-Specs/blob/master/rsw.md"],
+      "confidence": "authoritative",
+      "warnings": ["A missing .gat file will cause immediate client crashes when teleporting or spawning on the map."],
+      "relatedEntries": [],
+      "tags": ["map", "rsw", "gnd", "gat", "client"],
+      "version": "1.0",
+      "lastReviewedUtc": "2026-05-19T00:00:00Z"
+    }
+  ]
+}

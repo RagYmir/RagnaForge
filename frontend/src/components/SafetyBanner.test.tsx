@@ -14,7 +14,7 @@ describe("SafetyBanner", () => {
           apiKeyHeaderName: "X-RagnaForge-Api-Key",
           service: "RagnaForge API",
           mode: "read-only-dry-run-diff-preview",
-          workspaceRoot: "C:/Users/Allis/Documents/New project",
+          workspaceRoot: "C:/Users/Allis/Desktop/Ragna_Forge",
           maxRequestBodyBytes: 1048576,
           maxGrfContainersPerRequest: 50,
           maxDiffHunksPerResponse: 500,

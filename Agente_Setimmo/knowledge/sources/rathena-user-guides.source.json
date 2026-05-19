@@ -1,0 +1,12 @@
+{
+  "id": "rathena-user-guides",
+  "name": "rAthena User Guides",
+  "sourceType": "OfficialDocumentation",
+  "url": "https://rathena.github.io/user-guides/",
+  "license": "Community Commons / Public",
+  "permissionNote": "Community user guides for configuration and deployment. Reference only.",
+  "lastReviewedUtc": "2026-05-19T00:00:00Z",
+  "trustLevel": "authoritative",
+  "allowedUse": "reference summaries, step descriptions, configuration guidelines.",
+  "notes": "Official guide portal maintained by the rAthena team."
+}

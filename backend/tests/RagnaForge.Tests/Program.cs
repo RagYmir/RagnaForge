@@ -4036,7 +4036,7 @@ static void WriteAgentCacheFiles(string cacheDir, string activeProfile, string c
             agentVersion = "1.2.0-operational-ux",
             activeProfile,
             configFingerprint,
-            scanRoot = @"C:\Users\Allis\Desktop\New project",
+            scanRoot = @"C:\Users\Allis\Desktop\Ragna_Forge",
             stats = new
             {
                 filesVisited = 5,

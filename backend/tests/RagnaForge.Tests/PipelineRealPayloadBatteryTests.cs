@@ -17,6 +17,12 @@ public static class PipelineRealPayloadBatteryTests
         Console.WriteLine("Starting Pipeline Real Payload Battery Tests...");
         Environment.SetEnvironmentVariable("RAGNAFORGE_API_KEY", "test-key");
 
+        using var workspace = TempWorkspace.Create();
+        SetupValidWorkspace(workspace.Root);
+        Environment.SetEnvironmentVariable("RagnaForge__WorkspaceRoot", workspace.Root);
+        Environment.SetEnvironmentVariable("RagnaForge__Agent__AgentExePath", Path.Combine(workspace.Root, "missing-agente-setimmo.exe"));
+        Environment.SetEnvironmentVariable("RagnaForge__Agent__AgentCacheDir", Path.Combine(workspace.Root, "agent-cache"));
+
         await using var factory = new WebApplicationFactory<RagnaForgeApiOptions>()
             .WithWebHostBuilder(builder =>
             {
@@ -25,6 +31,16 @@ public static class PipelineRealPayloadBatteryTests
                 {
                     builder.UseContentRoot(apiRoot);
                 }
+
+                builder.ConfigureAppConfiguration((_, config) =>
+                {
+                    config.AddInMemoryCollection(new Dictionary<string, string?>
+                    {
+                        ["RagnaForge:WorkspaceRoot"] = workspace.Root,
+                        ["RagnaForge:Agent:AgentExePath"] = Path.Combine(workspace.Root, "missing-agente-setimmo.exe"),
+                        ["RagnaForge:Agent:AgentCacheDir"] = Path.Combine(workspace.Root, "agent-cache")
+                    });
+                });
             });
 
         var client = factory.CreateClient();
@@ -58,6 +74,44 @@ public static class PipelineRealPayloadBatteryTests
         return JsonSerializer.Deserialize<JsonElement>(json);
     }
 
+    private static void SetupValidWorkspace(string root)
+    {
+        var rathena = Path.Combine(root, "rathena");
+        var patch = Path.Combine(root, "patch");
+        var grfs = Path.Combine(root, "grfs");
+        var grfEditor = Path.Combine(root, "grfeditor");
+
+        Directory.CreateDirectory(Path.Combine(rathena, "db", "import"));
+        Directory.CreateDirectory(Path.Combine(rathena, "conf"));
+        Directory.CreateDirectory(Path.Combine(patch, "data"));
+        Directory.CreateDirectory(grfs);
+        Directory.CreateDirectory(grfEditor);
+
+        File.WriteAllText(Path.Combine(rathena, "db", "import", "map_index.txt"), "");
+        File.WriteAllText(Path.Combine(rathena, "conf", "maps_athena.conf"), "");
+        File.WriteAllText(Path.Combine(rathena, "db", "import", "item_db.yml"), "Header:\n  Type: ITEM_DB\n");
+
+        Directory.CreateDirectory(Path.Combine(root, "data", "manifests"));
+        var manifestJson = $$"""
+        {
+          "SchemaVersion": "1.0",
+          "Paths": {
+            "RathenaPath": "{{rathena.Replace("\\", "\\\\")}}",
+            "PatchPath": "{{patch.Replace("\\", "\\\\")}}",
+            "GrfRepositoryPath": "{{grfs.Replace("\\", "\\\\")}}",
+            "GrfEditorPath": "{{grfEditor.Replace("\\", "\\\\")}}"
+          },
+          "EpisodeProfile": {
+            "Name": "test",
+            "Mode": "Renewal",
+            "ClientDate": null,
+            "Notes": "Pipeline battery workspace"
+          }
+        }
+        """;
+        File.WriteAllText(Path.Combine(root, "data", "manifests", "repositories.local.json"), manifestJson);
+    }
+
     private static void Assert(bool condition, string message)
     {
         if (!condition) throw new Exception(message);
@@ -84,9 +138,9 @@ public static class PipelineRealPayloadBatteryTests
             "C:/Users/",
             "C:\\Windows\\",
             "C:/Windows/",
-            "Desktop\\New project",
-            "Desktop/New project",
-            "Agente Ragnarok"
+            "Desktop\\Ragna_Forge",
+            "Desktop/Ragna_Forge",
+            "Agente_Setimmo"
         };
 
         foreach (var marker in forbidden)

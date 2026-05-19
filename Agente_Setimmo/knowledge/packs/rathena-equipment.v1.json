@@ -1,0 +1,49 @@
+{
+  "id": "rathena-equipment",
+  "name": "rAthena Equipment Knowledge Pack",
+  "version": "1.0",
+  "description": "Knowledge about weapons, armor, headgears, shields, view IDs, and visual sprite mapping in Ragnarok clients.",
+  "sourceIds": ["rathena", "grfeditor", "deepwiki-rathena"],
+  "generatedBy": "Agente Setimmo",
+  "generatedAtUtc": "2026-05-19T00:00:00Z",
+  "entries": [
+    {
+      "id": "rathena.equipment.view_id",
+      "title": "Weapon and Headgear View IDs",
+      "category": "equipment",
+      "topic": "view id visual mapping",
+      "summary": "How custom weapons and headgears resolve their visual sprites.",
+      "details": "Weapons and headgears use a 'View' field in the server-side database. For weapons, this View corresponds to a weapon type or custom visual index. For headgears, this View matches a custom visual sprite ID. On the client, this ID is registered inside 'System/itemInfo.lua' and mapped to a sprite folder path.",
+      "appliesTo": "Weapons and headgears",
+      "entityTypes": ["equipment"],
+      "filePatterns": ["**/item_db.yml"],
+      "sourceIds": ["rathena"],
+      "sourceRefs": ["https://github.com/rathena/rathena/blob/master/doc/item_db.txt#L200"],
+      "confidence": "authoritative",
+      "warnings": ["Using a duplicate View ID or registering a custom shield visual sprite in client-side tables is blocked or raises warnings to prevent sprite glitches."],
+      "relatedEntries": [],
+      "tags": ["equipment", "view", "visual", "sprite"],
+      "version": "1.0",
+      "lastReviewedUtc": "2026-05-19T00:00:00Z"
+    },
+    {
+      "id": "rathena.equipment.shield_limit",
+      "title": "Built-in Shield Sprite Constraints",
+      "category": "equipment",
+      "topic": "shield visual limits",
+      "summary": "Limitations of custom shield sprite registrations.",
+      "details": "Ragnarok Online clients hardcode shield visual sprites based on predefined indices. Registering custom shield visuals (beyond built-in ones) will result in client exceptions or rendering crashes. RagnaForge validates that shield-like visual IDs match allowed built-in indices.",
+      "appliesTo": "Shield visuals",
+      "entityTypes": ["equipment"],
+      "filePatterns": ["**/item_db.yml"],
+      "sourceIds": ["grfeditor", "deepwiki-rathena"],
+      "sourceRefs": ["https://rathena.org/board/topic/105500-custom-shield-sprites/"],
+      "confidence": "authoritative",
+      "warnings": ["Custom shield registrations outside the default schema will raise validation errors and fail dry-runs."],
+      "relatedEntries": [],
+      "tags": ["shield", "limitations", "validation"],
+      "version": "1.0",
+      "lastReviewedUtc": "2026-05-19T00:00:00Z"
+    }
+  ]
+}

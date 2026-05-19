@@ -1,0 +1,49 @@
+{
+  "id": "ragnaforge-governance",
+  "name": "RagnaForge Governance Knowledge Pack",
+  "version": "1.0",
+  "description": "Rules of engagement, security boundaries, and operational guarantees of RagnaForge and the Ragnarok Agent.",
+  "sourceIds": ["ragnaforge-internal"],
+  "generatedBy": "Agente Setimmo",
+  "generatedAtUtc": "2026-05-19T00:00:00Z",
+  "entries": [
+    {
+      "id": "ragnaforge.gov.readonly",
+      "title": "Read-Only and Dry-Run Security Isolation",
+      "category": "governance",
+      "topic": "read-only security isolation",
+      "summary": "Core security policy enforcing zero destructive writes.",
+      "details": "RagnaForge's architecture enforces a strict 'Read-Only by Default' rule. Commands analyzing local files operate in read-only mode. The 'dry-run' and 'diff-preview' commands simulate results under temporary files/directories inside the Agent root and are strictly blocked from editing client GRF files, original server files, or writing changes. There are no actual 'apply' or 'rollback' actions implemented, ensuring absolute server/client database protection.",
+      "appliesTo": "Agente Setimmo CLI, API Workspace",
+      "entityTypes": [],
+      "filePatterns": [],
+      "sourceIds": ["ragnaforge-internal"],
+      "sourceRefs": ["file:///C:/Users/Allis/Desktop/Agente%20Ragnarok/docs/SECURITY.md"],
+      "confidence": "authoritative",
+      "warnings": ["Never attempt to pass undocumented parameters to bypass the anti-apply security barriers. Violating the read-only boundary is blocked at multiple pipeline checks."],
+      "relatedEntries": [],
+      "tags": ["security", "governance", "read-only", "dry-run"],
+      "version": "1.0",
+      "lastReviewedUtc": "2026-05-19T00:00:00Z"
+    },
+    {
+      "id": "ragnaforge.gov.limits",
+      "title": "Blocked Actions and Technical Limitations",
+      "category": "governance",
+      "topic": "blocked actions and limits",
+      "summary": "List of explicit operations blocked by the Agent's safety policies.",
+      "details": "To safeguard client files, the following operations are hard-blocked: 1. Direct edits to Compiled Client Luas (.lub), which are blocked to avoid client crashes due to bytecode differences. 2. Editing existing GRF file bodies. 3. Direct modification of base rAthena databases (only import/custom overrides are supported). 4. Starting process executions with arbitrary command-line arguments. All interactive buttons for apply/rollback are hidden in the administrative user interface.",
+      "appliesTo": "RagnaForge Admin Dashboard",
+      "entityTypes": ["item", "equipment", "mob", "npc", "map", "asset"],
+      "filePatterns": ["*.lub", "*.grf"],
+      "sourceIds": ["ragnaforge-internal"],
+      "sourceRefs": ["file:///C:/Users/Allis/Desktop/Agente%20Ragnarok/docs/SECURITY.md"],
+      "confidence": "authoritative",
+      "warnings": ["Bytecode .lub detection checks files for specific Lua compiler signatures. Legacy textual .lua is fully readable and auditable."],
+      "relatedEntries": [],
+      "tags": ["blocked", "lub", "grf", "limitations", "safety"],
+      "version": "1.0",
+      "lastReviewedUtc": "2026-05-19T00:00:00Z"
+    }
+  ]
+}

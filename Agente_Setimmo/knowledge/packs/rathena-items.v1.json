@@ -1,0 +1,49 @@
+{
+  "id": "rathena-items",
+  "name": "rAthena Items Knowledge Pack",
+  "version": "1.0",
+  "description": "Knowledge about item databases, schemas, YAML parameters, and connections between server-side item definitions and client-side itemInfo.",
+  "sourceIds": ["rathena", "rathena-user-guides", "deepwiki-rathena"],
+  "generatedBy": "Agente Setimmo",
+  "generatedAtUtc": "2026-05-19T00:00:00Z",
+  "entries": [
+    {
+      "id": "rathena.item.db_yaml",
+      "title": "Item Database YAML Schema",
+      "category": "item",
+      "topic": "item database",
+      "summary": "Structure of standard YAML item databases in rAthena.",
+      "details": "The item database (db/import/item_db.yml or db/re/item_db.yml) consists of a Header (Type: ITEM_DB, Version: 1) and a Body. Each item requires 'Id', 'AegisName', 'Type', 'Buy' (optional), 'Sell' (optional), and 'Weight'. Custom parameters include slots, script executions, and job limits.",
+      "appliesTo": "item_db.yml",
+      "entityTypes": ["item"],
+      "filePatterns": ["**/item_db.yml", "**/item_db.txt"],
+      "sourceIds": ["rathena"],
+      "sourceRefs": ["https://github.com/rathena/rathena/blob/master/doc/item_db.txt"],
+      "confidence": "authoritative",
+      "warnings": ["An AegisName must be globally unique. Duplicate AegisNames will cause validation warnings or server crashes during load."],
+      "relatedEntries": [],
+      "tags": ["item", "yaml", "database", "schema"],
+      "version": "1.0",
+      "lastReviewedUtc": "2026-05-19T00:00:00Z"
+    },
+    {
+      "id": "rathena.item.iteminfo_link",
+      "title": "Client-Side itemInfo Integration",
+      "category": "item",
+      "topic": "iteminfo.lua client",
+      "summary": "Mapping server-side items to client-side itemInfo.lua / lub entries.",
+      "details": "Ragnarok clients display custom items based on the 'System/itemInfo.lua' (or .lub) entry. The primary link is the 'Id' (which matches the server-side ID). Key properties inside itemInfo include 'unidentifiedDisplayName', 'unidentifiedResourceName', 'identifiedDisplayName', 'identifiedResourceName', and description lines arrays. The identified/unidentified resource names determine which sprite/ACT files are loaded from the GRF.",
+      "appliesTo": "itemInfo.lua / itemInfo.lub",
+      "entityTypes": ["item"],
+      "filePatterns": ["**/itemInfo.lua", "**/itemInfo.lub"],
+      "sourceIds": ["rathena-user-guides", "deepwiki-rathena"],
+      "sourceRefs": ["https://rathena.github.io/user-guides/client/custom-items.html"],
+      "confidence": "authoritative",
+      "warnings": ["Clients compiling itemInfo to bytecode lub must be in uncompressed/readable format. Bytecode lub files are blocked during dry-runs due to parsing constraints."],
+      "relatedEntries": [],
+      "tags": ["client", "lua", "lub", "iteminfo", "resource"],
+      "version": "1.0",
+      "lastReviewedUtc": "2026-05-19T00:00:00Z"
+    }
+  ]
+}

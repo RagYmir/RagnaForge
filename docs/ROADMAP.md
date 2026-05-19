@@ -1,6 +1,17 @@
 # Roadmap
 
-Data: 2026-05-12
+Data: 2026-05-19
+
+## Fase atual - Consolidacao operacional Ragna_Forge
+
+Status: em validacao
+
+- Renomear o workspace operacional para `Ragna_Forge`.
+- Incorporar o Agente Setimmo dentro do projeto principal.
+- Manter namespaces/assemblies antigos quando a troca tecnica trouxer risco desnecessario.
+- Padronizar scripts de limpeza, publish, smoke e pacote limpo.
+- Documentar o uso para pessoas sem familiaridade com a arquitetura.
+- Garantir que API/UI continuam read-only e sem apply/rollback.
 
 ## Fase 0 - Discovery e documentacao
 
