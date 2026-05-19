@@ -1,7 +1,16 @@
 # STATUS_PROJETO
 
 Atualizado: 2026-05-18
-Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao explicita. API backend endurecida. Interface administrativa com Validation Center dinamico, preview visual real read-only seguro para ativos bitmap (BMP, PNG, etc), suporte tecnico (metadados/best-effort) para SPR e ACT, e integracao Agent Health read-only allowlisted. Backend com 126/126 testes OK; frontend com 30/30 testes OK; Agent com 183/183 testes OK.
+Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao explicita. API backend endurecida. Interface administrativa com Validation Center dinamico, preview visual real read-only seguro para ativos bitmap (BMP, PNG, etc), suporte tecnico (metadados/best-effort) para SPR e ACT, integracao Agent Health read-only allowlisted e API Pipeline Workspace v1. Backend com 141/141 testes OK; frontend com 32/32 testes OK; Agent com 183/183 testes OK.
+
+## Macro-etapa 2026-05-18 - API Pipeline Workspace v1
+
+- Criados endpoints read-only `/api/pipeline/status`, `/api/pipeline/plan`, `/api/pipeline/dry-run`, `/api/pipeline/diff-preview`, `/api/pipeline/issues`, `/api/pipeline/reports` e `/api/pipeline/reports/{id}`.
+- A API Pipeline Workspace usa apenas `ReadOnly`, `DryRun` e `DiffPreview` permitidos pelo `ApiOperationGuard`; nao existe endpoint de apply ou rollback real.
+- O dependency summary foi endurecido para nao afirmar `Present` quando a API nao verificou o arquivo; estados nao verificados aparecem como `NotChecked` ou `Placeholder`.
+- A UI ganhou a tela `Pipeline API`, com badges read-only, selector de entidade, editor JSON, plan, dry-run seguro, diff-preview, issues, reports, readiness, warnings/errors e correlationId.
+- Testes expandidos para 141 backend e 32 frontend, cobrindo endpoints pipeline, ausencia de apply/rollback e workspace visual read-only.
+- Nenhum arquivo rAthena, Patch/client, GRF ou `.lub` foi alterado.
 
 ## Macro-etapa 2026-05-15 - SPR e ACT Read-Only Preview (Hardened)
 
@@ -20,7 +29,7 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao expli
 - Formatos complexos estavam como placeholders nessa rodada inicial; a macro-etapa posterior de 2026-05-15 elevou SPR para preview visual best-effort e manteve ACT como metadata-only.
 - Segurança endurecida: bloqueio de path traversal, validação de extensão permitida, limite de 1MB por asset e limpeza imediata de arquivos temporários em bloco `finally`.
 - `PassiveAssetPreviewPanel` atualizado para consumir a API e renderizar previews visuais reais com contenção via CSS.
-- Backend recebeu a suite inicial de seguranca de assets nessa rodada; a contagem vigente foi supersedida pela consolidacao final da branch, atualmente em 126/126 backend e 30/30 frontend.
+- Backend recebeu a suite inicial de seguranca de assets nessa rodada; a contagem vigente foi supersedida pela consolidacao final da branch, atualmente em 141/141 backend e 32/32 frontend.
 
 ## Macro-etapa 2026-05-18 - Agent Health Integration e consolidacao final da branch
 

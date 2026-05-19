@@ -123,6 +123,7 @@ describe("App", () => {
     expect(screen.getByRole("link", { name: "Itens" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Validacao" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Historico/Relatorios" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Pipeline API" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: /apply/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /apply/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /rollback/i })).not.toBeInTheDocument();

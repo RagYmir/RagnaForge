@@ -42,7 +42,10 @@ public static class ApiOpenApiDocument
             new { name = "Equipment" },
             new { name = "NPCs" },
             new { name = "Monsters" },
-            new { name = "Maps" }
+            new { name = "Maps" },
+            new { name = "Assets" },
+            new { name = "Agent" },
+            new { name = "Pipeline" }
         },
         x_ragnaforge = new
         {
@@ -70,7 +73,16 @@ public static class ApiOpenApiDocument
             ["/api/monsters/dry-run"] = Path("Monsters", true),
             ["/api/monsters/diff-preview"] = Path("Monsters", true),
             ["/api/maps/dry-run"] = Path("Maps", true),
-            ["/api/maps/diff-preview"] = Path("Maps", true)
+            ["/api/maps/diff-preview"] = Path("Maps", true),
+            ["/api/assets/preview"] = PostPath("Assets", true),
+            ["/api/agent/health"] = GetPath("Agent", true),
+            ["/api/pipeline/status"] = GetPath("Pipeline", true),
+            ["/api/pipeline/plan"] = PostPath("Pipeline", true),
+            ["/api/pipeline/dry-run"] = PostPath("Pipeline", true),
+            ["/api/pipeline/diff-preview"] = PostPath("Pipeline", true),
+            ["/api/pipeline/issues"] = GetPath("Pipeline", true),
+            ["/api/pipeline/reports"] = GetPath("Pipeline", true),
+            ["/api/pipeline/reports/{id}"] = GetPath("Pipeline", true)
         }
     };
 
@@ -78,6 +90,16 @@ public static class ApiOpenApiDocument
     {
         post = tag == "System" ? null : Operation(tag, secured),
         get = tag == "System" ? Operation(tag, secured) : null
+    };
+
+    private static object GetPath(string tag, bool secured) => new
+    {
+        get = Operation(tag, secured)
+    };
+
+    private static object PostPath(string tag, bool secured) => new
+    {
+        post = Operation(tag, secured)
     };
 
     private static object Operation(string tag, bool secured) => new

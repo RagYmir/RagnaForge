@@ -31,6 +31,7 @@ public static class ApiSafetyPolicy
         new("discovery", true, false, false, false, false, "Repository discovery reads rAthena, Patch, GRFs and GRF Editor."),
         new("grf", true, true, false, false, false, "GRF index/inspect may write local cache/index JSON inside the workspace only."),
         new("agent", true, false, false, false, false, "Agent health/diagnostics reads cached data and runs allowlisted read-only commands."),
+        new("pipeline", true, true, true, false, false, "Pipeline workspace composes status, plan, dry-run, diff-preview, issues and reports without apply/rollback."),
         new("item", true, true, true, false, false, "Item apply/rollback is intentionally disabled in the first API cut."),
         new("equipment", true, true, true, false, false, "Equipment apply/rollback is intentionally disabled in the first API cut."),
         new("npc", true, true, true, false, false, "NPC apply/rollback is intentionally disabled in the first API cut."),
