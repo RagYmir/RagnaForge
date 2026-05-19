@@ -60,6 +60,9 @@ var tests = new List<(string Name, Action Test)>
     ("API service blocks oversized GRF index request", ApiServiceBlocksOversizedGrfIndexRequest),
     ("RagnaForge Agent runner blocks arbitrary command", RagnaForgeAgentRunnerBlocksArbitraryCommand),
     ("RagnaForge Agent runner blocks rollback command", RagnaForgeAgentRunnerBlocksRollbackCommand),
+    ("RagnaForge Agent runner allowlists safe knowledge commands", RagnaForgeAgentRunnerAllowlistsSafeKnowledgeCommands),
+    ("RagnaForge Agent runner blocks unsafe knowledge commands", RagnaForgeAgentRunnerBlocksUnsafeKnowledgeCommands),
+    ("RagnaForge Agent runner builds safe knowledge command strings", RagnaForgeAgentRunnerBuildsSafeKnowledgeCommandStrings),
     ("RagnaForge Agent runner handles unavailable executable", RagnaForgeAgentRunnerHandlesUnavailableExecutable),
     ("RagnaForge Agent runner handles timeout safely", RagnaForgeAgentRunnerHandlesTimeoutSafely),
     ("RagnaForge Agent runner reads stdout and stderr", RagnaForgeAgentRunnerReadsStdoutAndStderr),
@@ -618,6 +621,41 @@ static void RagnaForgeAgentRunnerBlocksRollbackCommand()
 
     Assert(result is null, "Runner should block rollback commands from the API integration.");
     Assert(executor.Calls.Count == 0, "Blocked rollback must not reach process execution.");
+}
+
+static void RagnaForgeAgentRunnerAllowlistsSafeKnowledgeCommands()
+{
+    Assert(RagnaForgeAgentCommandRunner.IsCommandAllowed("knowledge sources --json"), "Knowledge sources should be allowlisted.");
+    Assert(RagnaForgeAgentCommandRunner.IsCommandAllowed("knowledge validate --json"), "Knowledge validate should be allowlisted.");
+    Assert(RagnaForgeAgentCommandRunner.IsCommandAllowed("knowledge search --query \"item_db\" --json"), "Safe knowledge search should be allowlisted.");
+    Assert(RagnaForgeAgentCommandRunner.IsCommandAllowed("knowledge explain --topic \"map dependencies\" --json"), "Safe knowledge explain should be allowlisted.");
+    Assert(RagnaForgeAgentCommandRunner.IsCommandAllowed("knowledge schema --entity \"item\" --json"), "Safe knowledge schema should be allowlisted.");
+}
+
+static void RagnaForgeAgentRunnerBlocksUnsafeKnowledgeCommands()
+{
+    Assert(!RagnaForgeAgentCommandRunner.IsCommandAllowed("knowledge build --json"), "Knowledge build must not be allowed through API integration.");
+    Assert(!RagnaForgeAgentCommandRunner.IsCommandAllowed("knowledge entry --id \"item_db\" --json"), "Knowledge entry is not exposed by API integration.");
+    Assert(!RagnaForgeAgentCommandRunner.IsCommandAllowed("knowledge search --query \"../item_db\" --json"), "Path-like knowledge search must be blocked.");
+    Assert(!RagnaForgeAgentCommandRunner.IsCommandAllowed("knowledge search --query \"item_db\" --json --extra"), "Extra arguments must be blocked.");
+    Assert(!RagnaForgeAgentCommandRunner.IsCommandAllowed("knowledge search --query \"item_db\" & apply --json"), "Command chaining must be blocked.");
+    Assert(!RagnaForgeAgentCommandRunner.IsCommandAllowed("knowledge schema --entity \"../../item\" --json"), "Path-like schema entity must be blocked.");
+    Assert(!RagnaForgeAgentCommandRunner.IsCommandAllowed("knowledge schema --entity \"unknown\" --json"), "Unknown schema entity must be blocked.");
+}
+
+static void RagnaForgeAgentRunnerBuildsSafeKnowledgeCommandStrings()
+{
+    var searchCommand = RagnaForgeAgentCommandRunner.CreateKnowledgeSearchCommand("item_db");
+    var explainCommand = RagnaForgeAgentCommandRunner.CreateKnowledgeExplainCommand("map dependencies");
+    var schemaCommand = RagnaForgeAgentCommandRunner.CreateKnowledgeSchemaCommand("Item");
+
+    Assert(searchCommand == "knowledge search --query \"item_db\" --json", "Search command should be deterministic.");
+    Assert(explainCommand == "knowledge explain --topic \"map dependencies\" --json", "Explain command should be deterministic.");
+    Assert(schemaCommand == "knowledge schema --entity \"item\" --json", "Schema command should normalize entity.");
+    Assert(RagnaForgeAgentCommandRunner.CreateKnowledgeSearchCommand(new string('a', 513)) is null, "Oversized knowledge query must be rejected.");
+    Assert(RagnaForgeAgentCommandRunner.CreateKnowledgeSearchCommand("C:\\secret") is null, "Path-like knowledge query must be rejected.");
+    Assert(RagnaForgeAgentCommandRunner.CreateKnowledgeExplainCommand("map\" dependencies") is null, "Quote injection must be rejected.");
+    Assert(RagnaForgeAgentCommandRunner.CreateKnowledgeSchemaCommand("unknown") is null, "Unknown schema entity must be rejected.");
 }
 
 static void RagnaForgeAgentRunnerHandlesUnavailableExecutable()

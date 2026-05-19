@@ -683,3 +683,20 @@ Estado: dry-run, diff-preview, apply e rollback protegidos por confirmacao expli
 1. Iniciar interface administrativa consumindo apenas endpoints seguros.
 2. Manter apply/rollback fora da API e da interface nesta fase.
 3. Antes de qualquer escrita por HTTP, definir autenticacao forte, confirmacao humana, politica de asset obrigatorio e persistencia/confirmacao de client date.
+
+## Atualizacao 2026-05-19 - RagnaKnowledge Library v1 hardening final
+
+- RagnaKnowledge passou a separar explicitamente `knowledge build` de consultas read-only.
+- `knowledge search`, `knowledge explain`, `knowledge entry`, `knowledge schema` e ferramentas MCP de knowledge nao persistem `knowledge/index/knowledge.index.json`.
+- Quando o indice persistido esta ausente ou ilegivel, o Agent usa indice transiente em memoria e retorna warning seguro.
+- `KnowledgePathGuard` usa boundary canonico com `Path.GetFullPath` e `Path.GetRelativePath`, bloqueando traversal e prefix attack.
+- CLI/MCP validam limites de input: `query/topic <= 512`, `id <= 128` e `entity` por enum estrito.
+- A API principal manteve `/api/knowledge/*` read-only, com AgentIntegration allowlisted e sem comando livre.
+- A UI renderiza knowledge hints no `ValidationIssueTable` sem persistir dados sensiveis e sem botoes de apply/rollback.
+
+### Validacao desta rodada
+
+- Agent: `dotnet build RagnaForge.Agent.slnx` OK, `dotnet test RagnaForge.Agent.slnx` OK com 199/199 testes.
+- Backend principal: `dotnet build RagnaForge.slnx` OK, `dotnet run --project backend\\tests\\RagnaForge.Tests\\RagnaForge.Tests.csproj` OK com 144/144 testes.
+- Frontend: `npm.cmd run build` OK, `npm.cmd run test` OK com 33/33 testes.
+- Nenhum `--confirm APPLY` ou `--confirm ROLLBACK` foi usado.

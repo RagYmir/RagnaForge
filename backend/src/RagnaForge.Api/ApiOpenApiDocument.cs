@@ -45,7 +45,8 @@ public static class ApiOpenApiDocument
             new { name = "Maps" },
             new { name = "Assets" },
             new { name = "Agent" },
-            new { name = "Pipeline" }
+            new { name = "Pipeline" },
+            new { name = "Knowledge" }
         },
         x_ragnaforge = new
         {
@@ -82,7 +83,11 @@ public static class ApiOpenApiDocument
             ["/api/pipeline/diff-preview"] = PostPath("Pipeline", true),
             ["/api/pipeline/issues"] = GetPath("Pipeline", true),
             ["/api/pipeline/reports"] = GetPath("Pipeline", true),
-            ["/api/pipeline/reports/{id}"] = GetPath("Pipeline", true)
+            ["/api/pipeline/reports/{id}"] = GetPath("Pipeline", true),
+            ["/api/knowledge/status"] = GetPath("Knowledge", true),
+            ["/api/knowledge/search"] = GetPath("Knowledge", true),
+            ["/api/knowledge/explain"] = GetPath("Knowledge", true),
+            ["/api/knowledge/schema/{entityType}"] = GetPath("Knowledge", true)
         }
     };
 

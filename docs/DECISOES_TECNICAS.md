@@ -477,3 +477,13 @@ Decisao:
 - evitar declarar dependencia como `Present` quando a API nao verificou o arquivo real;
 - manter `safeForApply=false` na API/UI enquanto apply por HTTP continuar fora da politica;
 - usar a tela `Pipeline API` como workspace operacional de auditoria, nao como CRUD e nao como repair center.
+
+## D-046: RagnaKnowledge separa build local de consultas read-only
+
+Com a rodada de hardening da RagnaKnowledge Library v1, a semantica de cache passa a ser explicita:
+
+- `knowledge build` e o unico fluxo que pode persistir `knowledge/index/knowledge.index.json` no AgentRoot;
+- `knowledge search`, `knowledge explain`, `knowledge entry`, `knowledge schema` e `knowledge validate` sao read-only;
+- ferramentas MCP de knowledge seguem a mesma regra read-only e nao persistem indice;
+- se o indice persistido nao existir ou estiver ilegivel, as consultas usam indice transiente em memoria e retornam warning seguro;
+- a API principal consome knowledge apenas por comandos allowlisted, com limite de input e sem comando livre.
