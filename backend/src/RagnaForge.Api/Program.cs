@@ -236,6 +236,77 @@ api.MapGet("/pipeline/issues", async (HttpContext context, PipelineWorkspaceServ
     .WithTags("Pipeline")
     .WithMetadata(new ApiOperationMetadata(OperationKind.ReadOnly, RagnaForgeApiPolicyNames.ReadOnlyPolicy));
 
+api.MapGet("/knowledge/status", async (HttpContext context, RagnaForgeAgentCommandRunner runner, ApiEndpointExecutor executor, CancellationToken ct) =>
+    await executor.ExecuteAsync(context, OperationKind.ReadOnly, async token =>
+    {
+        var doc = await runner.ExecuteAsync(RagnaForgeAgentCommandRunner.CreateKnowledgeSourcesCommand(), token);
+        if (doc is null)
+        {
+            return (object?)null;
+        }
+
+        using (doc)
+        {
+            return (object)doc.RootElement.Clone();
+        }
+    }, ct))
+    .WithTags("Knowledge")
+    .WithMetadata(new ApiOperationMetadata(OperationKind.ReadOnly, RagnaForgeApiPolicyNames.ReadOnlyPolicy));
+
+api.MapGet("/knowledge/search", async (HttpContext context, string q, RagnaForgeAgentCommandRunner runner, ApiEndpointExecutor executor, CancellationToken ct) =>
+    await executor.ExecuteAsync(context, OperationKind.ReadOnly, async token =>
+    {
+        var command = RagnaForgeAgentCommandRunner.CreateKnowledgeSearchCommand(q);
+        var doc = command is not null ? await runner.ExecuteAsync(command, token) : null;
+        if (doc is null)
+        {
+            return (object?)null;
+        }
+
+        using (doc)
+        {
+            return (object)doc.RootElement.Clone();
+        }
+    }, ct, () => RagnaForgeAgentCommandRunner.GetKnowledgeInputErrors(q, "q", 512, rejectPathLike: true)))
+    .WithTags("Knowledge")
+    .WithMetadata(new ApiOperationMetadata(OperationKind.ReadOnly, RagnaForgeApiPolicyNames.ReadOnlyPolicy));
+
+api.MapGet("/knowledge/explain", async (HttpContext context, string topic, RagnaForgeAgentCommandRunner runner, ApiEndpointExecutor executor, CancellationToken ct) =>
+    await executor.ExecuteAsync(context, OperationKind.ReadOnly, async token =>
+    {
+        var command = RagnaForgeAgentCommandRunner.CreateKnowledgeExplainCommand(topic);
+        var doc = command is not null ? await runner.ExecuteAsync(command, token) : null;
+        if (doc is null)
+        {
+            return (object?)null;
+        }
+
+        using (doc)
+        {
+            return (object)doc.RootElement.Clone();
+        }
+    }, ct, () => RagnaForgeAgentCommandRunner.GetKnowledgeInputErrors(topic, "topic", 512, rejectPathLike: true)))
+    .WithTags("Knowledge")
+    .WithMetadata(new ApiOperationMetadata(OperationKind.ReadOnly, RagnaForgeApiPolicyNames.ReadOnlyPolicy));
+
+api.MapGet("/knowledge/schema/{entityType}", async (HttpContext context, string entityType, RagnaForgeAgentCommandRunner runner, ApiEndpointExecutor executor, CancellationToken ct) =>
+    await executor.ExecuteAsync(context, OperationKind.ReadOnly, async token =>
+    {
+        var command = RagnaForgeAgentCommandRunner.CreateKnowledgeSchemaCommand(entityType);
+        var doc = command is not null ? await runner.ExecuteAsync(command, token) : null;
+        if (doc is null)
+        {
+            return (object?)null;
+        }
+
+        using (doc)
+        {
+            return (object)doc.RootElement.Clone();
+        }
+    }, ct, () => ValidateKnowledgeEntity(entityType)))
+    .WithTags("Knowledge")
+    .WithMetadata(new ApiOperationMetadata(OperationKind.ReadOnly, RagnaForgeApiPolicyNames.ReadOnlyPolicy));
+
 app.Run();
 
 static string ResolveWorkspaceRoot(IConfiguration configuration)
@@ -285,4 +356,17 @@ static IReadOnlyList<string> RequireAny<T>(IReadOnlyCollection<T>? values, strin
     }
 
     return [];
+}
+
+static IReadOnlyList<string> ValidateKnowledgeEntity(string? entityType)
+{
+    var errors = RagnaForgeAgentCommandRunner.GetKnowledgeInputErrors(entityType, "entityType", 32, rejectPathLike: true);
+    if (errors.Count > 0)
+    {
+        return errors;
+    }
+
+    return RagnaForgeAgentCommandRunner.CreateKnowledgeSchemaCommand(entityType) is null
+        ? ["entityType is not supported."]
+        : [];
 }
